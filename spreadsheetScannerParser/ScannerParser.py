@@ -18,20 +18,38 @@ class Scanner():
     def __init__(self):
         self.tokenDict = {}
         
+    # TODO: Write a function to validate the token ID names (e.g. A0, C4, etc.)
+    def verifyId(self, id):
+        if len(id) != 2:
+            raise ValueError('Malformed ID value detected: ' + id)
+        col, row = id
+        if (not col.isalpha()) or (not row.isnumeric()):
+            raise ValueError('Malformed ID value detected:' + id)
+        if (ord(col) not in range(ord('A'), ord('G'))):
+            raise ValueError('Invalid column reference in ID (columns must be within range A to F):' + col)
+        if (int(row) not in range(0, 10)):
+            raise ValueError('Invalid row reference in ID (rows must be within range 0 to 9):' + row)
+        return id
+    
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
+        # Check if the line is empty.
+        if not inputLine.strip():
+            return
         # Identify text IDs. 
         if '"' in inputLine:
-            self.tokenDict[inputLine.split('"')[0].strip()] = inputLine.split('"')[1]
+            self.tokenDict[self.verifyId(inputLine.split('"')[0].strip())] = inputLine.split('"')[1]
+        # Identify expressions.
+        elif '=' in inputLine:
+            curOperator = [op for op in mathematicalOperators if op in inputLine][0]
+            expressionComponents = list(inputLine.partition('='))
+            expressionComponents = expressionComponents[0:-1] + list(expressionComponents[-1].partition(curOperator))
+            expressionComponents = [elem.strip() for elem in expressionComponents]
+            self.tokenDict[self.verifyId(expressionComponents[0])] = self.performMathematicalOperation(expressionComponents)
         else:
             curLine = inputLine.split()
             if len(curLine) == 2:
-                self.tokenDict[curLine[0]] = curLine[1]
-            # Process an equation.
-            elif len(curLine) == 5:
-                # Verify it has valid syntax.
-                if ((curLine[1] == '=') and (curLine[3] in mathematicalOperators)):
-                    self.performMathematicalOperation(curLine)
+                self.tokenDict[self.verifyId(curLine[0])] = int(curLine[1])
             else:
                 raise ValueError('Input line does not match expected format: ' + inputLine)
         
@@ -54,7 +72,7 @@ class Scanner():
     # Define a method to print out the parsed tokens.
     def printTokens(self):
         for tokenName, tokenValue in self.tokenDict.items():
-            print(tokenName + ', ' + tokenValue)
+            print(tokenName + ', ' + str(tokenValue))
             
 # Process the input file line by line.
 def processInputFile(inputFilePath):
