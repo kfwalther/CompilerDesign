@@ -11,6 +11,15 @@ import os
 import sys
 
 
+indexToColDict = {
+    1: 'A',
+    2: 'B',       
+    3: 'C',
+    4: 'D',
+    5: 'E',
+    6: 'F'       
+}
+
 mathematicalOperators = ['+', '-', '*', '/']
 
 # Define a class to hold and track the stateful scanner information.
@@ -18,7 +27,7 @@ class Scanner():
     def __init__(self):
         self.tokenDict = {}
         
-    # TODO: Write a function to validate the token ID names (e.g. A0, C4, etc.)
+    # Write a function to validate the token ID names (e.g. A0, C4, etc.)
     def verifyId(self, id):
         if len(id) != 2:
             raise ValueError('Malformed ID value detected: ' + id)
@@ -55,7 +64,9 @@ class Scanner():
         
     # Define a method to perform a mathematical operation on two operands and return the result.
     def performMathematicalOperation(self, curLine):
-        if curLine[2] in self.tokenDict.keys() and curLine[4] in self.tokenDict.keys(): 
+        # Verify the operands exist and that they are numeric operands.
+        if (curLine[2] in self.tokenDict.keys() and isinstance(self.tokenDict[curLine[2]], int) and 
+                curLine[4] in self.tokenDict.keys() and isinstance(self.tokenDict[curLine[4]], int)): 
             if curLine[3] == '+':
                 return self.tokenDict[curLine[2]] + self.tokenDict[curLine[4]]
             elif curLine[3] == '-':
@@ -67,12 +78,23 @@ class Scanner():
             else:
                 raise ValueError('Unsupported mathematical operator: ' + curLine[3])
         else:
-            raise ValueError('Cannot perform operation on an ID not yet defined: ' + curLine[2] + ', ' + curLine[4])
+            return 'ERROR'
+        
+    # Define a method to print an individual cell of data.
+    def printCell(self, cellContents):
+        return str(cellContents) + (' ' * (8 - len(str(cellContents)))) + '|'
         
     # Define a method to print out the parsed tokens.
     def printTokens(self):
-        for tokenName, tokenValue in self.tokenDict.items():
-            print(tokenName + ', ' + str(tokenValue))
+        [print(tokenName + ', ' + str(tokenValue)) for tokenName, tokenValue in self.tokenDict.items()]
+        # Print out the grid, or spreadsheet.
+        print('|' + self.printCell('') + self.printCell('A') + self.printCell('B') + 
+                self.printCell('C') + self.printCell('D') + self.printCell('E') + self.printCell('F'))
+        for row in range(0,10):
+            tempStr = '|' + self.printCell(row)
+            for col in range(1,7):
+                tempStr = tempStr + self.printCell(self.tokenDict.get((indexToColDict[col] + str(row)), ''))
+            print(tempStr)
             
 # Process the input file line by line.
 def processInputFile(inputFilePath):
