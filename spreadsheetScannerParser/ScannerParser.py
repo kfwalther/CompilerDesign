@@ -121,19 +121,17 @@ class Scanner():
         
     # Define a method to perform a mathematical operation on two operands and return the result.
     def performMathematicalOperation(self, tokenList):
-        for token in tokenList:
-            print(token.tokenValue)
         # Verify the operands exist and that they are numeric operands.
-        if (tokenList[0].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[0].tokenValue], int) and 
-                tokenList[2].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[2].tokenValue], int)): 
+        if (tokenList[0].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[0].tokenValue].cellValue, int) and 
+                tokenList[2].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[2].tokenValue].cellValue, int)): 
             if tokenList[1].tokenValue == '+':
-                return self.spreadsheetDict[tokenList[0].tokenValue] + self.spreadsheetDict[tokenList[2].tokenValue]
+                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue + self.spreadsheetDict[tokenList[2].tokenValue].cellValue
             elif tokenList[1].tokenValue == '-':
-                return self.spreadsheetDict[tokenList[0].tokenValue] - self.spreadsheetDict[tokenList[2].tokenValue]
+                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue - self.spreadsheetDict[tokenList[2].tokenValue].cellValue
             elif tokenList[1].tokenValue == '*':
-                return self.spreadsheetDict[tokenList[0].tokenValue] * self.spreadsheetDict[tokenList[2].tokenValue]
+                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue * self.spreadsheetDict[tokenList[2].tokenValue].cellValue
             elif tokenList[1].tokenValue == '/':
-                return self.spreadsheetDict[tokenList[0].tokenValue] / self.spreadsheetDict[tokenList[2].tokenValue]                                    
+                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue / self.spreadsheetDict[tokenList[2].tokenValue].cellValue                                 
             else:
                 raise ValueError('Unsupported mathematical operator: ' + tokenList[1].tokenValue)
         else:
@@ -145,7 +143,6 @@ class Scanner():
         
     # Define a method to print out the parsed tokens.
     def printTokens(self):
-#         [print(tokenName + ', ' + str(tokenValue)) for tokenName, tokenValue in self.spreadsheetDict.items()]
         # Print out the grid, or spreadsheet.
         print('|' + self.printCell('') + self.printCell('A') + self.printCell('B') + 
                 self.printCell('C') + self.printCell('D') + self.printCell('E') + self.printCell('F'))
@@ -164,7 +161,6 @@ def processInputFile(inputFilePath):
                 print('Encountered comment')
             else:
                 try:
-                    print(line)
                     scanner.processLine(line)
                 except ValueError as err:
                     print('WARNING: ' + err.args[0])
@@ -181,7 +177,7 @@ def runScannerParser(inputFile, outputFile):
 # Begin code execution here.
 if __name__ == "__main__":
     runScannerParser('HW2-Input.txt', 'output.txt')
-
+    
 
 
 
