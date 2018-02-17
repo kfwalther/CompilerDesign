@@ -67,6 +67,10 @@ class Scanner():
             return 'other'
         return 'id'
     
+    # Define a method to retrieve the contents of a particular cell.
+    def getCell(self, cellLocation):
+        return self.spreadsheetDict[self.verifyId(cellLocation)].getCellValue()
+    
     # Define a method to perform a table-driven parse of an expression and store it in a cell.
     def parseExpression(self, rightExpression):
         # Get the first instance of a mathematical operator, and partition the expression around it.
@@ -166,13 +170,15 @@ def processInputFile(inputFilePath):
                     print('WARNING: ' + err.args[0])
                     continue
         scanner.printTokens()
+    return scanner
 
 # Run the Scanner Parser.
 def runScannerParser(inputFile, outputFile):
     inputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), inputFile)
     outputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), outputFile)
-    processInputFile(inputFilePath)
-    
+    scanner = processInputFile(inputFilePath)
+    print(str(scanner.getCell('A0')))
+    print(str(scanner.getCell('C5')))
 
 # Begin code execution here.
 if __name__ == "__main__":
