@@ -33,8 +33,9 @@ def runScannerParser(inputFile, outputFile):
     inputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), inputFile)
     outputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), outputFile)
     scanner = processInputFile(inputFilePath)
-    print(str(scanner.getCell('A0')))
-    print(str(scanner.getCell('C5')))
+    # Use these functions to test the Scanner.getCell method.
+#     print(str(scanner.getCell('A0')))
+#     print(str(scanner.getCell('C5')))
 
 # Begin code execution here.
 if __name__ == "__main__":
