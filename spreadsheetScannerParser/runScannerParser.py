@@ -9,7 +9,6 @@
 
 import os
 import sys
-
 import Scanner
 
             
@@ -19,7 +18,7 @@ def processInputFile(inputFilePath):
         scanner = Scanner.Scanner()
         for line in fileId:
             if line[0] == '#':
-                print('Encountered comment')
+                continue
             else:
                 try:
                     scanner.processLine(line)

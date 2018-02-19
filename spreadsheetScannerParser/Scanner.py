@@ -7,6 +7,7 @@
 
 '''
 
+import re
 import Cell
 import Token
 
@@ -21,12 +22,19 @@ indexToColDict = {
 
 # Define an array to codify our state machine states and transitions.
 # To be truly table-based, we should add all the possible IDs to this table (60 IDs).
-dfaColsMap =    {'+':0,  '-':1,  '*':2,  '/':3,  'id':4, 'other':5}
-dfa = {      #   '+'     '-'     '*'     '/'     'id'    'other'
-    'NUM':      ['OP',   'OP',   'OP',   'OP',   'ERROR', 'ERROR'],
-    'OP':       ['ERROR','ERROR','ERROR','ERROR','NUM',   'ERROR'],
+dfaColsMap =    {'+':0,  '-':1,  '*':2,  '/':3,  '(':4,   ')':5,   'id':6,  'other':7}
+dfa = {      #   '+'     '-'     '*'     '/'     '('      ')'      'id'     'other'
+    'NUM':      ['OP',   'OP',   'OP',   'OP',   'ERROR', 'RPAREN','ERROR', 'ERROR'],
+    'OP':       ['ERROR','ERROR','ERROR','ERROR','LPAREN','ERROR', 'NUM',   'ERROR'],
+    'LPAREN':   ['ERROR','ERROR','ERROR','ERROR','LPAREN','ERROR', 'NUM',   'ERROR'],
+    'RPAREN':   ['OP',   'OP',   'OP',   'OP',   'ERROR', 'RPAREN','ERROR', 'ERROR'],
     'ERROR':    []
 }
+# dfa = {      #   '+'     '-'     '*'     '/'     'id'    'other'
+#     'NUM':      ['OP',   'OP',   'OP',   'OP',   'ERROR', 'ERROR'],
+#     'OP':       ['ERROR','ERROR','ERROR','ERROR','NUM',   'ERROR'],
+#     'ERROR':    []
+# }
 
 mathematicalOperators = ['+', '-', '*', '/']
 
@@ -72,23 +80,23 @@ class Scanner():
     # Define a method to perform a table-driven parse of an expression and store it in a cell.
     def parseExpression(self, rightExpression):
         # Get the first instance of a mathematical operator, and partition the expression around it.
-        expressionComponents = [elem.strip() for elem in (list(
-                rightExpression.partition(
-                        [op for op in mathematicalOperators if op in rightExpression][0])))]
+        expressionComponents = [elem.strip() for elem in re.split('(\\(|\\)|\\+|\\-|\\*|\\/)',rightExpression)]
+        expressionComponents = [exp for exp in expressionComponents if exp]
+        
         expressionComponents.append('other')
         expressionCounter = 0
         dfaState = dfa['OP'][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
         tokenList = []
         # Make a better exit case for more complex expressions...
         while ((dfaState is not 'ERROR') and (expressionCounter < 3)):
-            if (dfaState is 'NUM'):
+            if dfaState in ['NUM', 'RPAREN']:
                 # Add this ID token to the list.
                 tokenList.append(Token.Token(Token.TokenType.ID, expressionComponents[expressionCounter]))
                 # Update the state.
                 expressionCounter += 1
-                #TODO: Make a functions here to check for operator or 'other'
+                #TODO: Make a function here to check for operator or 'other'
                 dfaState = dfa[dfaState][dfaColsMap[expressionComponents[expressionCounter]]]
-            elif (dfaState is 'OP'):
+            elif dfaState in ['OP', 'LPAREN']:
                 # Add this special character token to the list.
                 tokenList.append(Token.Token(Token.TokenType.SPECIAL, expressionComponents[expressionCounter]))
                 # Update the state.
@@ -123,21 +131,26 @@ class Scanner():
 
     # Define a method to perform a mathematical operation on two operands and return the result.
     def performMathematicalOperation(self, tokenList):
-        # Verify the operands exist and that they are numeric operands.
-        if (tokenList[0].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[0].tokenValue].cellValue, int) and 
-                tokenList[2].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[2].tokenValue].cellValue, int)): 
-            if tokenList[1].tokenValue == '+':
-                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue + self.spreadsheetDict[tokenList[2].tokenValue].cellValue
-            elif tokenList[1].tokenValue == '-':
-                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue - self.spreadsheetDict[tokenList[2].tokenValue].cellValue
-            elif tokenList[1].tokenValue == '*':
-                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue * self.spreadsheetDict[tokenList[2].tokenValue].cellValue
-            elif tokenList[1].tokenValue == '/':
-                return self.spreadsheetDict[tokenList[0].tokenValue].cellValue / self.spreadsheetDict[tokenList[2].tokenValue].cellValue                                 
-            else:
-                raise ValueError('Unsupported mathematical operator: ' + tokenList[1].tokenValue)
-        else:
+        # Check if this expression contains parentheses, we don't support these yet.
+        if (len([curToken for curToken in tokenList if curToken.tokenValue in ['(',')']]) > 0) or (len(tokenList) == 0):                
             return 'ERROR'
+        # Verify the operands exist and that they are numeric operands.
+        else:
+            if (tokenList[0].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[0].tokenValue].cellValue, int) and 
+                    tokenList[2].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[2].tokenValue].cellValue, int)): 
+                if tokenList[1].tokenValue == '+':
+                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue + self.spreadsheetDict[tokenList[2].tokenValue].cellValue
+                elif tokenList[1].tokenValue == '-':
+                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue - self.spreadsheetDict[tokenList[2].tokenValue].cellValue
+                elif tokenList[1].tokenValue == '*':
+                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue * self.spreadsheetDict[tokenList[2].tokenValue].cellValue
+                elif tokenList[1].tokenValue == '/':
+                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue / self.spreadsheetDict[tokenList[2].tokenValue].cellValue                                 
+                else:
+                    # Encountered unsupported mathematical operator. Return 'ERROR' cell.
+                    return 'ERROR'
+            else:
+                return 'ERROR'
         
     # Define a method to print an individual cell of data.
     def printCell(self, cellContents):
