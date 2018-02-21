@@ -30,11 +30,6 @@ dfa = {      #   '+'     '-'     '*'     '/'     '('      ')'      'id'     'oth
     'RPAREN':   ['OP',   'OP',   'OP',   'OP',   'ERROR', 'RPAREN','ERROR', 'ERROR'],
     'ERROR':    []
 }
-# dfa = {      #   '+'     '-'     '*'     '/'     'id'    'other'
-#     'NUM':      ['OP',   'OP',   'OP',   'OP',   'ERROR', 'ERROR'],
-#     'OP':       ['ERROR','ERROR','ERROR','ERROR','NUM',   'ERROR'],
-#     'ERROR':    []
-# }
 
 mathematicalOperators = ['+', '-', '*', '/']
 
@@ -76,6 +71,10 @@ class Scanner():
     # Define a method to retrieve the contents of a particular cell.
     def getCell(self, cellLocation):
         return self.spreadsheetDict[self.verifyId(cellLocation)].getCellValue()
+    
+    # Define a method to clear the contents of a particular cell.
+    def clearCell(self, cellLocation):
+        self.spreadsheetDict[self.verifyId(cellLocation)] = Cell.Cell()
     
     # Define a method to perform a table-driven parse of an expression and store it in a cell.
     def parseExpression(self, rightExpression):
@@ -166,3 +165,10 @@ class Scanner():
             for col in range(1,7):
                 tempStr = tempStr + self.printCell(self.spreadsheetDict.get((indexToColDict[col] + str(row)), '').cellValue)
             print(tempStr)
+            
+
+
+
+
+
+
