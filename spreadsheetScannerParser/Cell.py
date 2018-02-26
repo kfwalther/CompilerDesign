@@ -10,14 +10,14 @@
 from enum import Enum
 
 class CellType(Enum):
-	TOKEN = 1
+	EQU = 1
 	NUM = 2
 	TEXT = 3
 	EMPTY = 4
 	
 class Cell():
-	def __init__(self, cellType=CellType.EMPTY, cellValue='', tokenList=[]):
-		self.cellType, self.cellValue, self.tokenList = cellType, cellValue, tokenList
+	def __init__(self, cellType=CellType.EMPTY, cellValue='', controllerList=[]):
+		self.cellType, self.cellValue, self.controllerList = cellType, cellValue, controllerList
 		
 	# A method to get the cell value.
 	def getCellValue(self):

@@ -19,9 +19,21 @@ class NodeType(Enum):
     
 class ParseTreeNode():
     def __init__(self):
-        self.token, self.nodeType, self.rightNode, self.childNode, self.leftNode = None, None, None, None, None
+        self.token, self.nodeType, self.rightNode, self.childNode, self.leftNode, self.calculatedValue = None, None, None, None, None, None
         
-
+    def calculateValue(self):
+        if self.childNode.childNode.tokenValue == '+':
+            print(str(self.leftNode.calculatedValue) + ' + ' + str(self.rightNode.calculatedValue))
+            self.calculatedValue = self.leftNode.calculatedValue + self.rightNode.calculatedValue
+        elif self.childNode.childNode.tokenValue == '-':
+            print(str(self.leftNode.calculatedValue) + ' - ' + str(self.rightNode.calculatedValue))
+            self.calculatedValue = self.leftNode.calculatedValue - self.rightNode.calculatedValue
+        elif self.childNode.childNode.tokenValue == '*':
+            print(str(self.leftNode.calculatedValue) + ' * ' + str(self.rightNode.calculatedValue))
+            self.calculatedValue = self.leftNode.calculatedValue * self.rightNode.calculatedValue
+        elif self.childNode.childNode.tokenValue == '/':
+            print(str(self.leftNode.calculatedValue) + ' / ' + str(self.rightNode.calculatedValue))
+            self.calculatedValue = self.leftNode.calculatedValue / self.rightNode.calculatedValue
 
 
     

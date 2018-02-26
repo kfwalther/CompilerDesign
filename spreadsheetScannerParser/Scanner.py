@@ -39,6 +39,7 @@ class Scanner():
     def __init__(self):
         self.spreadsheetDict = {}
         self.tempEquation = []
+        self.tempControllerList = []
         # Initialize the spreadsheet with empty cells.
         for row in range(0,10):
             for col in range(1,7):
@@ -116,15 +117,23 @@ class Scanner():
         tempNode = ParseTreeNode.ParseTreeNode()
         # Parse a term.
         tempNode.childNode = self.parseTermRule()
+        tempNode.calculatedValue = tempNode.childNode.calculatedValue
         while self.tempEquation and (self.tempEquation[0] in ['+','-']):
             # Push the parsed term down and to the left in the tree.
             newParent = ParseTreeNode.ParseTreeNode()
             tempNode.nodeType = ParseTreeNode.NodeType.EQU
             newParent.leftNode = tempNode
             tempNode = newParent
+            tempNode.calculatedValue = tempNode.leftNode.calculatedValue
             tempNode.childNode = self.parseAddOperatorRule()
             tempNode.rightNode = self.parseTermRule()
+            tempNode.calculateValue()
         tempNode.nodeType = ParseTreeNode.NodeType.EQU
+        # Calculate this node's value.
+        if tempNode.childNode.nodeType == ParseTreeNode.NodeType.TERM:
+            tempNode.calculatedValue = tempNode.childNode.calculatedValue
+        else:
+            tempNode.calculateValue()   
         # TODO: Should we swap the ordering here?
         return tempNode
     
@@ -133,6 +142,7 @@ class Scanner():
         newParent = None
         # Parse a factor.
         tempNode.childNode = self.parseFactorRule()
+        tempNode.calculatedValue = tempNode.childNode.calculatedValue
         # Check if the first element is mult operator
         while self.tempEquation and (self.tempEquation[0] in ['*','/']):
             # Push the parsed factor down and to the left in the tree.
@@ -140,9 +150,16 @@ class Scanner():
             tempNode.nodeType = ParseTreeNode.NodeType.TERM
             newParent.leftNode = tempNode
             tempNode = newParent
+            tempNode.calculatedValue = tempNode.leftNode.calculatedValue
             tempNode.childNode = self.parseMultOperatorRule()
             tempNode.rightNode = self.parseFactorRule()
+            tempNode.calculateValue()
         tempNode.nodeType = ParseTreeNode.NodeType.TERM
+        # Calculate this node's value.
+        if tempNode.childNode.nodeType == ParseTreeNode.NodeType.FACTOR:
+            tempNode.calculatedValue = tempNode.childNode.calculatedValue
+        else:
+            tempNode.calculateValue()
         # TODO: Should we swap the ordering here?
         return tempNode
     
@@ -151,12 +168,16 @@ class Scanner():
         # Check for an ID token.
         if self.isId(self.tempEquation[0]) == 'id':
             tempNode.childNode = Token.Token(Token.TokenType.ID, self.tempEquation[0])
+            self.tempControllerList.append(self.tempEquation[0])
+            tempNode.calculatedValue = self.getCell(self.tempEquation[0])
             self.matchToken(self.tempEquation[0])
         elif self.tempEquation[0].isnumeric():
             tempNode.childNode = Token.Token(Token.TokenType.NUM, self.tempEquation[0])
+            tempNode.calculatedValue = self.tempEquation[0]
             self.matchToken(self.tempEquation[0])
         else:
             tempNode.childNode = self.parseParenExpressionRule()
+            tempNode.calculatedValue = tempNode.childNode.calculatedValue
         tempNode.nodeType = ParseTreeNode.NodeType.FACTOR
         return tempNode
     
@@ -187,6 +208,7 @@ class Scanner():
             tempNode.leftNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
             self.matchToken('(')
             tempNode.childNode = self.parseEquationRule()
+            tempNode.calculatedValue = tempNode.childNode.calculatedValue
             tempNode.rightNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
             self.matchToken(')')
         else:
@@ -230,13 +252,14 @@ class Scanner():
             # Perform recursive descent parse.
             self.tempEquation = [elem.strip() for elem in re.split('(=|\\(|\\)|\\+|\\-|\\*|\\/)',inputLine) if elem.strip() != '']
             tempId = self.tempEquation[0]
+            self.tempControllerList = []
             rootNode = self.recursiveDescentParse()
             self.printTree(rootNode, 0)
             # Isolate the right side of the expression, and parse that portion.
 #             expressionComponents = list(inputLine.partition('='))
 #             tokenList = self.parseExpression(expressionComponents[-1])
             # Create a new cell to house the evaluated expression and its components.
-            self.spreadsheetDict[tempId] = Cell.Cell(Cell.CellType.TOKEN, 0, rootNode)
+            self.spreadsheetDict[tempId] = Cell.Cell(Cell.CellType.EQU, rootNode.calculatedValue, self.tempControllerList)
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()
