@@ -79,40 +79,20 @@ class Scanner():
     def clearCell(self, cellLocation):
         self.spreadsheetDict[self.verifyId(cellLocation)] = Cell.Cell()
     
-#     # Define a method to perform a table-driven parse of an expression and store it in a cell.
-#     def parseExpression(self, rightExpression):
-#         # Get the first instance of a mathematical operator, and partition the expression around it.
-#         expressionComponents = [elem.strip() for elem in re.split('(\\(|\\)|\\+|\\-|\\*|\\/)',rightExpression)]
-#         expressionComponents = [exp for exp in expressionComponents if exp]
-#         
-#         expressionComponents.append('other')
-#         expressionCounter = 0
-#         dfaState = dfa['OP'][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
-#         tokenList = []
-#         # Make a better exit case for more complex expressions...
-#         while ((dfaState is not 'ERROR') and (expressionCounter < 3)):
-#             if dfaState in ['NUM', 'RPAREN']:
-#                 # Add this ID token to the list.
-#                 tokenList.append(Token.Token(Token.TokenType.ID, expressionComponents[expressionCounter]))
-#                 # Update the state.
-#                 expressionCounter += 1
-#                 #TODO: Make a function here to check for operator or 'other'
-#                 dfaState = dfa[dfaState][dfaColsMap[expressionComponents[expressionCounter]]]
-#             elif dfaState in ['OP', 'LPAREN']:
-#                 # Add this special character token to the list.
-#                 tokenList.append(Token.Token(Token.TokenType.SPECIAL, expressionComponents[expressionCounter]))
-#                 # Update the state.
-#                 expressionCounter += 1
-#                 dfaState = dfa[dfaState][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
-#         return tokenList
-#     
-
+    # Define a method to track the user cell.
+    def addUserCell(self, userCellId):
+        for row in range(0,10):
+            for col in range(1,7):
+                self.spreadsheetDict[(indexToColDict[col] + str(row))].userList.append(userCellId)
+    
+    # Define a method to match the current equation component to a value, and move to the next value.
     def matchToken(self, tokenVal):
         if self.tempEquation[0] == tokenVal:
             self.tempEquation = self.tempEquation[1:]
         else:
             raise ValueError('Error occurred matching token ' + tokenVal + ' to ' + self.tempEquation[0])
 
+    # Define a method to parse an equation rule, which uses repetion.
     def parseEquationRule(self):
         tempNode = ParseTreeNode.ParseTreeNode()
         # Parse a term.
@@ -137,6 +117,7 @@ class Scanner():
         # TODO: Should we swap the ordering here?
         return tempNode
     
+    # Define a method to parse an term rule, which uses repetion.
     def parseTermRule(self):
         tempNode = ParseTreeNode.ParseTreeNode()
         newParent = None
@@ -169,18 +150,25 @@ class Scanner():
         if self.isId(self.tempEquation[0]) == 'id':
             tempNode.childNode = Token.Token(Token.TokenType.ID, self.tempEquation[0])
             self.tempControllerList.append(self.tempEquation[0])
-            tempNode.calculatedValue = self.getCell(self.tempEquation[0])
+            tempVal = self.getCell(self.tempEquation[0])
+            if tempVal.isnumeric():
+                tempNode.calculatedValue = tempVal
+            else:
+                tempNode.calculatedValue = 'ERROR'
             self.matchToken(self.tempEquation[0])
+        # Check for a numeric token.
         elif self.tempEquation[0].isnumeric():
             tempNode.childNode = Token.Token(Token.TokenType.NUM, self.tempEquation[0])
             tempNode.calculatedValue = self.tempEquation[0]
             self.matchToken(self.tempEquation[0])
+        # Otherwise, we have to parse a parenthesized expression.
         else:
             tempNode.childNode = self.parseParenExpressionRule()
             tempNode.calculatedValue = tempNode.childNode.calculatedValue
         tempNode.nodeType = ParseTreeNode.NodeType.FACTOR
         return tempNode
     
+    # Define a function to parse the multiply/divide operators. 
     def parseMultOperatorRule(self):
         tempNode = ParseTreeNode.ParseTreeNode()
         tempNode.nodeType = ParseTreeNode.NodeType.MULTOP
@@ -191,6 +179,7 @@ class Scanner():
             self.matchToken('/')
         return tempNode
         
+    # Define a function to parse the add/subtract operators. 
     def parseAddOperatorRule(self):
         tempNode = ParseTreeNode.ParseTreeNode()
         tempNode.nodeType = ParseTreeNode.NodeType.ADDOP
@@ -203,10 +192,12 @@ class Scanner():
     
     def parseParenExpressionRule(self):
         tempNode = ParseTreeNode.ParseTreeNode()
+        # Check for an opening parenthesis.
         if self.tempEquation[0] == '(':
             tempNode.nodeType = ParseTreeNode.NodeType.PARENEXP
             tempNode.leftNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
             self.matchToken('(')
+            # Call the function to parse an equation.
             tempNode.childNode = self.parseEquationRule()
             tempNode.calculatedValue = tempNode.childNode.calculatedValue
             tempNode.rightNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
@@ -254,10 +245,9 @@ class Scanner():
             tempId = self.tempEquation[0]
             self.tempControllerList = []
             rootNode = self.recursiveDescentParse()
+            print('Printing parse tree at cell: ' + tempId)
             self.printTree(rootNode, 0)
-            # Isolate the right side of the expression, and parse that portion.
-#             expressionComponents = list(inputLine.partition('='))
-#             tokenList = self.parseExpression(expressionComponents[-1])
+            self.addUserCell(tempId)
             # Create a new cell to house the evaluated expression and its components.
             self.spreadsheetDict[tempId] = Cell.Cell(Cell.CellType.EQU, rootNode.calculatedValue, self.tempControllerList)
         # Identify the numeric cells.
@@ -267,29 +257,6 @@ class Scanner():
                 self.spreadsheetDict[self.verifyId(curLine[0])] = Cell.Cell(Cell.CellType.NUM, int(curLine[1]))
             else:
                 raise ValueError('Input line does not match expected format: ' + inputLine)
-
-    # Define a method to perform a mathematical operation on two operands and return the result.
-    def performMathematicalOperation(self, tokenList):
-        # Check if this expression contains parentheses, we don't support these yet.
-        if (len([curToken for curToken in tokenList if curToken.tokenValue in ['(',')']]) > 0) or (len(tokenList) == 0):                
-            return 'ERROR'
-        # Verify the operands exist and that they are numeric operands.
-        else:
-            if (tokenList[0].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[0].tokenValue].cellValue, int) and 
-                    tokenList[2].tokenValue in self.spreadsheetDict.keys() and isinstance(self.spreadsheetDict[tokenList[2].tokenValue].cellValue, int)): 
-                if tokenList[1].tokenValue == '+':
-                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue + self.spreadsheetDict[tokenList[2].tokenValue].cellValue
-                elif tokenList[1].tokenValue == '-':
-                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue - self.spreadsheetDict[tokenList[2].tokenValue].cellValue
-                elif tokenList[1].tokenValue == '*':
-                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue * self.spreadsheetDict[tokenList[2].tokenValue].cellValue
-                elif tokenList[1].tokenValue == '/':
-                    return self.spreadsheetDict[tokenList[0].tokenValue].cellValue / self.spreadsheetDict[tokenList[2].tokenValue].cellValue                                 
-                else:
-                    # Encountered unsupported mathematical operator. Return 'ERROR' cell.
-                    return 'ERROR'
-            else:
-                return 'ERROR'
         
     # Define a method to print an individual cell of data.
     def printCell(self, cellContents):

@@ -22,6 +22,9 @@ class ParseTreeNode():
         self.token, self.nodeType, self.rightNode, self.childNode, self.leftNode, self.calculatedValue = None, None, None, None, None, None
         
     def calculateValue(self):
+        if self.leftNode.calculatedValue == 'ERROR' or self.rightNode.calculatedValue == 'ERROR':
+            self.calculatedValue = 'ERROR'
+            return
         if self.childNode.childNode.tokenValue == '+':
             print(str(self.leftNode.calculatedValue) + ' + ' + str(self.rightNode.calculatedValue))
             self.calculatedValue = self.leftNode.calculatedValue + self.rightNode.calculatedValue
