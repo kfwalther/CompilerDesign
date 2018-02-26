@@ -107,14 +107,12 @@ class Scanner():
 #     
 
     def matchToken(self, tokenVal):
-        print('Matching: ' + tokenVal)
         if self.tempEquation[0] == tokenVal:
             self.tempEquation = self.tempEquation[1:]
         else:
             raise ValueError('Error occurred matching token ' + tokenVal + ' to ' + self.tempEquation[0])
 
     def parseEquationRule(self):
-        print('Parsing Equation...')
         tempNode = ParseTreeNode.ParseTreeNode()
         # Parse a term.
         tempNode.childNode = self.parseTermRule()
@@ -122,17 +120,17 @@ class Scanner():
             # Push the parsed term down and to the left in the tree.
             newParent = ParseTreeNode.ParseTreeNode()
             tempNode.nodeType = ParseTreeNode.NodeType.EQU
-            newParent.leftChild = tempNode
+            newParent.leftNode = tempNode
             tempNode = newParent
             tempNode.childNode = self.parseAddOperatorRule()
-            tempNode.rightChild = self.parseEquationRule()
+            tempNode.rightNode = self.parseTermRule()
         tempNode.nodeType = ParseTreeNode.NodeType.EQU
         # TODO: Should we swap the ordering here?
         return tempNode
     
     def parseTermRule(self):
-        print('Parsing Term...')
         tempNode = ParseTreeNode.ParseTreeNode()
+        newParent = None
         # Parse a factor.
         tempNode.childNode = self.parseFactorRule()
         # Check if the first element is mult operator
@@ -140,17 +138,15 @@ class Scanner():
             # Push the parsed factor down and to the left in the tree.
             newParent = ParseTreeNode.ParseTreeNode()
             tempNode.nodeType = ParseTreeNode.NodeType.TERM
-            newParent.leftChild = tempNode
+            newParent.leftNode = tempNode
             tempNode = newParent
-            tempNode.leftChild = tempNode.childNode
             tempNode.childNode = self.parseMultOperatorRule()
-            tempNode.rightChild = self.parseTermRule()
+            tempNode.rightNode = self.parseFactorRule()
         tempNode.nodeType = ParseTreeNode.NodeType.TERM
         # TODO: Should we swap the ordering here?
         return tempNode
     
     def parseFactorRule(self):
-        print('Parsing Factor...')
         tempNode = ParseTreeNode.ParseTreeNode()
         # Check for an ID token.
         if self.isId(self.tempEquation[0]) == 'id':
@@ -165,7 +161,6 @@ class Scanner():
         return tempNode
     
     def parseMultOperatorRule(self):
-        print('Parsing Mult operator...')
         tempNode = ParseTreeNode.ParseTreeNode()
         tempNode.nodeType = ParseTreeNode.NodeType.MULTOP
         tempNode.childNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
@@ -176,7 +171,6 @@ class Scanner():
         return tempNode
         
     def parseAddOperatorRule(self):
-        print('Parsing Add operator...')
         tempNode = ParseTreeNode.ParseTreeNode()
         tempNode.nodeType = ParseTreeNode.NodeType.ADDOP
         tempNode.childNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
@@ -187,7 +181,6 @@ class Scanner():
         return tempNode
     
     def parseParenExpressionRule(self):
-        print('Parsing Parenthesized expression...')
         tempNode = ParseTreeNode.ParseTreeNode()
         if self.tempEquation[0] == '(':
             tempNode.nodeType = ParseTreeNode.NodeType.PARENEXP
@@ -206,6 +199,23 @@ class Scanner():
         rootNode = self.parseEquationRule()
         return rootNode
     
+    # Define a function to perform a depth first search to print the parse tree.
+    def printTree(self, tempNode, depth):
+        print((depth * '\t') + '*** PARSE TREE NODE ***')
+        print((depth * '\t') + 'NodeType: ' + str(tempNode.nodeType.name))
+        if tempNode.leftNode != None and type(tempNode.leftNode) is ParseTreeNode.ParseTreeNode:
+            self.printTree(tempNode.leftNode, depth + 1)
+        if tempNode.childNode != None and type(tempNode.childNode) is ParseTreeNode.ParseTreeNode:
+            self.printTree(tempNode.childNode, depth + 1)
+        if tempNode.rightNode != None and type(tempNode.rightNode) is ParseTreeNode.ParseTreeNode:
+            self.printTree(tempNode.rightNode, depth + 1)
+        if tempNode.leftNode != None and type(tempNode.leftNode) is Token.Token:
+            tempNode.leftNode.printToken(depth + 1)
+        if tempNode.childNode != None and type(tempNode.childNode) is Token.Token:
+            tempNode.childNode.printToken(depth + 1)
+        if tempNode.rightNode != None and type(tempNode.rightNode) is Token.Token:
+            tempNode.rightNode.printToken(depth + 1)
+
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
         # Check if the line is empty.
@@ -221,6 +231,7 @@ class Scanner():
             self.tempEquation = [elem.strip() for elem in re.split('(=|\\(|\\)|\\+|\\-|\\*|\\/)',inputLine) if elem.strip() != '']
             tempId = self.tempEquation[0]
             rootNode = self.recursiveDescentParse()
+            self.printTree(rootNode, 0)
             # Isolate the right side of the expression, and parse that portion.
 #             expressionComponents = list(inputLine.partition('='))
 #             tokenList = self.parseExpression(expressionComponents[-1])

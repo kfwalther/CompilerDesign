@@ -18,8 +18,10 @@ class Token():
 	def __init__(self, tokenType=None, tokenValue=None):
 		self.tokenType, self.tokenValue = tokenType, tokenValue
 		
-
-
+	def printToken(self, treeDepth):
+		print((treeDepth * '\t') + '*** TOKEN NODE ***')
+		print((treeDepth * '\t') + 'TokenType: ' + str(self.tokenType.name))
+		print((treeDepth * '\t') + 'TokenValue: ' + str(self.tokenValue))
 
 
 
