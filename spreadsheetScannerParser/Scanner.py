@@ -10,6 +10,7 @@
 import re
 import Cell
 import Token
+import ParseTreeNode
 
 indexToColDict = {
     1: 'A',
@@ -37,6 +38,7 @@ mathematicalOperators = ['+', '-', '*', '/']
 class Scanner():
     def __init__(self):
         self.spreadsheetDict = {}
+        self.tempEquation = []
         # Initialize the spreadsheet with empty cells.
         for row in range(0,10):
             for col in range(1,7):
@@ -76,32 +78,133 @@ class Scanner():
     def clearCell(self, cellLocation):
         self.spreadsheetDict[self.verifyId(cellLocation)] = Cell.Cell()
     
-    # Define a method to perform a table-driven parse of an expression and store it in a cell.
-    def parseExpression(self, rightExpression):
-        # Get the first instance of a mathematical operator, and partition the expression around it.
-        expressionComponents = [elem.strip() for elem in re.split('(\\(|\\)|\\+|\\-|\\*|\\/)',rightExpression)]
-        expressionComponents = [exp for exp in expressionComponents if exp]
+#     # Define a method to perform a table-driven parse of an expression and store it in a cell.
+#     def parseExpression(self, rightExpression):
+#         # Get the first instance of a mathematical operator, and partition the expression around it.
+#         expressionComponents = [elem.strip() for elem in re.split('(\\(|\\)|\\+|\\-|\\*|\\/)',rightExpression)]
+#         expressionComponents = [exp for exp in expressionComponents if exp]
+#         
+#         expressionComponents.append('other')
+#         expressionCounter = 0
+#         dfaState = dfa['OP'][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
+#         tokenList = []
+#         # Make a better exit case for more complex expressions...
+#         while ((dfaState is not 'ERROR') and (expressionCounter < 3)):
+#             if dfaState in ['NUM', 'RPAREN']:
+#                 # Add this ID token to the list.
+#                 tokenList.append(Token.Token(Token.TokenType.ID, expressionComponents[expressionCounter]))
+#                 # Update the state.
+#                 expressionCounter += 1
+#                 #TODO: Make a function here to check for operator or 'other'
+#                 dfaState = dfa[dfaState][dfaColsMap[expressionComponents[expressionCounter]]]
+#             elif dfaState in ['OP', 'LPAREN']:
+#                 # Add this special character token to the list.
+#                 tokenList.append(Token.Token(Token.TokenType.SPECIAL, expressionComponents[expressionCounter]))
+#                 # Update the state.
+#                 expressionCounter += 1
+#                 dfaState = dfa[dfaState][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
+#         return tokenList
+#     
+
+    def matchToken(self, tokenVal):
+        print('Matching: ' + tokenVal)
+        if self.tempEquation[0] == tokenVal:
+            self.tempEquation = self.tempEquation[1:]
+        else:
+            raise ValueError('Error occurred matching token ' + tokenVal + ' to ' + self.tempEquation[0])
+
+    def parseEquationRule(self):
+        print('Parsing Equation...')
+        tempNode = ParseTreeNode.ParseTreeNode()
+        # Parse a term.
+        tempNode.childNode = self.parseTermRule()
+        while self.tempEquation and (self.tempEquation[0] in ['+','-']):
+            # Push the parsed term down and to the left in the tree.
+            newParent = ParseTreeNode.ParseTreeNode()
+            tempNode.nodeType = ParseTreeNode.NodeType.EQU
+            newParent.leftChild = tempNode
+            tempNode = newParent
+            tempNode.childNode = self.parseAddOperatorRule()
+            tempNode.rightChild = self.parseEquationRule()
+        tempNode.nodeType = ParseTreeNode.NodeType.EQU
+        # TODO: Should we swap the ordering here?
+        return tempNode
+    
+    def parseTermRule(self):
+        print('Parsing Term...')
+        tempNode = ParseTreeNode.ParseTreeNode()
+        # Parse a factor.
+        tempNode.childNode = self.parseFactorRule()
+        # Check if the first element is mult operator
+        while self.tempEquation and (self.tempEquation[0] in ['*','/']):
+            # Push the parsed factor down and to the left in the tree.
+            newParent = ParseTreeNode.ParseTreeNode()
+            tempNode.nodeType = ParseTreeNode.NodeType.TERM
+            newParent.leftChild = tempNode
+            tempNode = newParent
+            tempNode.leftChild = tempNode.childNode
+            tempNode.childNode = self.parseMultOperatorRule()
+            tempNode.rightChild = self.parseTermRule()
+        tempNode.nodeType = ParseTreeNode.NodeType.TERM
+        # TODO: Should we swap the ordering here?
+        return tempNode
+    
+    def parseFactorRule(self):
+        print('Parsing Factor...')
+        tempNode = ParseTreeNode.ParseTreeNode()
+        # Check for an ID token.
+        if self.isId(self.tempEquation[0]) == 'id':
+            tempNode.childNode = Token.Token(Token.TokenType.ID, self.tempEquation[0])
+            self.matchToken(self.tempEquation[0])
+        elif self.tempEquation[0].isnumeric():
+            tempNode.childNode = Token.Token(Token.TokenType.NUM, self.tempEquation[0])
+            self.matchToken(self.tempEquation[0])
+        else:
+            tempNode.childNode = self.parseParenExpressionRule()
+        tempNode.nodeType = ParseTreeNode.NodeType.FACTOR
+        return tempNode
+    
+    def parseMultOperatorRule(self):
+        print('Parsing Mult operator...')
+        tempNode = ParseTreeNode.ParseTreeNode()
+        tempNode.nodeType = ParseTreeNode.NodeType.MULTOP
+        tempNode.childNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
+        if self.tempEquation[0] == '*':
+            self.matchToken('*')
+        else:
+            self.matchToken('/')
+        return tempNode
         
-        expressionComponents.append('other')
-        expressionCounter = 0
-        dfaState = dfa['OP'][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
-        tokenList = []
-        # Make a better exit case for more complex expressions...
-        while ((dfaState is not 'ERROR') and (expressionCounter < 3)):
-            if dfaState in ['NUM', 'RPAREN']:
-                # Add this ID token to the list.
-                tokenList.append(Token.Token(Token.TokenType.ID, expressionComponents[expressionCounter]))
-                # Update the state.
-                expressionCounter += 1
-                #TODO: Make a function here to check for operator or 'other'
-                dfaState = dfa[dfaState][dfaColsMap[expressionComponents[expressionCounter]]]
-            elif dfaState in ['OP', 'LPAREN']:
-                # Add this special character token to the list.
-                tokenList.append(Token.Token(Token.TokenType.SPECIAL, expressionComponents[expressionCounter]))
-                # Update the state.
-                expressionCounter += 1
-                dfaState = dfa[dfaState][dfaColsMap[self.isId(expressionComponents[expressionCounter])]]
-        return tokenList
+    def parseAddOperatorRule(self):
+        print('Parsing Add operator...')
+        tempNode = ParseTreeNode.ParseTreeNode()
+        tempNode.nodeType = ParseTreeNode.NodeType.ADDOP
+        tempNode.childNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
+        if self.tempEquation[0] == '+':
+            self.matchToken('+')
+        else:
+            self.matchToken('-')
+        return tempNode
+    
+    def parseParenExpressionRule(self):
+        print('Parsing Parenthesized expression...')
+        tempNode = ParseTreeNode.ParseTreeNode()
+        if self.tempEquation[0] == '(':
+            tempNode.nodeType = ParseTreeNode.NodeType.PARENEXP
+            tempNode.leftNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
+            self.matchToken('(')
+            tempNode.childNode = self.parseEquationRule()
+            tempNode.rightNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
+            self.matchToken(')')
+        else:
+            raise ValueError('Error in parseParenExpressionRule, no parenthesized equation found!')
+        return tempNode
+    
+    # Define a method to perform the recursive descent parsing.
+    def recursiveDescentParse(self):
+        self.tempEquation = self.tempEquation[2:]
+        rootNode = self.parseEquationRule()
+        return rootNode
     
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
@@ -114,12 +217,15 @@ class Scanner():
                     Cell.Cell(Cell.CellType.TEXT, inputLine.split('"')[1])
         # Identify expression cells.
         elif '=' in inputLine:
+            # Perform recursive descent parse.
+            self.tempEquation = [elem.strip() for elem in re.split('(=|\\(|\\)|\\+|\\-|\\*|\\/)',inputLine) if elem.strip() != '']
+            tempId = self.tempEquation[0]
+            rootNode = self.recursiveDescentParse()
             # Isolate the right side of the expression, and parse that portion.
-            expressionComponents = list(inputLine.partition('='))
-            tokenList = self.parseExpression(expressionComponents[-1])
+#             expressionComponents = list(inputLine.partition('='))
+#             tokenList = self.parseExpression(expressionComponents[-1])
             # Create a new cell to house the evaluated expression and its components.
-            self.spreadsheetDict[self.verifyId(expressionComponents[0].strip())] = \
-                    Cell.Cell(Cell.CellType.TOKEN, self.performMathematicalOperation(tokenList), tokenList)
+            self.spreadsheetDict[tempId] = Cell.Cell(Cell.CellType.TOKEN, 0, rootNode)
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()

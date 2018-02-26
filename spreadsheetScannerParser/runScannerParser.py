@@ -41,7 +41,7 @@ def runScannerParser(inputFile, outputFile):
 
 # Begin code execution here.
 if __name__ == "__main__":
-    runScannerParser('HW2-Input.txt', 'output.txt')
+    runScannerParser('HW3-Input.txt', 'output.txt')
     
 
 
