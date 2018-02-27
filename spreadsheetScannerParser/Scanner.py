@@ -159,8 +159,8 @@ class Scanner():
             self.matchToken(self.tempEquation[0])
         # Check for a numeric token.
         elif self.tempEquation[0].isnumeric():
-            tempNode.childNode = Token.Token(Token.TokenType.NUM, self.tempEquation[0])
-            tempNode.calculatedValue = self.tempEquation[0]
+            tempNode.childNode = Token.Token(Token.TokenType.NUM, int(self.tempEquation[0]))
+            tempNode.calculatedValue = int(self.tempEquation[0])
             self.matchToken(self.tempEquation[0])
         # Otherwise, we have to parse a parenthesized expression.
         else:
@@ -282,9 +282,15 @@ class Scanner():
             for col in range(1,7):
                 tempCell = self.spreadsheetDict.get((indexToColDict[col] + str(row)), '')
                 print('Cell ' + indexToColDict[col] + str(row) + ' Controller List: ')
-                [print(tempController) for tempController in tempCell.controllerList] 
+                if len(tempCell.controllerList) == 0:
+                    print('emtpy')
+                else:
+                    [print(tempController) for tempController in tempCell.controllerList] 
                 print('Cell ' + indexToColDict[col] + str(row) + ' User List: ')
-                [print(tempUser) for tempUser in tempCell.userList]
+                if len(tempCell.userList) == 0:
+                    print('emtpy')
+                else:
+                    [print(tempUser) for tempUser in tempCell.userList]
 
 
 

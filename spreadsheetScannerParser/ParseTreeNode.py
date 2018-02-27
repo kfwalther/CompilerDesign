@@ -27,16 +27,12 @@ class ParseTreeNode():
             self.calculatedValue = 'ERROR'
             return
         if self.childNode.childNode.tokenValue == '+':
-            print(str(self.leftNode.calculatedValue) + ' + ' + str(self.rightNode.calculatedValue))
             self.calculatedValue = self.leftNode.calculatedValue + self.rightNode.calculatedValue
         elif self.childNode.childNode.tokenValue == '-':
-            print(str(self.leftNode.calculatedValue) + ' - ' + str(self.rightNode.calculatedValue))
             self.calculatedValue = self.leftNode.calculatedValue - self.rightNode.calculatedValue
         elif self.childNode.childNode.tokenValue == '*':
-            print(str(self.leftNode.calculatedValue) + ' * ' + str(self.rightNode.calculatedValue))
             self.calculatedValue = self.leftNode.calculatedValue * self.rightNode.calculatedValue
         elif self.childNode.childNode.tokenValue == '/':
-            print(str(self.leftNode.calculatedValue) + ' / ' + str(self.rightNode.calculatedValue))
             self.calculatedValue = self.leftNode.calculatedValue / self.rightNode.calculatedValue
 
 
