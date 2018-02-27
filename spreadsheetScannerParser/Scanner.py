@@ -213,6 +213,10 @@ class Scanner():
         rootNode = self.parseEquationRule()
         return rootNode
     
+    # Define a method to recalculate the value in the parse tree based on updated cells.
+    def recalculateValue(self, userCell):
+        #TODO: This needs to be a recursive call, if this updated value also has a userList to update.
+    
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
         # Check if the line is empty.
@@ -231,16 +235,21 @@ class Scanner():
             rootNode = self.recursiveDescentParse()
             print('Printing parse tree at cell: ' + self.tempCellLocation)
             self.printTree(rootNode, 0)
-            # Create a new cell to house the evaluated expression and its components.
+            # Update the current cell with the new information from the recursive parse.
             self.spreadsheetDict[self.tempCellLocation].cellType = Cell.CellType.EQU
             self.spreadsheetDict[self.tempCellLocation].cellValue = rootNode.calculatedValue
+            self.spreadsheetDict[self.tempCellLocation].parseTree = rootNode
             self.spreadsheetDict[self.tempCellLocation].controllerList = self.tempControllerList
+            # Recalculate the values in parse tree based on this updated cell.
+            [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.tempCellLocation].userList]
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()
             if len(curLine) == 2:
                 self.spreadsheetDict[self.verifyId(curLine[0])].cellType = Cell.CellType.NUM
                 self.spreadsheetDict[self.verifyId(curLine[0])].cellValue = int(curLine[1])
+                # Recalculate the values in parse tree based on this updated cell.
+                [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.verifyId(curLine[0])].userList]
             else:
                 raise ValueError('Input line does not match expected format: ' + inputLine)
         

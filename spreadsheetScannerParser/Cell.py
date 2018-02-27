@@ -16,8 +16,8 @@ class CellType(Enum):
 	EMPTY = 4
 	
 class Cell():
-	def __init__(self, cellType=CellType.EMPTY, cellValue='', controllerList=[]):
-		self.cellType, self.cellValue, self.controllerList, self.userList = cellType, cellValue, controllerList, []
+	def __init__(self, cellType=CellType.EMPTY, cellValue='', parseTree=None, controllerList=[]):
+		self.cellType, self.cellValue, self.parseTree, self.controllerList, self.userList = cellType, cellValue, None, controllerList, []
 		
 	# A method to get the cell value.
 	def getCellValue(self):
