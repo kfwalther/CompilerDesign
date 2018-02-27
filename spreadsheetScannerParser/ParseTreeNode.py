@@ -21,6 +21,7 @@ class ParseTreeNode():
     def __init__(self):
         self.token, self.nodeType, self.rightNode, self.childNode, self.leftNode, self.calculatedValue = None, None, None, None, None, None
         
+    # Define a method to calculate the value for a parse tree node, given its operands and operator type.
     def calculateValue(self):
         if self.leftNode.calculatedValue == 'ERROR' or self.rightNode.calculatedValue == 'ERROR':
             self.calculatedValue = 'ERROR'

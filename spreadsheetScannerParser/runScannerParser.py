@@ -26,6 +26,7 @@ def processInputFile(inputFilePath):
                     print('WARNING: ' + err.args[0])
                     continue
         scanner.printTokens()
+        scanner.printCellInfo()
     return scanner
 
 # Run the Scanner Parser.
