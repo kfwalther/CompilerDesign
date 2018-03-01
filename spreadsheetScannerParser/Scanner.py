@@ -21,17 +21,6 @@ indexToColDict = {
     6: 'F'       
 }
 
-# Define an array to codify our state machine states and transitions.
-# To be truly table-based, we should add all the possible IDs to this table (60 IDs).
-dfaColsMap =    {'+':0,  '-':1,  '*':2,  '/':3,  '(':4,   ')':5,   'id':6,  'other':7}
-dfa = {      #   '+'     '-'     '*'     '/'     '('      ')'      'id'     'other'
-    'NUM':      ['OP',   'OP',   'OP',   'OP',   'ERROR', 'RPAREN','ERROR', 'ERROR'],
-    'OP':       ['ERROR','ERROR','ERROR','ERROR','LPAREN','ERROR', 'NUM',   'ERROR'],
-    'LPAREN':   ['ERROR','ERROR','ERROR','ERROR','LPAREN','ERROR', 'NUM',   'ERROR'],
-    'RPAREN':   ['OP',   'OP',   'OP',   'OP',   'ERROR', 'RPAREN','ERROR', 'ERROR'],
-    'ERROR':    []
-}
-
 mathematicalOperators = ['+', '-', '*', '/']
 
 # Define a class to hold and track the stateful scanner information.
@@ -216,7 +205,47 @@ class Scanner():
     # Define a method to recalculate the value in the parse tree based on updated cells.
     def recalculateValue(self, userCell):
         #TODO: This needs to be a recursive call, if this updated value also has a userList to update.
+        pass
     
+    
+    # Define a method to trim the parse tree down to a abstract syntax tree.
+    def trimParseTree(self, curNode):
+        # Check for a Token child node.
+        if type(curNode.childNode) is Token.Token:
+            # Check if we have reached a leaf node (ID or NUM Token)
+            if curNode.childNode.tokenType in [Token.TokenType.NUM, Token.TokenType.ID]:
+                # Place the token on the current node.
+                # TODO: Grab value at cell again?
+                # Return the token up a level.
+                curNode.token = curNode.childNode
+                return curNode.childNode
+            # Otherwise, we have an operator (and left/right nodes to process).
+            else:
+                return curNode.childNode
+        # Check the left node.
+        if curNode.leftNode != None:
+            self.trimParseTree(curNode.leftNode)
+        # Check the center node.
+        if curNode.childNode != None:
+            # Save the entity returned from below.
+            returnedEntity = self.trimParseTree(curNode.childNode)
+            # Check if ParseTreeNode or Token was returned.
+            if type(returnedEntity) is ParseTreeNode.ParseTreeNode:
+                # We are in a ParseTreeNode column, return the ParseTreeNode.
+                return returnedEntity
+            # Otherwise a token was returned, so save it in the current node.
+            else:
+                curNode.token = returnedEntity
+                curNode.childNode = None
+        # Check the right node.
+        if curNode.rightNode != None:
+            self.trimParseTree(curNode.rightNode)
+        # Return the current node with its three children.
+        return curNode
+        
+        
+        
+
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
         # Check if the line is empty.
@@ -242,6 +271,9 @@ class Scanner():
             self.spreadsheetDict[self.tempCellLocation].controllerList = self.tempControllerList
             # Recalculate the values in parse tree based on this updated cell.
             [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.tempCellLocation].userList]
+            # Trim the tree and print it.
+            self.trimParseTree(rootNode)
+            self.printTruncatedTree(rootNode, 0)
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()
@@ -284,7 +316,18 @@ class Scanner():
             tempNode.childNode.printToken(depth + 1)
         if tempNode.rightNode != None and type(tempNode.rightNode) is Token.Token:
             tempNode.rightNode.printToken(depth + 1)
-  
+
+    # Define a function to perform a depth first search to print the abstract syntax tree.
+    def printTruncatedTree(self, tempNode, depth):
+        print((depth * '\t') + '*** SYNTAX TREE NODE ***')
+        if tempNode.token is not None:
+            print((depth * '\t') + 'Token: ' + str(tempNode.token.tokenValue))
+            
+        if tempNode.leftNode != None and type(tempNode.leftNode) is ParseTreeNode.ParseTreeNode:
+            self.printTruncatedTree(tempNode.leftNode, depth + 1)
+        if tempNode.rightNode != None and type(tempNode.rightNode) is ParseTreeNode.ParseTreeNode:
+            self.printTruncatedTree(tempNode.rightNode, depth + 1)
+
     # Define a method to print out the controller and user lists for each cell.
     def printCellInfo(self):
         for row in range(0,10):

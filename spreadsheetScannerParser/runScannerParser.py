@@ -10,7 +10,7 @@
 import os
 import sys
 import Scanner
-
+import Cell
 
 # Process the input file line by line.
 def processInputFile(inputFilePath):
@@ -25,8 +25,8 @@ def processInputFile(inputFilePath):
                 except ValueError as err:
                     print('WARNING: ' + err.args[0])
                     continue
-        scanner.printTokens()
-        scanner.printCellInfo()
+#         scanner.printTokens()
+#         scanner.printCellInfo()
     return scanner
 
 # Run the Scanner Parser.
