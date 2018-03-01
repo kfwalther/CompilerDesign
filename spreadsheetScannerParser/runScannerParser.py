@@ -25,7 +25,7 @@ def processInputFile(inputFilePath):
                 except ValueError as err:
                     print('WARNING: ' + err.args[0])
                     continue
-#         scanner.printTokens()
+        scanner.printTokens()
 #         scanner.printCellInfo()
     return scanner
 

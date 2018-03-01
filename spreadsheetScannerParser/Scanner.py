@@ -141,7 +141,7 @@ class Scanner():
                 self.spreadsheetDict[self.tempEquation[0]].userList.append(self.tempCellLocation)
             # Get the value of this cell, to calculate the equation.
             tempVal = self.getCell(self.tempEquation[0])
-            if tempVal.isnumeric():
+            if tempVal:
                 tempNode.calculatedValue = tempVal
             else:
                 tempNode.calculatedValue = 'ERROR'
@@ -193,7 +193,7 @@ class Scanner():
             tempNode.rightNode = Token.Token(Token.TokenType.SPECIAL, self.tempEquation[0])
             self.matchToken(')')
         else:
-            raise ValueError('Error in parseParenExpressionRule, no parenthesized equation found!')
+            raise ValueError('Error occurred when parsing expression for cell: ' + self.tempCellLocation)
         return tempNode
     
     # Define a method to perform the recursive descent parsing.
@@ -201,13 +201,7 @@ class Scanner():
         self.tempEquation = self.tempEquation[2:]
         rootNode = self.parseEquationRule()
         return rootNode
-    
-    # Define a method to recalculate the value in the parse tree based on updated cells.
-    def recalculateValue(self, userCell):
-        #TODO: This needs to be a recursive call, if this updated value also has a userList to update.
-        pass
-    
-    
+        
     # Define a method to trim the parse tree down to a abstract syntax tree.
     def trimParseTree(self, curNode):
         # Check for a Token child node.
@@ -215,7 +209,6 @@ class Scanner():
             # Check if we have reached a leaf node (ID or NUM Token)
             if curNode.childNode.tokenType in [Token.TokenType.NUM, Token.TokenType.ID]:
                 # Place the token on the current node.
-                # TODO: Grab value at cell again?
                 # Return the token up a level.
                 curNode.token = curNode.childNode
                 return curNode.childNode
@@ -223,8 +216,8 @@ class Scanner():
             else:
                 return curNode.childNode
         # Check the left node.
-        if curNode.leftNode != None:
-            self.trimParseTree(curNode.leftNode)
+        if (curNode.leftNode != None) and (curNode.nodeType is not ParseTreeNode.NodeType.PARENEXP):
+            curNode.leftNode = self.trimParseTree(curNode.leftNode)
         # Check the center node.
         if curNode.childNode != None:
             # Save the entity returned from below.
@@ -238,13 +231,10 @@ class Scanner():
                 curNode.token = returnedEntity
                 curNode.childNode = None
         # Check the right node.
-        if curNode.rightNode != None:
+        if (curNode.rightNode != None) and (curNode.nodeType is not ParseTreeNode.NodeType.PARENEXP):
             self.trimParseTree(curNode.rightNode)
         # Return the current node with its three children.
-        return curNode
-        
-        
-        
+        return curNode        
 
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
@@ -263,17 +253,17 @@ class Scanner():
             self.tempControllerList = []
             rootNode = self.recursiveDescentParse()
             print('Printing parse tree at cell: ' + self.tempCellLocation)
-            self.printTree(rootNode, 0)
+#             self.printTree(rootNode, 0)
             # Update the current cell with the new information from the recursive parse.
             self.spreadsheetDict[self.tempCellLocation].cellType = Cell.CellType.EQU
             self.spreadsheetDict[self.tempCellLocation].cellValue = rootNode.calculatedValue
             self.spreadsheetDict[self.tempCellLocation].parseTree = rootNode
             self.spreadsheetDict[self.tempCellLocation].controllerList = self.tempControllerList
             # Recalculate the values in parse tree based on this updated cell.
-            [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.tempCellLocation].userList]
+#             [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.tempCellLocation].userList]
             # Trim the tree and print it.
-            self.trimParseTree(rootNode)
-            self.printTruncatedTree(rootNode, 0)
+            syntaxTreeRoot = self.trimParseTree(rootNode)
+            self.printTruncatedTree(syntaxTreeRoot, 0)
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()
@@ -281,7 +271,7 @@ class Scanner():
                 self.spreadsheetDict[self.verifyId(curLine[0])].cellType = Cell.CellType.NUM
                 self.spreadsheetDict[self.verifyId(curLine[0])].cellValue = int(curLine[1])
                 # Recalculate the values in parse tree based on this updated cell.
-                [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.verifyId(curLine[0])].userList]
+#                 [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.verifyId(curLine[0])].userList]
             else:
                 raise ValueError('Input line does not match expected format: ' + inputLine)
         
