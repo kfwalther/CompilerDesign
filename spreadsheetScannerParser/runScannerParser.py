@@ -20,11 +20,11 @@ def processInputFile(inputFilePath):
             if line[0] == '#':
                 continue
             else:
-#                 try:
-                scannerParser.processLine(line)
-#                 except ValueError as err:
-#                     print('WARNING: ' + err.args[0])
-#                     continue
+                try:
+                    scannerParser.processLine(line)
+                except ValueError as err:
+                    print('WARNING: ' + err.args[0])
+                    continue
 #         scannerParser.recalculateSpreadsheet()
         scannerParser.spreadsheet.printSpreadsheet()
 #         scannerParser.spreadsheet.printCellInfo()
