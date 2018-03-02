@@ -25,8 +25,8 @@ def processInputFile(inputFilePath):
 #                 except ValueError as err:
 #                     print('WARNING: ' + err.args[0])
 #                     continue
+#         scannerParser.recalculateSpreadsheet()
         scannerParser.spreadsheet.printSpreadsheet()
-        scannerParser.recalculateSpreadsheet()
 #         scannerParser.spreadsheet.printCellInfo()
     return scannerParser
 

@@ -237,7 +237,7 @@ class ScannerParser():
         # Identify text cells. 
         if '"' in inputLine:
             self.spreadsheet.getCell(inputLine.split('"')[0].strip()).cellType = Cell.CellType.TEXT
-            self.spreadsheet.getCell(inputLine.split('"')[0].strip()).cellValue = inputLine.split('"')[1]
+            self.spreadsheet.getCell(inputLine.split('"')[0].strip()).cellValue = (inputLine.split('"')[1]).strip('\n')
         # Identify expression cells.
         elif '=' in inputLine:
             # Perform recursive descent parse.
@@ -246,20 +246,18 @@ class ScannerParser():
             self.tempControllerList = []
             rootNode = self.recursiveDescentParse()
             print('Printing parse tree at cell: ' + self.tempCellLocation)
-#             self.printTree(rootNode, 0)
             # Update the current cell with the new information from the recursive parse.
             self.spreadsheet.getCell(self.tempCellLocation).cellType = Cell.CellType.EQU
             self.spreadsheet.getCell(self.tempCellLocation).cellValue = rootNode.calculatedValue
             self.spreadsheet.getCell(self.tempCellLocation).parseTree = rootNode
             self.spreadsheet.getCell(self.tempCellLocation).controllerList = self.tempControllerList
-            # Recalculate the values in parse tree based on this updated cell.
-#             [self.recalculateValue(userCell) for userCell in self.spreadsheet.getCell(self.tempCellLocation).userList]
             # Trim the tree and print it.
             syntaxTreeRoot = self.trimParseTree(rootNode)
             self.spreadsheet.getCell(self.tempCellLocation).parseTree = syntaxTreeRoot
             self.printTruncatedTree(syntaxTreeRoot, 0)
             # Calculate the AST value.
             self.calculateAST(syntaxTreeRoot)
+            self.spreadsheet.getCell(self.tempCellLocation).cellValue = syntaxTreeRoot.calculatedValue
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()
@@ -272,7 +270,9 @@ class ScannerParser():
                 else:
                     self.spreadsheet.getCell(curLine[0]).cellValue = float(curLine[1])
                 # Recalculate the values in parse tree based on this updated cell.
-#                 [self.recalculateValue(userCell) for userCell in self.spreadsheet.getCell(curLine[0]).userList]
+                for userCell in self.spreadsheet.getCell(curLine[0]).userList:
+                    self.calculateAST(self.spreadsheet.getCell(userCell).parseTree)
+                    self.spreadsheet.getCell(userCell).cellValue = self.spreadsheet.getCell(userCell).parseTree.calculatedValue
             else:
                 raise ValueError('Input line does not match expected format: ' + inputLine)
         
@@ -310,6 +310,8 @@ class ScannerParser():
                 tempCell = self.spreadsheet.spreadsheetDict.get((Spreadsheet.indexToColDict[col] + str(row)), '')
                 if tempCell.cellType == Cell.CellType.EQU:
                     self.calculateAST(tempCell.parseTree)
-                    print('Cell ' + (Spreadsheet.indexToColDict[col] + str(row)) + ' has value: ' + str(tempCell.parseTree.calculatedValue))
+                    # Update the value of the cell based on calculated AST.
+                    tempCell.cellValue = tempCell.parseTree.calculatedValue
+#                     print('Cell ' + (Spreadsheet.indexToColDict[col] + str(row)) + ' has value: ' + str(tempCell.parseTree.calculatedValue))
 
 
