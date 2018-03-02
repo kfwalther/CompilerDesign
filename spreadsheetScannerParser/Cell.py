@@ -17,7 +17,7 @@ class CellType(Enum):
 	EMPTY = 4
 
 # Define the types of values that can be stored in Cells.
-class CellValueType(Enum):
+class ValueType(Enum):
 	INT = 1
 	FLOAT = 2
 		

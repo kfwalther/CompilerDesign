@@ -8,6 +8,7 @@
 '''
 
 from enum import Enum
+import Cell 
 
 class TokenType(Enum):
 	ID = 1
@@ -15,8 +16,14 @@ class TokenType(Enum):
 	SPECIAL = 3
 	
 class Token():
-	def __init__(self, tokenType=None, tokenValue=None):
-		self.tokenType, self.tokenValue = tokenType, tokenValue
+	def __init__(self, tokenType=None, tokenValue=None, tokenValueType=None):
+		self.tokenType, self.tokenValueType = tokenType, tokenValueType
+		# Keep track if a NUM Token is Int or Float type.
+		if self.tokenType == TokenType.NUM:
+		if self.tokenValueType == Cell.ValueType.INT:
+			self.tokenValue = int(tokenValue)
+		else:
+			self.tokenValue = float(tokenValue)
 		
 	def printToken(self, treeDepth):
 		print((treeDepth * '\t') + '*** TOKEN NODE ***')

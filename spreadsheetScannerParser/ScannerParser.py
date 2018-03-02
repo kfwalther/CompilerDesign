@@ -32,9 +32,9 @@ class ScannerParser():
         if tempResult is None:
             raise ValueError('Error occurred matching numeric value ' + inputVal + ' to int/float format.')
         if ('.' in inputVal) or ('e' in inputVal) or ('E' in inputVal):
-            return Cell.CellValueType.FLOAT
+            return Cell.ValueType.FLOAT
         else:
-            return Cell.CellValueType.INT
+            return Cell.ValueType.INT
         
     # Define a method to match the current equation component to a value, and move to the next value.
     def matchToken(self, tokenVal):
@@ -108,6 +108,7 @@ class ScannerParser():
                 self.spreadsheet.getCell(self.tempEquation[0]).userList.append(self.tempCellLocation)
             # Get the value of this cell, to calculate the equation.
             tempVal = self.spreadsheet.getCell(self.tempEquation[0]).getCellValue()
+            tempNode.childNode.tokenValueType = self.spreadsheet.getCell(self.tempEquation[0]).cellValueType
             if tempVal:
                 tempNode.calculatedValue = tempVal
             else:
@@ -115,8 +116,8 @@ class ScannerParser():
             self.matchToken(self.tempEquation[0])
         # Check for a numeric token.
         elif self.tempEquation[0].isnumeric():
-            tempNode.childNode = Token.Token(Token.TokenType.NUM, int(self.tempEquation[0]))
-            tempNode.calculatedValue = int(self.tempEquation[0])
+            tempNode.childNode = Token.Token(Token.TokenType.NUM, self.tempEquation[0])
+            tempNode.calculatedValue = tempNode.childNode.tokenValue
             self.matchToken(self.tempEquation[0])
         # Otherwise, we have to parse a parenthesized expression.
         else:
@@ -203,6 +204,31 @@ class ScannerParser():
         # Return the current node with its three children.
         return curNode        
 
+    # Define a method to parse the AST and calculate it's new value.
+    def calculateAST(self, curNode):
+        # Check for a leaf node (ID or NUM).
+        if curNode.leftNode == None:
+            # We are at a leaf node, get the number or value from another Cell.
+            if curNode.token.tokenType == Token.TokenType.ID:
+                # Get the latest Cell value and update calculated value.
+                curNode.calculatedValue = self.spreadsheet.getCell(curNode.token.tokenValue).getCellValue()
+                curNode.calculatedValueType = self.spreadsheet.getCell(curNode.token.tokenValue).CellValueType
+            elif curNode.token.tokenType == Token.TokenType.NUM:
+                # Get the number value and update calculated value.
+                curNode.calculatedValue = curNode.token.tokenValue
+                curNode.calculatedValueType = curNode.token.tokenValueType
+            return
+        # Otherwise, perform depth first search traversal.
+        else:
+            # Calculate the left node.
+            self.calculateAST(curNode.leftNode)
+            # Calculate the right node.
+            self.calculateAST(curNode.rightNode)
+            # Perform the operation for the given operator and operand types.
+            
+        # Return the current node with its three children.
+        return curNode        
+    
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
         # Check if the line is empty.
@@ -238,7 +264,7 @@ class ScannerParser():
                 # Verify that the input is int/float format.
                 self.spreadsheet.getCell(curLine[0]).cellType = Cell.CellType.NUM
                 self.spreadsheet.getCell(curLine[0]).cellValueType = self.verifyIntOrFloat(curLine[1])
-                if self.spreadsheet.getCell(curLine[0]).cellValueType == Cell.CellValueType.INT:
+                if self.spreadsheet.getCell(curLine[0]).cellValueType == Cell.ValueType.INT:
                     self.spreadsheet.getCell(curLine[0]).cellValue = int(curLine[1])
                 else:
                     self.spreadsheet.getCell(curLine[0]).cellValue = float(curLine[1])
