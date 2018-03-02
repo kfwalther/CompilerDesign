@@ -3,7 +3,7 @@
 @author: Kevin Walther
 @class: Compiler Design 605.415 Spring 2018
 @assignment: Homework 2
-@brief: This class defines a Scanner.
+@brief: This class defines a Scanner/Parser object.
 
 '''
 
@@ -11,64 +11,20 @@ import re
 import Cell
 import Token
 import ParseTreeNode
+import Spreadsheet
 
-indexToColDict = {
-    1: 'A',
-    2: 'B',       
-    3: 'C',
-    4: 'D',
-    5: 'E',
-    6: 'F'       
-}
 
 mathematicalOperators = ['+', '-', '*', '/']
 
 # Define a class to hold and track the stateful scanner information.
-class Scanner():
+class ScannerParser():
     def __init__(self):
-        self.spreadsheetDict = {}
         self.tempEquation = []
         self.tempCellLocation = None
         self.tempControllerList = []
         # Initialize the spreadsheet with empty cells.
-        for row in range(0,10):
-            for col in range(1,7):
-                self.spreadsheetDict[(indexToColDict[col] + str(row))] = Cell.Cell()
-                
-    # Write a function to validate the token ID names (e.g. A0, C4, etc.)
-    def verifyId(self, id):
-        if len(id) != 2:
-            raise ValueError('Malformed ID value detected: ' + id)
-        col, row = id
-        if (not col.isalpha()) or (not row.isnumeric()):
-            raise ValueError('Malformed ID value detected:' + id)
-        if (ord(col) not in range(ord('A'), ord('G'))):
-            raise ValueError('Invalid column reference in ID (columns must be within range A to F):' + col)
-        if (int(row) not in range(0, 10)):
-            raise ValueError('Invalid row reference in ID (rows must be within range 0 to 9):' + row)
-        return id
+        self.spreadsheet = Spreadsheet.Spreadsheet()
 
-    # Write a function to validate the token ID names (e.g. A0, C4, etc.)
-    def isId(self, id):
-        if len(id) != 2:
-            return 'other'
-        col, row = id
-        if (not col.isalpha()) or (not row.isnumeric()):
-            return 'other'
-        if (ord(col) not in range(ord('A'), ord('G'))):
-            return 'other'
-        if (int(row) not in range(0, 10)):
-            return 'other'
-        return 'id'
-    
-    # Define a method to retrieve the contents of a particular cell.
-    def getCell(self, cellLocation):
-        return self.spreadsheetDict[self.verifyId(cellLocation)].getCellValue()
-    
-    # Define a method to clear the contents of a particular cell.
-    def clearCell(self, cellLocation):
-        self.spreadsheetDict[self.verifyId(cellLocation)] = Cell.Cell()
-    
     # Define a method to match the current equation component to a value, and move to the next value.
     def matchToken(self, tokenVal):
         if self.tempEquation[0] == tokenVal:
@@ -131,16 +87,16 @@ class Scanner():
     def parseFactorRule(self):
         tempNode = ParseTreeNode.ParseTreeNode()
         # Check for an ID token.
-        if self.isId(self.tempEquation[0]) == 'id':
+        if self.spreadsheet.isId(self.tempEquation[0]) == 'id':
             tempNode.childNode = Token.Token(Token.TokenType.ID, self.tempEquation[0])
             # Add this cell ID to the controller list.
             if self.tempEquation[0] not in self.tempControllerList:
                 self.tempControllerList.append(self.tempEquation[0])
             # Also add the equation cell to the user list of the referenced ID cell.
-            if self.tempCellLocation not in self.spreadsheetDict[self.tempEquation[0]].userList:
-                self.spreadsheetDict[self.tempEquation[0]].userList.append(self.tempCellLocation)
+            if self.tempCellLocation not in self.spreadsheet.getCell(self.tempEquation[0]).userList:
+                self.spreadsheet.getCell(self.tempEquation[0]).userList.append(self.tempCellLocation)
             # Get the value of this cell, to calculate the equation.
-            tempVal = self.getCell(self.tempEquation[0])
+            tempVal = self.spreadsheet.getCell(self.tempEquation[0]).getCellValue()
             if tempVal:
                 tempNode.calculatedValue = tempVal
             else:
@@ -243,8 +199,8 @@ class Scanner():
             return
         # Identify text cells. 
         if '"' in inputLine:
-            self.spreadsheetDict[self.verifyId(inputLine.split('"')[0].strip())].cellType = Cell.CellType.TEXT
-            self.spreadsheetDict[self.verifyId(inputLine.split('"')[0].strip())].cellValue = inputLine.split('"')[1]
+            self.spreadsheet.getCell(inputLine.split('"')[0].strip()).cellType = Cell.CellType.TEXT
+            self.spreadsheet.getCell(inputLine.split('"')[0].strip()).cellValue = inputLine.split('"')[1]
         # Identify expression cells.
         elif '=' in inputLine:
             # Perform recursive descent parse.
@@ -255,12 +211,12 @@ class Scanner():
             print('Printing parse tree at cell: ' + self.tempCellLocation)
 #             self.printTree(rootNode, 0)
             # Update the current cell with the new information from the recursive parse.
-            self.spreadsheetDict[self.tempCellLocation].cellType = Cell.CellType.EQU
-            self.spreadsheetDict[self.tempCellLocation].cellValue = rootNode.calculatedValue
-            self.spreadsheetDict[self.tempCellLocation].parseTree = rootNode
-            self.spreadsheetDict[self.tempCellLocation].controllerList = self.tempControllerList
+            self.spreadsheet.getCell(self.tempCellLocation).cellType = Cell.CellType.EQU
+            self.spreadsheet.getCell(self.tempCellLocation).cellValue = rootNode.calculatedValue
+            self.spreadsheet.getCell(self.tempCellLocation).parseTree = rootNode
+            self.spreadsheet.getCell(self.tempCellLocation).controllerList = self.tempControllerList
             # Recalculate the values in parse tree based on this updated cell.
-#             [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.tempCellLocation].userList]
+#             [self.recalculateValue(userCell) for userCell in self.spreadsheet.getCell(self.tempCellLocation).userList]
             # Trim the tree and print it.
             syntaxTreeRoot = self.trimParseTree(rootNode)
             self.printTruncatedTree(syntaxTreeRoot, 0)
@@ -268,28 +224,13 @@ class Scanner():
         else:
             curLine = inputLine.split()
             if len(curLine) == 2:
-                self.spreadsheetDict[self.verifyId(curLine[0])].cellType = Cell.CellType.NUM
-                self.spreadsheetDict[self.verifyId(curLine[0])].cellValue = int(curLine[1])
+                self.spreadsheet.getCell(curLine[0]).cellType = Cell.CellType.NUM
+                self.spreadsheet.getCell(curLine[0]).cellValue = int(curLine[1])
                 # Recalculate the values in parse tree based on this updated cell.
-#                 [self.recalculateValue(userCell) for userCell in self.spreadsheetDict[self.verifyId(curLine[0])].userList]
+#                 [self.recalculateValue(userCell) for userCell in self.spreadsheet.getCell(curLine[0]).userList]
             else:
                 raise ValueError('Input line does not match expected format: ' + inputLine)
         
-    # Define a method to print an individual cell of data.
-    def printCell(self, cellContents):
-        return str(cellContents) + (' ' * (8 - len(str(cellContents)))) + '|'
-        
-    # Define a method to print out the parsed tokens.
-    def printTokens(self):
-        # Print out the grid, or spreadsheet.
-        print('|' + self.printCell('') + self.printCell('A') + self.printCell('B') + 
-                self.printCell('C') + self.printCell('D') + self.printCell('E') + self.printCell('F'))
-        for row in range(0,10):
-            tempStr = '|' + self.printCell(row)
-            for col in range(1,7):
-                tempStr = tempStr + self.printCell(self.spreadsheetDict.get((indexToColDict[col] + str(row)), '').cellValue)
-            print(tempStr)
-
     # Define a function to perform a depth first search to print the parse tree.
     def printTree(self, tempNode, depth):
         print((depth * '\t') + '*** PARSE TREE NODE ***')
@@ -312,27 +253,11 @@ class Scanner():
         print((depth * '\t') + '*** SYNTAX TREE NODE ***')
         if tempNode.token is not None:
             print((depth * '\t') + 'Token: ' + str(tempNode.token.tokenValue))
-            
         if tempNode.leftNode != None and type(tempNode.leftNode) is ParseTreeNode.ParseTreeNode:
             self.printTruncatedTree(tempNode.leftNode, depth + 1)
         if tempNode.rightNode != None and type(tempNode.rightNode) is ParseTreeNode.ParseTreeNode:
             self.printTruncatedTree(tempNode.rightNode, depth + 1)
 
-    # Define a method to print out the controller and user lists for each cell.
-    def printCellInfo(self):
-        for row in range(0,10):
-            for col in range(1,7):
-                tempCell = self.spreadsheetDict.get((indexToColDict[col] + str(row)), '')
-                print('Cell ' + indexToColDict[col] + str(row) + ' Controller List: ')
-                if len(tempCell.controllerList) == 0:
-                    print('emtpy')
-                else:
-                    [print(tempController) for tempController in tempCell.controllerList] 
-                print('Cell ' + indexToColDict[col] + str(row) + ' User List: ')
-                if len(tempCell.userList) == 0:
-                    print('emtpy')
-                else:
-                    [print(tempUser) for tempUser in tempCell.userList]
 
 
 
