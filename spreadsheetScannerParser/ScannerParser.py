@@ -22,9 +22,20 @@ class ScannerParser():
         self.tempEquation = []
         self.tempCellLocation = None
         self.tempControllerList = []
+        self.regexIntFloatFormat = re.compile('[-]?\d+(\.\d*([Ee][- ]?\d+)?)?')
         # Initialize the spreadsheet with empty cells.
         self.spreadsheet = Spreadsheet.Spreadsheet()
 
+    # Define a method to verify that the input value matches the format of an int or float.
+    def verifyIntOrFloat(self, inputVal):
+        tempResult = self.regexIntFloatFormat.match(inputVal)
+        if tempResult is None:
+            raise ValueError('Error occurred matching numeric value ' + inputVal + ' to int/float format.')
+        if ('.' in inputVal) or ('e' in inputVal) or ('E' in inputVal):
+            return Cell.CellValueType.FLOAT
+        else:
+            return Cell.CellValueType.INT
+        
     # Define a method to match the current equation component to a value, and move to the next value.
     def matchToken(self, tokenVal):
         if self.tempEquation[0] == tokenVal:
@@ -224,8 +235,13 @@ class ScannerParser():
         else:
             curLine = inputLine.split()
             if len(curLine) == 2:
+                # Verify that the input is int/float format.
                 self.spreadsheet.getCell(curLine[0]).cellType = Cell.CellType.NUM
-                self.spreadsheet.getCell(curLine[0]).cellValue = int(curLine[1])
+                self.spreadsheet.getCell(curLine[0]).cellValueType = self.verifyIntOrFloat(curLine[1])
+                if self.spreadsheet.getCell(curLine[0]).cellValueType == Cell.CellValueType.INT:
+                    self.spreadsheet.getCell(curLine[0]).cellValue = int(curLine[1])
+                else:
+                    self.spreadsheet.getCell(curLine[0]).cellValue = float(curLine[1])
                 # Recalculate the values in parse tree based on this updated cell.
 #                 [self.recalculateValue(userCell) for userCell in self.spreadsheet.getCell(curLine[0]).userList]
             else:

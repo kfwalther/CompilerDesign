@@ -26,7 +26,7 @@ def processInputFile(inputFilePath):
                     print('WARNING: ' + err.args[0])
                     continue
         scannerParser.spreadsheet.printSpreadsheet()
-        scannerParser.spreadsheet.printCellInfo()
+#         scannerParser.spreadsheet.printCellInfo()
     return scannerParser
 
 # Run the Scanner Parser.
@@ -35,14 +35,14 @@ def runScannerParser(inputFile, outputFile):
 #     outputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), outputFile)
     scannerParser = processInputFile(inputFilePath)
     # Use these functions to test the ScannerParser.spreadsheet.getCell/clearCell methods.
-    print(str(scannerParser.spreadsheet.getCell('A0')))
-    print(str(scannerParser.spreadsheet.getCell('C5')))
-    scannerParser.spreadsheet.clearCell('C5')
+#     print(str(scannerParser.spreadsheet.getCell('A0')))
+#     print(str(scannerParser.spreadsheet.getCell('C5')))
+#     scannerParser.spreadsheet.clearCell('C5')
 #     ScannerParser.spreadsheet.printSpreadsheet()
 
 # Begin code execution here.
 if __name__ == "__main__":
-    runScannerParser('HW3-Input.txt', 'output.txt')
+    runScannerParser('HW5-Input.txt', 'output.txt')
     
 
 
