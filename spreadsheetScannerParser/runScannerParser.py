@@ -25,7 +25,6 @@ def processInputFile(inputFilePath):
                 except ValueError as err:
                     print('WARNING: ' + err.args[0])
                     continue
-#         scannerParser.recalculateSpreadsheet()
         scannerParser.spreadsheet.printSpreadsheet()
 #         scannerParser.spreadsheet.printCellInfo()
     return scannerParser
@@ -33,13 +32,7 @@ def processInputFile(inputFilePath):
 # Run the Scanner Parser.
 def runScannerParser(inputFile, outputFile):
     inputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), inputFile)
-#     outputFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), outputFile)
     scannerParser = processInputFile(inputFilePath)
-    # Use these functions to test the ScannerParser.spreadsheet.getCell/clearCell methods.
-#     print(str(scannerParser.spreadsheet.getCell('A0')))
-#     print(str(scannerParser.spreadsheet.getCell('C5')))
-#     scannerParser.spreadsheet.clearCell('C5')
-#     ScannerParser.spreadsheet.printSpreadsheet()
 
 # Begin code execution here.
 if __name__ == "__main__":

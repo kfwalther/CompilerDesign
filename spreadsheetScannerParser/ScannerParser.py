@@ -23,14 +23,16 @@ class ScannerParser():
         self.tempCellLocation = None
         self.tempControllerList = []
         self.regexIntFloatFormat = re.compile('[-]?\d+(\.\d*([Ee][- ]?\d+)?)?')
-        # Initialize the spreadsheet with empty cells.
+        # Initialize the spreadsheet.
         self.spreadsheet = Spreadsheet.Spreadsheet()
 
     # Define a method to verify that the input value matches the format of an int or float.
     def verifyIntOrFloat(self, inputVal):
+        # Use compiled regex object to quickly check for a match.
         tempResult = self.regexIntFloatFormat.match(inputVal)
         if tempResult is None:
             raise ValueError('Error occurred matching numeric value ' + inputVal + ' to int/float format.')
+        # Return the type of the matched value.
         if ('.' in inputVal) or ('e' in inputVal) or ('E' in inputVal):
             return Cell.ValueType.FLOAT
         else:
@@ -312,6 +314,5 @@ class ScannerParser():
                     self.calculateAST(tempCell.parseTree)
                     # Update the value of the cell based on calculated AST.
                     tempCell.cellValue = tempCell.parseTree.calculatedValue
-#                     print('Cell ' + (Spreadsheet.indexToColDict[col] + str(row)) + ' has value: ' + str(tempCell.parseTree.calculatedValue))
 
 

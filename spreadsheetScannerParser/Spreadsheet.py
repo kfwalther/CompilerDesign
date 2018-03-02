@@ -22,6 +22,7 @@ indexToColDict = {
 class Spreadsheet():
     def __init__(self):
         self.spreadsheetDict = {}
+        # Initialize the spreadsheet with all empty Cells.
         for row in range(0,10):
             for col in range(1,7):
                 self.spreadsheetDict[(indexToColDict[col] + str(row))] = Cell.Cell()

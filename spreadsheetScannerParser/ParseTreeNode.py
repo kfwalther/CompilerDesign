@@ -41,7 +41,7 @@ class ParseTreeNode():
     def performMathematicalOperation(self, leftVal, rightVal):
         # Check if we are operating on Parse Tree or AST.
         if self.childNode is not None:
-            # Perform the operation based on the operator.
+            # Perform the specific operation within the ParseTree.
             if self.childNode.childNode.tokenValue == '+':
                 self.calculatedValue = leftVal + rightVal
             elif self.childNode.childNode.tokenValue == '-':
@@ -51,7 +51,7 @@ class ParseTreeNode():
             elif self.childNode.childNode.tokenValue == '/':
                 self.calculatedValue = leftVal / rightVal
         else:
-            # Perform the operation based on the operator.
+            # Perform the specific operation within the AST.
             if self.token.tokenValue == '+':
                 self.calculatedValue = leftVal + rightVal
             elif self.token.tokenValue == '-':
