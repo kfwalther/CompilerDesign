@@ -32,23 +32,33 @@ class ParseTreeNode():
         if Cell.ValueType.FLOAT in [self.leftNode.calculatedValueType, self.rightNode.calculatedValueType]:
             # Both floats or promote to float.
             self.calculatedValueType = Cell.ValueType.FLOAT
-            # Perform the operation.
-            self.performMathematicalOperation(self, float(self.leftNode.calculatedValue), float(self.leftNode.calculatedValue))
+            self.performMathematicalOperation(float(self.leftNode.calculatedValue), float(self.rightNode.calculatedValue))
         else:
             self.calculatedValueType = Cell.ValueType.INT
-            # Perform the operation.
-            self.performMathematicalOperation(self, int(self.leftNode.calculatedValue), int(self.leftNode.calculatedValue))
+            self.performMathematicalOperation(int(self.leftNode.calculatedValue), int(self.rightNode.calculatedValue))
         
     # Define a method to perform the mathematical operation on two operands.
     def performMathematicalOperation(self, leftVal, rightVal):
-        # Perform the operation based on the operator.
-        if self.childNode.childNode.tokenValue == '+':
-            self.calculatedValue = leftVal + rightVal
-        elif self.childNode.childNode.tokenValue == '-':
-            self.calculatedValue = leftVal - rightVal
-        elif self.childNode.childNode.tokenValue == '*':
-            self.calculatedValue = leftVal * rightVal
-        elif self.childNode.childNode.tokenValue == '/':
-            self.calculatedValue = leftVal / rightVal
+        # Check if we are operating on Parse Tree or AST.
+        if self.childNode is not None:
+            # Perform the operation based on the operator.
+            if self.childNode.childNode.tokenValue == '+':
+                self.calculatedValue = leftVal + rightVal
+            elif self.childNode.childNode.tokenValue == '-':
+                self.calculatedValue = leftVal - rightVal
+            elif self.childNode.childNode.tokenValue == '*':
+                self.calculatedValue = leftVal * rightVal
+            elif self.childNode.childNode.tokenValue == '/':
+                self.calculatedValue = leftVal / rightVal
+        else:
+            # Perform the operation based on the operator.
+            if self.token.tokenValue == '+':
+                self.calculatedValue = leftVal + rightVal
+            elif self.token.tokenValue == '-':
+                self.calculatedValue = leftVal - rightVal
+            elif self.token.tokenValue == '*':
+                self.calculatedValue = leftVal * rightVal
+            elif self.token.tokenValue == '/':
+                self.calculatedValue = leftVal / rightVal  
 
     

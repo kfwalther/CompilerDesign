@@ -211,23 +211,23 @@ class ScannerParser():
             # We are at a leaf node, get the number or value from another Cell.
             if curNode.token.tokenType == Token.TokenType.ID:
                 # Get the latest Cell value and update calculated value.
-                curNode.calculatedValue = self.spreadsheet.getCell(curNode.token.tokenValue).getCellValue()
-                curNode.calculatedValueType = self.spreadsheet.getCell(curNode.token.tokenValue).CellValueType
+                curNode.calculatedValue = (self.spreadsheet.getCell(curNode.token.tokenValue).getCellValue() if 
+                        self.spreadsheet.getCell(curNode.token.tokenValue).getCellValue() else 'ERROR')
+                curNode.calculatedValueType = self.spreadsheet.getCell(curNode.token.tokenValue).cellValueType
             elif curNode.token.tokenType == Token.TokenType.NUM:
                 # Get the number value and update calculated value.
                 curNode.calculatedValue = curNode.token.tokenValue
                 curNode.calculatedValueType = curNode.token.tokenValueType
             return
-        # Otherwise, perform depth first search traversal.
+        # Otherwise, perform depth first search traversal to calculate tree values.
         else:
             # Calculate the left node.
             self.calculateAST(curNode.leftNode)
             # Calculate the right node.
             self.calculateAST(curNode.rightNode)
             # Perform the operation for the given operator and operand types.
-            
-        # Return the current node with its three children.
-        return curNode        
+            curNode.calculateValue()
+            return
     
     # Define a method to process a single line of input from the file.
     def processLine(self, inputLine):
@@ -256,7 +256,10 @@ class ScannerParser():
 #             [self.recalculateValue(userCell) for userCell in self.spreadsheet.getCell(self.tempCellLocation).userList]
             # Trim the tree and print it.
             syntaxTreeRoot = self.trimParseTree(rootNode)
+            self.spreadsheet.getCell(self.tempCellLocation).parseTree = syntaxTreeRoot
             self.printTruncatedTree(syntaxTreeRoot, 0)
+            # Calculate the AST value.
+            self.calculateAST(syntaxTreeRoot)
         # Identify the numeric cells.
         else:
             curLine = inputLine.split()
@@ -300,7 +303,13 @@ class ScannerParser():
         if tempNode.rightNode != None and type(tempNode.rightNode) is ParseTreeNode.ParseTreeNode:
             self.printTruncatedTree(tempNode.rightNode, depth + 1)
 
-
-
+    # Define a method to recalculate the spreadsheet values after scanning completes.
+    def recalculateSpreadsheet(self):
+        for row in range(0,10):
+            for col in range(1,7):
+                tempCell = self.spreadsheet.spreadsheetDict.get((Spreadsheet.indexToColDict[col] + str(row)), '')
+                if tempCell.cellType == Cell.CellType.EQU:
+                    self.calculateAST(tempCell.parseTree)
+                    print('Cell ' + (Spreadsheet.indexToColDict[col] + str(row)) + ' has value: ' + str(tempCell.parseTree.calculatedValue))
 
 

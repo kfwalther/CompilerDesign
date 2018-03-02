@@ -17,13 +17,13 @@ class TokenType(Enum):
 	
 class Token():
 	def __init__(self, tokenType=None, tokenValue=None, tokenValueType=None):
-		self.tokenType, self.tokenValueType = tokenType, tokenValueType
+		self.tokenType, self.tokenValue, self.tokenValueType = tokenType, tokenValue, tokenValueType
 		# Keep track if a NUM Token is Int or Float type.
 		if self.tokenType == TokenType.NUM:
-		if self.tokenValueType == Cell.ValueType.INT:
-			self.tokenValue = int(tokenValue)
-		else:
-			self.tokenValue = float(tokenValue)
+			if self.tokenValueType == Cell.ValueType.INT:
+				self.tokenValue = int(tokenValue)
+			else:
+				self.tokenValue = float(tokenValue)
 		
 	def printToken(self, treeDepth):
 		print((treeDepth * '\t') + '*** TOKEN NODE ***')
