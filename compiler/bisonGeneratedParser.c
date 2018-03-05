@@ -63,7 +63,7 @@
 
 /* Copy the first part of user declarations.  */
 
-#line 67 "sampleParser.tab.c" /* yacc.c:339  */
+#line 67 "bisonGeneratedParser.c" /* yacc.c:339  */
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -82,9 +82,9 @@
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "sampleParser.tab.h".  */
-#ifndef YY_YY_SAMPLEPARSER_TAB_H_INCLUDED
-# define YY_YY_SAMPLEPARSER_TAB_H_INCLUDED
+   by #include "bisonGeneratedParser.h".  */
+#ifndef YY_YY_BISONGENERATEDPARSER_H_INCLUDED
+# define YY_YY_BISONGENERATEDPARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -115,11 +115,11 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_SAMPLEPARSER_TAB_H_INCLUDED  */
+#endif /* !YY_YY_BISONGENERATEDPARSER_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 123 "sampleParser.tab.c" /* yacc.c:358  */
+#line 123 "bisonGeneratedParser.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1178,37 +1178,37 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 19 "sampleParser.y" /* yacc.c:1646  */
+#line 19 "bisonParserSource.y" /* yacc.c:1646  */
     { printf("Result is %d\n", (yyvsp[-1])); }
-#line 1184 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1184 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 21 "sampleParser.y" /* yacc.c:1646  */
+#line 21 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-2]) + (yyvsp[0]);  printf("expr: Returning %d\n", (yyval)); }
-#line 1190 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1190 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 22 "sampleParser.y" /* yacc.c:1646  */
+#line 22 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-2]) - (yyvsp[0]); }
-#line 1196 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1196 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 23 "sampleParser.y" /* yacc.c:1646  */
+#line 23 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); }
-#line 1202 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1202 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 25 "sampleParser.y" /* yacc.c:1646  */
+#line 25 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-2]) * (yyvsp[0]); }
-#line 1208 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1208 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 26 "sampleParser.y" /* yacc.c:1646  */
+#line 26 "bisonParserSource.y" /* yacc.c:1646  */
     { 
 								if ((yyvsp[0]) == 0) {
 									yyerror("Divide by zero!");
@@ -1216,35 +1216,35 @@ yyreduce:
 									(yyval) = (yyvsp[-2]) / (yyvsp[0]); 
 								}
 							}
-#line 1220 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1220 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 33 "sampleParser.y" /* yacc.c:1646  */
+#line 33 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); }
-#line 1226 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1226 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 35 "sampleParser.y" /* yacc.c:1646  */
+#line 35 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1232 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1232 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 36 "sampleParser.y" /* yacc.c:1646  */
+#line 36 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = -(yyvsp[0]); }
-#line 1238 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1238 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 37 "sampleParser.y" /* yacc.c:1646  */
+#line 37 "bisonParserSource.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); printf("Factor: Returning %d\n", (yyvsp[0])); }
-#line 1244 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1244 "bisonGeneratedParser.c" /* yacc.c:1646  */
     break;
 
 
-#line 1248 "sampleParser.tab.c" /* yacc.c:1646  */
+#line 1248 "bisonGeneratedParser.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1472,7 +1472,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 40 "sampleParser.y" /* yacc.c:1906  */
+#line 40 "bisonParserSource.y" /* yacc.c:1906  */
 
 /** Additional C code here. */
 #include <stdio.h>

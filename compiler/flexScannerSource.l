@@ -1,6 +1,5 @@
 %{
-#include "sampleParser.tab.h"
-//#include "parser.h"
+#include "bisonGeneratedParser.h"
 #include <math.h>
 inline int yywrap(void) { return 1; };
 %}
