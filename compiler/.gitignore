@@ -1,0 +1,5 @@
+# Ignore these files.
+*.exe
+*.output
+*.txt
+*.zip
