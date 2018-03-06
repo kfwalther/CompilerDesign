@@ -45,14 +45,29 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    NUMBER = 258,
-    NAME = 259
+    NUM = 258,
+    ID = 259,
+    INT_KEYWORD = 260,
+    VOID_KEYWORD = 261,
+    IF_KEYWORD = 262,
+    ELSE_KEYWORD = 263,
+    WHILE_KEYWORD = 264,
+    RETURN_KEYWORD = 265
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
+{
+#line 11 "bisonParserSource.y" /* yacc.c:1909  */
+
+int intVal; 	// Return an int.
+char * cptr;	// Return a string.
+
+#line 70 "bisonGeneratedParser.h" /* yacc.c:1909  */
+};
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
