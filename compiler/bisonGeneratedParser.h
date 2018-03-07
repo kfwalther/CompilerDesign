@@ -52,7 +52,15 @@ extern int yydebug;
     IF_KEYWORD = 262,
     ELSE_KEYWORD = 263,
     WHILE_KEYWORD = 264,
-    RETURN_KEYWORD = 265
+    RETURN_KEYWORD = 265,
+    LEFT_PAREN = 266,
+    RIGHT_PAREN = 267,
+    LEFT_BRACKET = 268,
+    RIGHT_BRACKET = 269,
+    LEFT_BRACES = 270,
+    RIGHT_BRACES = 271,
+    COMMA = 272,
+    SEMICOLON = 273
   };
 #endif
 
@@ -66,7 +74,7 @@ union YYSTYPE
 int intVal; 	// Return an int.
 char * cptr;	// Return a string.
 
-#line 70 "bisonGeneratedParser.h" /* yacc.c:1909  */
+#line 78 "bisonGeneratedParser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

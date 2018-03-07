@@ -11,19 +11,27 @@ DIGIT [0-9]
 LETTER [A-Za-z]
 
 %%
-[ \t\n];					/* ignore white space */
+[ \t]					{ printf("Ignoring whitespace...\n"); }
+\n						{ printf("Ignoreing newlines...\n"); }
 {DIGIT}+				{ yylval.intVal = atoi(yytext); return NUM; }
-(int)					{ yylval.cptr = yytext; printf("Matched: returning INT\n"); return INT_KEYWORD; }
-(void) 					{ yylval.cptr = yytext; return VOID_KEYWORD; }
-(if)					{ yylval.cptr = yytext; return IF_KEYWORD; }
-(else)					{ yylval.cptr = yytext; return ELSE_KEYWORD; }
-(while)					{ yylval.cptr = yytext; return WHILE_KEYWORD; }
-(return)				{ yylval.cptr = yytext; return RETURN_KEYWORD; }
+(int)					{ printf("Matched: returning INT\n"); return INT_KEYWORD; }
+(void) 					{ return VOID_KEYWORD; }
+(if)					{ return IF_KEYWORD; }
+(else)					{ return ELSE_KEYWORD; }
+(while)					{ return WHILE_KEYWORD; }
+(return)				{ return RETURN_KEYWORD; }
 "$"						{ return 0; /* end of input. */ }
 "="|"+"|"-"|"*"|"/"|"<"|">"|"\n"	{ return yytext[0]; }
-"("|")"|"["|"]"|"{"|"}"|","|";" 	{ return yytext[0]; }
+"("						{ return LEFT_PAREN; }
+")"						{ return RIGHT_PAREN; }
+"["						{ return LEFT_BRACKET; }
+"]"						{ return RIGHT_BRACKET; }
+"{"						{ return LEFT_BRACES; }
+"}"						{ return RIGHT_BRACES; }
+","						{ return COMMA; }
+";"						{ return SEMICOLON; }
 "<="|">="|"=="|"!="|"/*"|"*/" 		{ return yytext; }
-{LETTER}+				{ yylval.cptr = yytext; return ID; }
+{LETTER}+				{ yylval.cptr = yytext; printf("Matched: returning %s\n", yylval.cptr); return ID; }
 
 %%
 /** Define an array of strings to hold the possible keywords. */
