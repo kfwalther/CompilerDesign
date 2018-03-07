@@ -18,94 +18,98 @@ char * cptr;	// Return a string.
 %token ID 
 %token INT_KEYWORD VOID_KEYWORD IF_KEYWORD ELSE_KEYWORD WHILE_KEYWORD RETURN_KEYWORD
 %token LEFT_PAREN RIGHT_PAREN LEFT_BRACKET RIGHT_BRACKET LEFT_BRACES RIGHT_BRACES COMMA SEMICOLON
-%type <cptr> declarationList declaration varDeclaration typeSpecifier
+%token ASSIGN PLUS MINUS MULTIPLY DIVIDE LESS_THAN GREATER_THAN
+%token LESS_THAN_OR_EQUAL GREATER_THAN_OR_EQUAL EQUALITY NON_EQUALITY COMMENT_START COMMENT_END
+
+%type <cptr> declarationList 
+/** declaration varDeclaration typeSpecifier
 %type <cptr> funDeclaration 
-%type params 
+/** %type params 
 %type <cptr> compoundStmt
 %type <cptr> localDeclaration statementList statement expressionStmt selectionStmt
 %type <cptr> iterationStmt returnStmt expression var simpleExpression
 %type <cptr> relop additiveExpression addop term mulop factor call
-%type <cptr> args argList
+%type <cptr> args argList */
 %right '='
 %left '+' '-'
 %left '*' '/'
 
 %%
 /** Bison grammar rules go here. */
-program				: declarationList											{ printf("Program: Result is %s\n", $1); }
+program				: declarationList							{ printf("Program: %s\n", $1); }
 					;
-declarationList		: declarationList declaration 									{ printf("declarationList: Result is %s\n", $1); }
-					| declaration									{ printf("declarationList: Result is %s\n", $1); }
+declarationList		: declarationList declaration 					{ printf("declarationList: declarationList declaration\n"); }
+					| declaration									{ printf("declarationList: declaration\n"); }
 					;
-declaration			: varDeclaration | funDeclaration 									{ printf("declaration: Result is %s\n", $1); }
+declaration			: varDeclaration | funDeclaration 				{ printf("declaration: varDeclaration/funDeclarations\n"); }
 					;
-varDeclaration		: typeSpecifier ID SEMICOLON									{ printf("declaration: Result is %s\n", $1); }
-					| typeSpecifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON									{ printf("declaration: Result is %s\n", $1); }
+varDeclaration		: typeSpecifier ID SEMICOLON					{ printf("varDeclaration: typeSpecifier ID SEMICOLON\n"); }
+					| typeSpecifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON		{ printf("varDeclaration: typeSpecifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON\n"); }
 					;
-typeSpecifier		: INT_KEYWORD | VOID_KEYWORD 									{ printf("typeSpecifier: Result is INT/VOID\n"); }
+typeSpecifier		: INT_KEYWORD | VOID_KEYWORD 					{ printf("typeSpecifier: Result is INT/VOID\n"); }
 ;
-funDeclaration 		: typeSpecifier ID LEFT_PAREN params RIGHT_PAREN compoundStmt 									{ printf("funDeclaration: Result is\n"); }
+funDeclaration 		: typeSpecifier ID LEFT_PAREN params RIGHT_PAREN compoundStmt 	{ printf("funDeclaration: \n"); }
 ;
-params 				: paramList | VOID_KEYWORD 									{ printf("params: Result is a list\n"); }
+params 				: paramList | VOID_KEYWORD 					{ printf("params: \n"); }
 ;
-paramList			: paramList COMMA param 									{ printf("paramListN: Result is\n"); }
-					| param									{ printf("paramList1: Result is\n"); }
+paramList			: paramList COMMA param 					{ printf("paramListN: paramList COMMA param\n"); }
+					| param									{ printf("paramList1: param\n"); }
 					;
-param				: typeSpecifier ID 									{ printf("param: Result is\n"); }
-					| typeSpecifier ID LEFT_BRACKET RIGHT_BRACKET									{ printf("param: Result is \n"); }
+param				: typeSpecifier ID 									{ printf("param: typeSpecifier ID\n"); }
+					| typeSpecifier ID LEFT_BRACKET RIGHT_BRACKET		{ printf("param: typeSpecifier ID LEFT_BRACKET RIGHT_BRACKET\n"); }
 					;
-compoundStmt		: LEFT_BRACES localDeclaration statementList RIGHT_BRACES 									{ printf("compoundStmt: Result is %s\n", $2); }
+compoundStmt		: LEFT_BRACES localDeclaration statementList RIGHT_BRACES 		{ printf("compoundStmt:\n"); }
 ;
-localDeclaration 	: localDeclaration varDeclaration 									{ printf("localDeclaration: Result is %s\n", $1); }
-					| 
+localDeclaration 	: localDeclaration varDeclaration 					{ printf("localDeclaration: localDeclaration varDeclaration\n"); }
+					| 													{ printf("localDeclaration: [empty]\n"); }
 					;
-statementList 		: statementList statement 									{ printf("statementList: Result is %s\n", $1); }
-					|
+statementList 		: statementList statement 							{ printf("statementList: statementList statement\n"); }
+					| 													{ printf("localDeclaration: [empty]\n"); }
 					;
-statement 			: expressionStmt 									{ printf("statement: Result is %s\n", $1); }
-					| compoundStmt 									{ printf("statement: Result is %s\n", $1); }
-					| selectionStmt 									{ printf("statement: Result is %s\n", $1); }
-					| iterationStmt 									{ printf("statement: Result is %s\n", $1); }
-					| returnStmt									{ printf("statement: Result is %s\n", $1); }
+statement 			: expressionStmt 									{ printf("statement: expressionStmt\n"); }
+					| compoundStmt 									{ printf("statement: compoundStmt\n"); }
+					| selectionStmt 									{ printf("statement: selectionStmt\n"); }
+					| iterationStmt 									{ printf("statement: iterationStmt\n"); }
+					| returnStmt									{ printf("statement: returnStmt\n"); }
 					;
-expressionStmt		: expression SEMICOLON 									{ printf("expressionStmt: Result is %s\n", $1); }
-					| SEMICOLON									{ printf("expressionStmt: Result is ;\n"); }
+expressionStmt		: expression SEMICOLON 									{ printf("expressionStmt: expression ;\n"); }
+					| SEMICOLON									{ printf("expressionStmt: ;\n"); }
 					;
-selectionStmt 		: IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement 									{ printf("selectionStmt: \n"); }
-					| IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement ELSE_KEYWORD statement									{ printf("selectionStmt: \n"); }
+selectionStmt 		: IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement 		{ printf("selectionStmt: if ( exp ) { }\n"); }
+					| IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement ELSE_KEYWORD statement		{ printf("selectionStmt: if ( exp ) { } else {}\n"); }
 					;
-iterationStmt 		: WHILE_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement 									{ printf("iterationStmt:\n"); }
+iterationStmt 		: WHILE_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement 			{ printf("iterationStmt:\n"); }
 ;
-returnStmt 			: RETURN_KEYWORD SEMICOLON 									{ printf("returnStmt: Result is RETURN\n"); }
-					| RETURN_KEYWORD expression SEMICOLON									{ printf("returnStmt: Result is RETURN\n"); }
+returnStmt 			: RETURN_KEYWORD SEMICOLON 					{ printf("returnStmt: return ;\n"); }
+					| RETURN_KEYWORD expression SEMICOLON		{ printf("returnStmt: return ___; \n"); }
 					;
-expression			: var '=' expression 									{ printf("expression: Result is %s\n", $1); }
-					| simpleExpression									{ printf("expression: Result is %s\n", $1); }
+expression			: var ASSIGN expression 							{ printf("expression: var ASSIGN expression \n"); }
+					| simpleExpression									{ printf("expression: simpleExpression\n"); }
 					;
-var 				: ID | ID LEFT_BRACKET expression RIGHT_BRACKET 									{printf("var: Result is\n"); }
+var 				: ID | ID LEFT_BRACKET expression RIGHT_BRACKET 		{printf("var: \n"); }
 ;
-simpleExpression 	: additiveExpression relop additiveExpression 									{ printf("simpleExpression: Result is %s\n", $1); }
-					| additiveExpression									{ printf("simpleExpression: Result is %s\n", $1); }
+simpleExpression 	: additiveExpression relop additiveExpression 	{ printf("simpleExpression: additiveExpression relop additiveExpression\n"); }
+					| additiveExpression							{ printf("simpleExpression: additiveExpression\n"); }
 					;
-relop 				: "<=" | ">=" | "==" | "!=" | "<" | ">" ;
+relop 				: LESS_THAN_OR_EQUAL | GREATER_THAN_OR_EQUAL | EQUALITY | NON_EQUALITY | LESS_THAN | GREATER_THAN ;
 additiveExpression 	: additiveExpression addop term | term ;
-addop 				: '+' | '-' ;
-term 				: term mulop factor 									{ printf("term: Result is %s\n", $1); }
-| factor 									{ printf("term: Result is %s\n", $1); }
+addop 				: PLUS | MINUS ;
+term 				: term mulop factor 	{ printf("term: \n"); }
+| factor 									{ printf("term: \n"); }
 ;
-mulop 				: '*' | '/' ;
-factor 				: LEFT_PAREN expression RIGHT_PAREN 									{ printf("factor:\n"); }
-					| var 									{ printf("factor: Result is %s\n", $1); }
-					| call 									{ printf("factor: Result is %s\n", $1); }
-					| NUM									{ printf("factor: Result is %s\n", $1); }
+mulop 				: MULTIPLY | DIVIDE ;
+factor 				: LEFT_PAREN expression RIGHT_PAREN 	{ printf("factor: ( exp )\n"); }
+					| var 									{ printf("factor: var\n"); }
+					| call 									{ printf("factor: call\n"); }
+					| NUM									{ printf("factor: NUM\n"); }
 					;
 call 				: ID LEFT_PAREN args RIGHT_PAREN 									{ printf("call:\n"); }
 ;
 args 				:  									
-					| argList							{ printf("args: Result is %s\n", $1); }
+					| argList							{ printf("args: \n"); }
 					;
-argList 			: argList COMMA expression 									{ printf("argList: Result is %s\n", $1); }
-					| expression									{ printf("argList: Result is %s\n", $1); }
+argList 			: argList COMMA expression 									{ printf("argList: argList COMMA expression \n"); }
+					| expression									{ printf("argList: expression\n"); }
 					;
 
 /**

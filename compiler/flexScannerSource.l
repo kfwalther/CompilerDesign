@@ -11,17 +11,25 @@ DIGIT [0-9]
 LETTER [A-Za-z]
 
 %%
+
+
 [ \t]					{ printf("Ignoring whitespace...\n"); }
-\n						{ printf("Ignoreing newlines...\n"); }
-{DIGIT}+				{ yylval.intVal = atoi(yytext); return NUM; }
-(int)					{ printf("Matched: returning INT\n"); return INT_KEYWORD; }
-(void) 					{ return VOID_KEYWORD; }
-(if)					{ return IF_KEYWORD; }
-(else)					{ return ELSE_KEYWORD; }
-(while)					{ return WHILE_KEYWORD; }
-(return)				{ return RETURN_KEYWORD; }
+\n						{ printf("Ignoring newlines...\n"); }
+{DIGIT}+				{ printf("Matched NUM: %d\n", atoi(yytext)); yylval.intVal = atoi(yytext); return NUM; }
+(int)					{ printf("Matched Keyword: int\n"); return INT_KEYWORD; }
+(void) 					{ printf("Matched Keyword: void\n"); return VOID_KEYWORD; }
+(if)					{ printf("Matched Keyword: if\n"); return IF_KEYWORD; }
+(else)					{ printf("Matched Keyword: else\n"); return ELSE_KEYWORD; }
+(while)					{ printf("Matched Keyword: while\n"); return WHILE_KEYWORD; }
+(return)				{ printf("Matched Keyword: return\n"); return RETURN_KEYWORD; }
 "$"						{ return 0; /* end of input. */ }
-"="|"+"|"-"|"*"|"/"|"<"|">"|"\n"	{ return yytext[0]; }
+"="						{ return ASSIGN; }      
+"+"						{ return PLUS; }
+"-"						{ return MINUS; }
+"*"						{ return MULTIPLY; }
+"/"						{ return DIVIDE; }
+"<"						{ return LESS_THAN; }
+">"						{ return GREATER_THAN; }
 "("						{ return LEFT_PAREN; }
 ")"						{ return RIGHT_PAREN; }
 "["						{ return LEFT_BRACKET; }
@@ -29,9 +37,14 @@ LETTER [A-Za-z]
 "{"						{ return LEFT_BRACES; }
 "}"						{ return RIGHT_BRACES; }
 ","						{ return COMMA; }
-";"						{ return SEMICOLON; }
-"<="|">="|"=="|"!="|"/*"|"*/" 		{ return yytext; }
-{LETTER}+				{ yylval.cptr = yytext; printf("Matched: returning %s\n", yylval.cptr); return ID; }
+";"						{ return SEMICOLON; }     
+"<="					{ return LESS_THAN_OR_EQUAL; }
+">="					{ return GREATER_THAN_OR_EQUAL; }
+"=="					{ return EQUALITY; }
+"!="					{ return NON_EQUALITY; }
+"/*"					{ return COMMENT_START; }
+"*/" 					{ return COMMENT_END; }
+{LETTER}+				{ yylval.cptr = yytext; printf("Matched ID: returning %s\n", yylval.cptr); return ID; }
 
 %%
 /** Define an array of strings to hold the possible keywords. */

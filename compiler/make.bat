@@ -11,4 +11,5 @@ win_bison -d bisonParserSource.y ^
 --graph=graph.txt
 
 :: Call GCC to compile the C code into an executable.
-gcc -o flexBisonScannerParser.exe bisonGeneratedParser.c flexGeneratedScanner.c
+:: Put gcc option '-w' to hide all warnings.
+gcc -o flexBisonScannerParser.exe bisonGeneratedParser.c flexGeneratedScanner.c -w
