@@ -6,6 +6,8 @@
 *.pdf
 *.dot
 *.o
-
+bisonGeneratedParser.cpp
+bisonGeneratedParser.hpp
+flexGeneratedScanner.cpp
 
 

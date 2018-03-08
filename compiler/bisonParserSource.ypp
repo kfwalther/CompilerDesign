@@ -158,7 +158,9 @@ void yyerror(char const * errmsg) {
 
 /** yyparse() calls yylex() but yylex implementation doesn't exist. Instead, Flex 
  * 	defined yyFlexLexer::yylex() for us so define a global yyFlexLexer object here to 
- * 	redirect yylex() calls to the Flex-generated verion. */
+ * 	redirect yylex() calls to the Flex-generated verion. See: 
+ * 	https://bytes.com/topic/c/answers/166621-compile-flex-bison
+ * 	*/
 int yylex() {
 	return yyFlexLexerObject.yylex();
 }
