@@ -1,16 +1,15 @@
 %{
-#include "bisonGeneratedParser.h"
+#include "bisonGeneratedParser.hpp"
 #include <math.h>
-inline int yywrap(void) { return 1; };
-#define YYERROR_VERBOSE 1
-
+int yyFlexLexer::yywrap() { return 1; };
 %}
+%option c++
 
 /* flex definitions */
 DIGIT [0-9]
 LETTER [A-Za-z]
 START_COMMENT ("/*")
-		
+
 %%
 ("/*")([^("*")]|[\n]|(("*")+([^("*/")]|[\n])))*("*/") 	{ printf("Matched Multi-line Comment! %s\n", yytext); }
 [ \t]					{ printf("Ignoring whitespace...\n"); }

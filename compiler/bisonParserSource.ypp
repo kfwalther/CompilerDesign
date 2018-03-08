@@ -2,10 +2,19 @@
 
 /** Put any C declarations inside the %{ %} section. */
 /** TODO: Figure out why these declarations aren't getting to the code section below. */
-/** %code {
-	#include <stdio.h>
-	#define YYSTYPE int
-%} */
+%{
+	/*#include <stdio.h> */
+	/*#define YYSTYPE int */
+#include <iostream>
+#include <cstdio>
+#include <FlexLexer.h>
+/** yyparse() calls yylex() but yylex implementation doesn't exist. Instead, Flex 
+ * 	defined yyFlexLexer::yylex() for us so define a global yyFlexLexer object here to 
+ * 	redirect yylex() calls to the Flex-generated verion. */
+yyFlexLexer yyFlexLexerObject;
+int yylex();
+void yyerror(char const * tempChar);
+%} 
 
 /** Put any Bison declarations after the C declarations. */
 /** Define the attributes to add to yylval. */
@@ -143,13 +152,19 @@ factor  : '(' expr ')'    	{ $$ = $2; }
 #define YYSTYPE int
 
 /* Required yyerror definition to display error message. */
-int yyerror(char * errmsg) {
+void yyerror(char const * errmsg) {
 	printf("ERROR: %s\n", errmsg);
 }
 
+/** yyparse() calls yylex() but yylex implementation doesn't exist. Instead, Flex 
+ * 	defined yyFlexLexer::yylex() for us so define a global yyFlexLexer object here to 
+ * 	redirect yylex() calls to the Flex-generated verion. */
+int yylex() {
+	return yyFlexLexerObject.yylex();
+}
 
 /** Define the main entry point to the program. */
-main() {
+int main(int numArguments, char const * const * arguments) {
 	printf("Type some input. Enter ? for help.\n");
 	yyparse();
 }
