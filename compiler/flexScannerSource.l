@@ -9,10 +9,10 @@ inline int yywrap(void) { return 1; };
 /* flex definitions */
 DIGIT [0-9]
 LETTER [A-Za-z]
-
+START_COMMENT ("/*")
+		
 %%
-
-
+("/*")([^("*")]|[\n]|(("*")+([^("*/")]|[\n])))*("*/") 	{ printf("Matched Multi-line Comment! %s\n", yytext); }
 [ \t]					{ printf("Ignoring whitespace...\n"); }
 \n						{ printf("Ignoring newlines...\n"); }
 {DIGIT}+				{ printf("Matched NUM: %d\n", atoi(yytext)); yylval.intVal = atoi(yytext); return NUM; }
@@ -42,11 +42,11 @@ LETTER [A-Za-z]
 ">="					{ return GREATER_THAN_OR_EQUAL; }
 "=="					{ return EQUALITY; }
 "!="					{ return NON_EQUALITY; }
-"/*"					{ return COMMENT_START; }
-"*/" 					{ return COMMENT_END; }
 {LETTER}+				{ yylval.cptr = yytext; printf("Matched ID: returning %s\n", yylval.cptr); return ID; }
 
 %%
+/* START_COMMENT([^*]|[\r\n]|(("*")+([^*"/"]|[\r\n])))*("*")+("/") 	{ printf("Matched Multi-line Comment!\n"); } */
+
 /** Define an array of strings to hold the possible keywords. */
 /** const char  * keywordList[6];
 keywordList[0] = "int";
