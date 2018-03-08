@@ -1,10 +1,11 @@
 /** Declarations go here. */ 
 
-/** Put any C declarations inside the %{ %} section.
-%code {
+/** Put any C declarations inside the %{ %} section. */
+/** TODO: Figure out why these declarations aren't getting to the code section below. */
+/** %code {
 	#include <stdio.h>
 	#define YYSTYPE int
-%}
+%} */
 
 /** Put any Bison declarations after the C declarations. */
 /** Define the attributes to add to yylval. */
@@ -21,11 +22,8 @@ char * cptr;	// Return a string.
 %token ASSIGN PLUS MINUS MULTIPLY DIVIDE LESS_THAN GREATER_THAN
 %token LESS_THAN_OR_EQUAL GREATER_THAN_OR_EQUAL EQUALITY NON_EQUALITY COMMENT_START COMMENT_END
 
-%type <cptr> declarationList 
-/** declaration varDeclaration typeSpecifier
-%type <cptr> funDeclaration 
-/** %type params 
-%type <cptr> compoundStmt
+/** %type <cptr> declarationList declaration varDeclaration typeSpecifier
+%type <cptr> funDeclaration params compoundStmt
 %type <cptr> localDeclaration statementList statement expressionStmt selectionStmt
 %type <cptr> iterationStmt returnStmt expression var simpleExpression
 %type <cptr> relop additiveExpression addop term mulop factor call
@@ -36,7 +34,7 @@ char * cptr;	// Return a string.
 
 %%
 /** Bison grammar rules go here. */
-program				: declarationList							{ printf("Program: %s\n", $1); }
+program				: declarationList							{ printf("Program: \n"); }
 					;
 declarationList		: declarationList declaration 					{ printf("declarationList: declarationList declaration\n"); }
 					| declaration									{ printf("declarationList: declaration\n"); }

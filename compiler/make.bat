@@ -8,8 +8,11 @@ win_flex --outfile=flexGeneratedScanner.c flexScannerSource.l
 win_bison -d bisonParserSource.y ^
 --output=bisonGeneratedParser.c ^
 --verbose ^
---graph=graph.txt
+--graph=parseGraph.dot
 
 :: Call GCC to compile the C code into an executable.
 :: Put gcc option '-w' to hide all warnings.
 gcc -o flexBisonScannerParser.exe bisonGeneratedParser.c flexGeneratedScanner.c -w
+
+:: Run dot.exe on the generated Bison digraph to generate visualization.
+dot -T pdf parseGraph.dot -o parseGraph.pdf
