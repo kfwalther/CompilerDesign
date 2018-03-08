@@ -247,7 +247,6 @@ class ScannerParser():
             self.tempCellLocation = self.tempEquation[0]
             self.tempControllerList = []
             rootNode = self.recursiveDescentParse()
-            print('Printing parse tree at cell: ' + self.tempCellLocation)
             # Update the current cell with the new information from the recursive parse.
             self.spreadsheet.getCell(self.tempCellLocation).cellType = Cell.CellType.EQU
             self.spreadsheet.getCell(self.tempCellLocation).cellValue = rootNode.calculatedValue
@@ -256,6 +255,7 @@ class ScannerParser():
             # Trim the tree and print it.
             syntaxTreeRoot = self.trimParseTree(rootNode)
             self.spreadsheet.getCell(self.tempCellLocation).parseTree = syntaxTreeRoot
+            print('Printing AST at cell: ' + self.tempCellLocation)
             self.printTruncatedTree(syntaxTreeRoot, 0)
             # Calculate the AST value.
             self.calculateAST(syntaxTreeRoot)
@@ -300,6 +300,7 @@ class ScannerParser():
         print((depth * '\t') + '*** SYNTAX TREE NODE ***')
         if tempNode.token is not None:
             print((depth * '\t') + 'Token: ' + str(tempNode.token.tokenValue))
+            print((depth * '\t') + 'Value: ' + str(tempNode.calculatedValue))
         if tempNode.leftNode != None and type(tempNode.leftNode) is ParseTreeNode.ParseTreeNode:
             self.printTruncatedTree(tempNode.leftNode, depth + 1)
         if tempNode.rightNode != None and type(tempNode.rightNode) is ParseTreeNode.ParseTreeNode:
