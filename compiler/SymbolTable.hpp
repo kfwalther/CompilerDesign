@@ -3,7 +3,8 @@
  */
 
 #include <string>
-#include <memory>
+#include <iostream>
+//#include <memory>
 #include <map>
 
 /** Define an object to store a single entry in the symbol table. */
@@ -11,7 +12,7 @@ struct SymbolRecord {
 	/** Alias the types used with this class. */
 	typedef std::string SymbolNameType;
 	typedef int SymbolValueType;
-	typedef std::unique_ptr<SymbolRecord> SymbolRecordPtrType;
+	typedef SymbolRecord * SymbolRecordPtrType;
 	
 	/** Define constructors. */
 	SymbolRecord();
@@ -27,7 +28,7 @@ struct SymbolRecord {
 struct SymbolTable {
 	/** Alias the types used with this class. */
 	typedef std::map<SymbolRecord::SymbolNameType, SymbolRecord> SymbolTableType;
-	typedef std::unique_ptr<SymbolTable> SymbolTablePtrType;
+	typedef SymbolTable * SymbolTablePtrType;
 
 	/** Define constructors. */
 	SymbolTable();

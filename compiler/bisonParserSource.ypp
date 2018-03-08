@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cstdio>
 #include <FlexLexer.h>
+//#include "AstNode.hpp"
+
 /** yyparse() calls yylex() but yylex implementation doesn't exist. Instead, Flex 
  * 	defined yyFlexLexer::yylex() for us so define a global yyFlexLexer object here to 
  * 	redirect yylex() calls to the Flex-generated verion. */
@@ -21,6 +23,7 @@ void yyerror(char const * tempChar);
 %union {
 int intVal; 	// Return an int.
 char * cptr;	// Return a string.
+//struct AstNode astNode;
 }
 
 /** Define the type of each grammar rule, as well as precedences. */
@@ -31,19 +34,24 @@ char * cptr;	// Return a string.
 %token ASSIGN PLUS MINUS MULTIPLY DIVIDE LESS_THAN GREATER_THAN
 %token LESS_THAN_OR_EQUAL GREATER_THAN_OR_EQUAL EQUALITY NON_EQUALITY COMMENT_START COMMENT_END
 
-/** %type <cptr> declarationList declaration varDeclaration typeSpecifier
-%type <cptr> funDeclaration params compoundStmt
-%type <cptr> localDeclaration statementList statement expressionStmt selectionStmt
-%type <cptr> iterationStmt returnStmt expression var simpleExpression
-%type <cptr> relop additiveExpression addop term mulop factor call
-%type <cptr> args argList */
+%type <astNode> program declarationList declaration varDeclaration typeSpecifier
+%type <astNode> funDeclaration params paramList param compoundStmt
+%type <astNode> localDeclaration statementList statement expressionStmt selectionStmt
+%type <astNode> iterationStmt returnStmt expression var simpleExpression
+%type <astNode> relop additiveExpression addop term mulop factor call
+%type <astNode> args argList
+
 %right '='
 %left '+' '-'
 %left '*' '/'
 
 %%
 /** Bison grammar rules go here. */
-program				: declarationList							{ printf("Program: \n"); }
+program				: declarationList							{ 
+																	printf("Program: \n"); /*
+																	AstNode::AstNodePtrListType tempList; 
+																	$$ = new AstNode(AbstractSyntaxTreeNodeType::Program, tempList.push_back($1)); */
+																}
 					;
 declarationList		: declarationList declaration 					{ printf("declarationList: declarationList declaration\n"); }
 					| declaration									{ printf("declarationList: declaration\n"); }
@@ -88,7 +96,7 @@ selectionStmt 		: IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement 		{ pri
 iterationStmt 		: WHILE_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement 			{ printf("iterationStmt:\n"); }
 ;
 returnStmt 			: RETURN_KEYWORD SEMICOLON 					{ printf("returnStmt: return ;\n"); }
-					| RETURN_KEYWORD expression SEMICOLON		{ printf("returnStmt: return ___; \n"); }
+					| RETURN_KEYWORD expression SEMICOLON		{ printf("returnStmt: return exp ; \n"); }
 					;
 expression			: var ASSIGN expression 							{ printf("expression: var ASSIGN expression \n"); }
 					| simpleExpression									{ printf("expression: simpleExpression\n"); }
