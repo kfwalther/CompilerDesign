@@ -15,13 +15,6 @@ if(NOT CMAKE_BUILD_TYPE)
        FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-if(NOT WITH_DEMO)
-  message(STATUS "Building without demo. To enable demo build use: -DWITH_DEMO=True")
-  set(WITH_DEMO True CACHE STRING
-    "Chose to build with or without demo executable"
-    FORCE)
-endif(NOT WITH_DEMO)
-
 option(WITH_LIBCXX "Building with clang++ and libc++(in Linux). To enable with: -DWITH_LIBCXX=On" On)
 
 project(LIBANTLR4)
@@ -48,23 +41,22 @@ if(APPLE)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 endif()
 
-file(STRINGS "VERSION" ANTLR_VERSION)
+set(ANTLR_VERSION "4.7.1")
 
-if (WITH_DEMO)
-  # Java is not necessary if building without demos.
-  find_package(Java COMPONENTS Runtime REQUIRED)
+# Java is not necessary if building without demos.
+find_package(Java COMPONENTS Runtime REQUIRED)
 
-  if (NOT ANTLR_JAR_LOCATION)
-    message(FATAL_ERROR "Missing antlr4.jar location. You can specify it's path using: -DANTLR_JAR_LOCATION=<path>")
-  else()
-    get_filename_component(ANTLR_NAME ${ANTLR_JAR_LOCATION} NAME_WE)
-    if(NOT EXISTS "${ANTLR_JAR_LOCATION}")
-      message(FATAL_ERROR "Unable to find ${ANTLR_NAME} in ${ANTLR_JAR_LOCATION}")
-    else()
-      message(STATUS "Found ${ANTLR_NAME}: ${ANTLR_JAR_LOCATION}")
-    endif()
-  endif()
-endif(WITH_DEMO)
+# Find the antlr4 jar file to use to generate C++ files from the grammars.
+if(NOT ANTLR_JAR_LOCATION)
+	message(FATAL_ERROR "Missing antlr4.jar location. You can specify it's path using: -DANTLR_JAR_LOCATION=<path>")
+else()
+	get_filename_component(ANTLR_NAME ${ANTLR_JAR_LOCATION} NAME_WE)
+	if(NOT EXISTS "${ANTLR_JAR_LOCATION}")
+		message(FATAL_ERROR "Unable to find ${ANTLR_NAME} in ${ANTLR_JAR_LOCATION}")
+	else()
+		message(STATUS "Found ${ANTLR_NAME}: ${ANTLR_JAR_LOCATION}")
+	endif()
+endif()
 
 if (MSVC_VERSION)
   set(MY_CXX_WARNING_FLAGS "  /W4")
@@ -123,19 +115,13 @@ else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
-
+# Add the C++ runtime subdirectory.
 add_subdirectory(runtime)
-if (WITH_DEMO)
- add_subdirectory(demo)
-endif(WITH_DEMO)
-
-if( EXISTS LICENSE.txt)
-install(FILES LICENSE.txt
-        DESTINATION "share/doc/libantlr4")
-elseif(EXISTS ../../LICENSE.txt) 
-install(FILES ../../LICENSE.txt
-    DESTINATION "share/doc/libantlr4")
-endif()
+add_subdirectory(demo)
 
 install(FILES README.md VERSION 
     DESTINATION "share/doc/libantlr4")
+
+	
+	
+	
