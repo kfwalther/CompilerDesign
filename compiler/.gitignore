@@ -1,13 +1,10 @@
 # Ignore these files.
-*.exe
-*.output
-*.txt
-*.zip
-*.pdf
-*.dot
-*.o
-bisonGeneratedParser.cpp
-bisonGeneratedParser.hpp
-flexGeneratedScanner.cpp
+VS15W64/
+dist/
+jar/
+demo/generated/
+runtime/src/
 
-
+*.filters
+*.vcxproj
+*.sln

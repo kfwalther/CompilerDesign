@@ -1,0 +1,21 @@
+ProjectNotes
+
+ANTLR Installation
+
+ - Clone the ANTLR repo to computer.
+
+ - Download the antlr-complete.jar from the main site and put it somewhere in repo
+
+Use CMake to build demo
+CMake for Eclipse/MinGW has link errors.
+CMake for Visual Studio works well.
+
+Using instructions from the site below to build entire project
+with CMake from scratch:
+http://blorente.me/Antlr-,-C++-and-CMake-Wait-what.html
+This builds using the provided vcproj files (which are 32-bit). We want 64-bit so
+going to use a different approach.
+
+Copy the C++ runtime code from the repo (antlr4\runtime\Cpp) to a local directory. Then,
+copy the antlr-complete.jar from the main site and put it into this directory also.
+
