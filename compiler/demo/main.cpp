@@ -11,6 +11,7 @@
 //
 
 #include <iostream>
+//#include <fstream>
 
 #include "antlr4-runtime.h"
 #include "TLexer.h"
@@ -19,9 +20,14 @@
 using namespace antlrcpptest;
 using namespace antlr4;
 
-int main(int , const char **) {
-	ANTLRInputStream input(u8"🍴 = 🍐 + \"😎\";(((x * π))) * µ + ∰; a + (x * (y ? 0 : 1) + z);");
-	TLexer lexer(&input);
+
+/** Define the function to parse the input file. */
+void ParseInputFile(std::ifstream & inputStream) {
+	/** Define the ANTLRInputStream object. */
+	ANTLRInputStream antlrInputStream(inputStream);
+	/** Define the lexer object. */
+	TLexer lexer(&antlrInputStream);
+	/** Define the stream of tokens. */
 	CommonTokenStream tokens(&lexer);
 
 	tokens.fill();
@@ -33,6 +39,20 @@ int main(int , const char **) {
 	tree::ParseTree* tree = parser.main();
 
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+}
 
-	return 0;
+int main(int , const char **) {
+
+	/** Specify the input file to read. */
+	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/Test1.txt");
+	std::ifstream inputStream(inputFile);
+	if (inputStream.is_open()) {
+		ParseInputFile(inputStream);
+	}
+	else {
+		std::cerr << ("ERROR: Problem opening the provided input file with std::ifstream: " + inputFile) << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }
