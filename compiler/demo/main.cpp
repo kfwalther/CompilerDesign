@@ -16,6 +16,7 @@
 #include "antlr4-runtime.h"
 #include "TLexer.h"
 #include "TParser.h"
+#include "ParseTreeListener.h"
 
 using namespace antlrcpptest;
 using namespace antlr4;
@@ -35,20 +36,26 @@ void ParseInputFile(std::ifstream & inputStream) {
 	for (auto token : tokens.getTokens()) {
 		std::cout << token->toString() << std::endl;
 	}
-
-	std::cout << "Parsing the tokens based on BNF..." << std::endl;
-
+	/** Create the parser object, and initialize the symbol table. */
 	TParser parser(&tokens);
+	parser.initializeSymbolTable();
+
+	/** Define our custom listener to perform actions during the parse. */
+	ParseTreeListener * parseTreeListener = new ParseTreeListener(&parser);
+	parser.addParseListener(parseTreeListener);
+
 	/** Tell the parser to parse the input starting from a given BNF rule, in this case 'program'. */
 	tree::ParseTree* tree = parser.program();
 	std::cout << "Printing the parse tree..." << std::endl;
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+
+	parser.getSymbolTable()->printSymbolTable();
 }
 
 int main(int , const char **) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-3.txt");
+	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);
