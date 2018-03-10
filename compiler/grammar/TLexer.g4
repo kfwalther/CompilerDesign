@@ -59,6 +59,9 @@ DIGIT: [0-9];
 ID: LETTER (LETTER | '0'..'9')*;
 LETTER: [a-zA-Z];
 
+// Indicate that after beginning of comment, match anything until the comment terminator is encountered.
+COMMENT: '/*' .*? '*/' -> channel(CommentsChannel);
+
 WS: [ \t\r\n]+ -> channel(99);
 
 ASSIGN: '=';
@@ -81,7 +84,6 @@ GREATER_THAN_OR_EQUAL: '>=';
 EQUALITY: '==';
 NON_EQUALITY: '!=';
 
-//Comment: ('/*')([^*]|[\r\n]|(('*')+([^*'/']|[\r\n])))*('*')+('/') -> channel(CommentsChannel);
 
 //String: '"' .*? '"';
 

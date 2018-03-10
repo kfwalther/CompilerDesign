@@ -48,7 +48,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 int main(int , const char **) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-0.txt");
+	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-3.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);
