@@ -31,24 +31,20 @@ void ParseInputFile(std::ifstream & inputStream) {
 	CommonTokenStream tokens(&lexer);
 
 	tokens.fill();
-	std::cout << "****TOKENS*****" << std::endl;
 	for (auto token : tokens.getTokens()) {
 		std::cout << token->toString() << std::endl;
 	}
 
-	std::cout << "Parsing the tokens based on BNF..." << std::endl;
-
 	TParser parser(&tokens);
-	/** Tell the parser to parse the input starting from a given BNF rule, in this case 'program'. */
-	tree::ParseTree* tree = parser.program();
-	std::cout << "Printing the parse tree..." << std::endl;
+	tree::ParseTree* tree = parser.main();
+
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 }
 
 int main(int , const char **) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-0.txt");
+	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/Test1.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);

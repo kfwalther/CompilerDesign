@@ -41,15 +41,15 @@ include_directories(
 )
 
 set(ANTLR4_GRAMMAR_SRC 
-  ${PROJECT_SOURCE_DIR}/demo/main.cpp
-  ${ANTLR4_GRAMMAR_GENERATED_SRC}
+	${PROJECT_SOURCE_DIR}/demo/main.cpp
+	${ANTLR4_GRAMMAR_GENERATED_SRC}
 )
 
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	set(ADDITIONAL_FLAGS "-Wno-overloaded-virtual")
 else()
 	set(ADDITIONAL_FLAGS "-MP /wd4251")
-endif()
+endif ()
 
 foreach( src_file ${ANTLR4_GRAMMAR_SRC} )
 	set_source_files_properties(
@@ -62,8 +62,25 @@ endforeach( src_file ${ANTLR4_GRAMMAR_SRC} )
 add_executable(ANTLR4GrammarTest
 	${ANTLR4_GRAMMAR_SRC}
 )
-#add_precompiled_header(antlr4-demo ${PROJECT_SOURCE_DIR}/runtime/src/antlrcpp-Prefix.h)
+#add_precompiled_header(ANTLR4GrammarTest ${PROJECT_SOURCE_DIR}/runtime/src/antlrcpp-Prefix.h)
 
+# Make a Visual Studio folder in this project to house the grammars.
+message("${PROJECT_SOURCE_DIR}/grammar/TLexer.g4")
+source_group("grammar" FILES ${PROJECT_SOURCE_DIR}/demo/main.cpp)
+#source_group("grammar" FILES "${PROJECT_SOURCE_DIR}/grammar/TLexer.g4")
+#source_group("grammar" FILES "${PROJECT_SOURCE_DIR}/grammar/TParser.g4")
+#file(GLOB_RECURSE LEX_PARSER_RULE_FILES 
+#    LIST_DIRECTORIES false
+#    "${PROJECT_SOURCE_DIR}/grammar/*.g4*"
+#)
+#foreach(SRC_FILE IN ITEMS ${LEX_PARSER_RULE_FILES})
+#    get_filename_component(SOURCE_PATH "${SRC_FILE}" PATH)
+#    file(RELATIVE_PATH SOURCE_RELATIVE_PATH "${PROJECT_SOURCE_DIR}" "${SOURCE_PATH}")
+#    string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_RELATIVE_PATH}")
+#    source_group("${GROUP_PATH}" FILES "${SRC_FILE}")
+#endforeach()
+
+# Add an MSVC compile option.
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_compile_options(ANTLR4GrammarTest PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()

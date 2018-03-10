@@ -29,12 +29,9 @@ set(LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib") # put generated libraries here.
 message(STATUS "Output libraries to ${LIB_OUTPUT_DIR}")
 
 # make sure 'make' works fine even if ${LIB_OUTPUT_DIR} is deleted.
-add_custom_target(make_lib_output_dir ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_OUTPUT_DIR}
-    )
-
-add_dependencies(antlr4_shared make_lib_output_dir)
-add_dependencies(antlr4_static make_lib_output_dir)
+#add_custom_target(make_lib_output_dir ALL
+#    COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_OUTPUT_DIR}
+#    )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   target_link_libraries(antlr4_shared ${UUID_LIBRARIES})

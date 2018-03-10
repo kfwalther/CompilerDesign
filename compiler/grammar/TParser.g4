@@ -68,52 +68,56 @@ void doAfter() {}
 @parser::basevisitordefinitions {/* base visitor definitions section */}
 
 // Actual grammar start.
-main: stat+ EOF;
-divide : ID (and_ GreaterThan)? {doesItBlend()}?;
-and_ @init{ doInit(); } @after { doAfter(); } : And ;
+program				: declarationList ;
+declarationList		: declarationList declaration | declaration ;
+declaration			: varDeclaration | funDeclaration ;
+varDeclaration		: typeSpecifier ID SEMICOLON
+					| typeSpecifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON
+					;
+typeSpecifier		: INT_KEYWORD | VOID_KEYWORD ;
+funDeclaration 		: typeSpecifier ID LEFT_PAREN params RIGHT_PAREN compoundStmt ;
+params 				: paramList | VOID_KEYWORD ;
+paramList			: paramList COMMA param | param	;
+param				: typeSpecifier ID
+					| typeSpecifier ID LEFT_BRACKET RIGHT_BRACKET
+					;
+compoundStmt		: LEFT_BRACES localDeclaration statementList RIGHT_BRACES ;
+localDeclaration 	: localDeclaration varDeclaration
+					| 
+					;
+statementList 		: statementList statement 
+					| 
+					;
+statement 			: expressionStmt
+					| compoundStmt
+					| selectionStmt
+					| iterationStmt 
+					| returnStmt
+					;
+expressionStmt		: expression SEMICOLON | SEMICOLON ;
+selectionStmt 		: IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement
+					| IF_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement ELSE_KEYWORD statement
+					;
+iterationStmt 		: WHILE_KEYWORD LEFT_PAREN expression RIGHT_PAREN statement ;
+returnStmt 			: RETURN_KEYWORD SEMICOLON 
+					| RETURN_KEYWORD expression SEMICOLON
+					;
+expression			: <assoc = right> var ASSIGN expression | simpleExpression ;
+var 				: ID | ID LEFT_BRACKET expression RIGHT_BRACKET ;
+simpleExpression 	: additiveExpression relop additiveExpression | additiveExpression ;
+relop 				: LESS_THAN_OR_EQUAL | GREATER_THAN_OR_EQUAL | EQUALITY | NON_EQUALITY | LESS_THAN | GREATER_THAN ;
+additiveExpression 	: <assoc = left> additiveExpression addop term | term ;
+addop 				: PLUS | MINUS ;
+term 				: <assoc = left> term mulop factor | factor ;
+mulop 				: MULTIPLY | DIVIDE ;
+factor 				: LEFT_PAREN expression RIGHT_PAREN
+					| var
+					| call
+					| NUM
+					;
+call 				: ID LEFT_PAREN args RIGHT_PAREN ;
+args 				: argList							
+					| 
+					;
+argList 			: argList COMMA expression | expression ;
 
-conquer:
-	divide+
-	| {doesItBlend()}? and_ { myAction(); }
-	| ID (LessThan* divide)?? { $ID.text; }
-;
-
-// Unused rule to demonstrate some of the special features.
-unused[double input = 111] returns [double calculated] locals [int _a, double _b, int _c] @init{ doInit(); } @after { doAfter(); } :
-	stat
-;
-catch [...] {
-  // Replaces the standard exception handling.
-}
-finally {
-  cleanUp();
-}
-
-unused2:
-	(unused[1] .)+ (Colon | Semicolon | Plus)? ~Semicolon
-;
-
-stat: expr Equal expr Semicolon
-    | expr Semicolon
-;
-
-expr: expr Star expr
-    | expr Plus expr
-    | OpenPar expr ClosePar
-    | <assoc = right> expr QuestionMark expr Colon expr
-    | <assoc = right> expr Equal expr
-    | identifier = id
-    | flowControl
-    | INT
-    | String
-;
-
-flowControl:
-	Return expr # Return
-	| Continue # Continue
-;
-
-id: ID;
-array : OpenCurly el += INT (Comma el += INT)* CloseCurly;
-idarray : OpenCurly element += id (Comma element += id)* CloseCurly;
-any: t = .;

@@ -41,46 +41,49 @@ tokens {
 	DUMMY
 }
 
-Return: 'return';
-Continue: 'continue';
+/* Define the types of tokens we expect. We must be careful	with the ordering 
+	here. ANTLR scanner will match to the first token appearing here, if a token
+	matches to multiple. */
 
-INT: Digit+;
-Digit: [0-9];
+// Define these first, otherwise they will fall in the ID or LETTER buckets.
+INT_KEYWORD: 'int';
+VOID_KEYWORD: 'void';
+IF_KEYWORD: 'if';
+ELSE_KEYWORD: 'else';
+WHILE_KEYWORD: 'while';
+RETURN_KEYWORD: 'return';
 
+// Define the full NUM/ID first so these get matched first.
+NUM: DIGIT+;
+DIGIT: [0-9];
 ID: LETTER (LETTER | '0'..'9')*;
-fragment LETTER : [a-zA-Z\u0080-\u{10FFFF}];
+LETTER: [a-zA-Z];
 
-LessThan: '<';
-GreaterThan:  '>';
-Equal: '=';
-And: 'and';
-
-Colon: ':';
-Semicolon: ';';
-Plus: '+';
-Minus: '-';
-Star: '*';
-OpenPar: '(';
-ClosePar: ')';
-OpenCurly: '{' -> pushMode(Mode1);
-CloseCurly: '}' -> popMode;
-QuestionMark: '?';
-Comma: ',' -> skip;
-Dollar: '$' -> more, mode(Mode1);
-Ampersand: '&' -> type(DUMMY);
-
-String: '"' .*? '"';
-Foo: {canTestFoo()}? 'foo' {isItFoo()}? { myFooLexerAction(); };
-Bar: 'bar' {isItBar()}? { myBarLexerAction(); };
-Any: Foo Dot Bar? DotDot Baz;
-
-Comment : '#' ~[\r\n]* '\r'? '\n' -> channel(CommentsChannel);
 WS: [ \t\r\n]+ -> channel(99);
 
-fragment Baz: 'Baz';
+ASSIGN: '=';
+PLUS: '+';
+MINUS: '-';
+MULTIPLY: '*';
+DIVIDE: '/';
+LESS_THAN: '<';
+GREATER_THAN:  '>';
+LEFT_PAREN: '(';
+RIGHT_PAREN: ')';
+LEFT_BRACES: '{';
+RIGHT_BRACES: '}';
+LEFT_BRACKET: '[';
+RIGHT_BRACKET: ']';
+COMMA: ',';
+SEMICOLON: ';';
+LESS_THAN_OR_EQUAL: '<=';
+GREATER_THAN_OR_EQUAL: '>=';
+EQUALITY: '==';
+NON_EQUALITY: '!=';
 
-mode Mode1;
-Dot: '.';
+//Comment: ('/*')([^*]|[\r\n]|(('*')+([^*'/']|[\r\n])))*('*')+('/') -> channel(CommentsChannel);
 
-mode Mode2;
-DotDot: '..';
+//String: '"' .*? '"';
+
+
+
