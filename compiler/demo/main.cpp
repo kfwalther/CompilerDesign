@@ -45,7 +45,8 @@ void ParseInputFile(std::ifstream & inputStream) {
 	parser.addParseListener(parseTreeListener);
 
 	/** Tell the parser to parse the input starting from a given BNF rule, in this case 'program'. */
-	tree::ParseTree* tree = parser.program();
+	tree::ParseTree * tree = parser.program();
+	// TODO: Do we need to built AST after completing Parse Tree? 
 	std::cout << "Printing the parse tree..." << std::endl;
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
@@ -55,7 +56,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 int main(int , const char **) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-1.txt");
+	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/demo/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);

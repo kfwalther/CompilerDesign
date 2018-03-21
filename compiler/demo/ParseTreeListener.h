@@ -5,7 +5,7 @@
 
 #include "TParserBaseListener.h"
 
-/** TODO: Remove or rename this namespace constraint. */
+/** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
 struct ParseTreeListener : public antlrcpptest::TParserBaseListener {
 	/** Define a constructor. */
 	ParseTreeListener(antlrcpptest::TParser * const parser);
@@ -20,5 +20,5 @@ private:
 	antlrcpptest::TParser * parser;
 };
 
-
+// TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
 

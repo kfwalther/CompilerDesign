@@ -29,6 +29,7 @@ void ParseTreeListener::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 	/** If there were any tokens in the matched rules of type NUM or ID, add them to the symbol table. */
 	if (numTokenNodes.size() > 0) {
 		for (auto const & node : numTokenNodes) {
+			// TODO: Provide this 'node' to the SymbolRecord constructor as a pointer. std::move?
 			this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(node->getSymbol()));
 		}
 	}

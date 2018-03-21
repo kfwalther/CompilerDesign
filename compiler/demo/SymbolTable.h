@@ -16,7 +16,7 @@ struct SymbolRecord {
 	/** Alias the types used with this class. */
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
 	typedef antlr4::Token * TokenPtrType;
-
+	typedef std::unique_ptr<antlr4::tree::TerminalNode> TreeTerminalNodePtrType;
 	/** Define constructors. */
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
@@ -24,6 +24,9 @@ struct SymbolRecord {
 	/** Define the attributes to keep track of for each symbol. */
 	int additionalAttribute;
 	TokenPtrType token;
+
+	/** Pointer to corresponding AST node. */
+	TreeTerminalNodePtrType astNodePtr;
 	/** Define attributes to track how each token is used in the program. */
 	bool isDeclared = false;
 	bool isDefined = false;
