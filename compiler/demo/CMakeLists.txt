@@ -52,12 +52,16 @@ include_directories(
 )
 
 set(ANTLR4_GRAMMAR_LOCAL_HDRS 
-	${PROJECT_SOURCE_DIR}/demo/ParseTreeListener.h
+	${PROJECT_SOURCE_DIR}/demo/AstTreeNode.h
+	${PROJECT_SOURCE_DIR}/demo/ParseTreeListenerImpl.h
+	${PROJECT_SOURCE_DIR}/demo/ParseTreeVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/demo/SymbolTable.h
 )
 set(ANTLR4_GRAMMAR_LOCAL_SRCS 
 	${PROJECT_SOURCE_DIR}/demo/main.cpp
-	${PROJECT_SOURCE_DIR}/demo/ParseTreeListener.cpp
+	${PROJECT_SOURCE_DIR}/demo/AstTreeNode.cpp
+	${PROJECT_SOURCE_DIR}/demo/ParseTreeListenerImpl.cpp
+	${PROJECT_SOURCE_DIR}/demo/ParseTreeVisitorImpl.cpp
 	${PROJECT_SOURCE_DIR}/demo/SymbolTable.cpp
 )
 set(ANTLR4_GRAMMAR_LOCAL_CODE ${ANTLR4_GRAMMAR_LOCAL_HDRS} ${ANTLR4_GRAMMAR_LOCAL_SRCS})
@@ -115,7 +119,7 @@ endif()
 
 add_dependencies(ANTLR4GrammarTest GenerateParser)
 
-target_link_libraries(ANTLR4GrammarTest antlr4_static)
+target_link_libraries(ANTLR4GrammarTest antlr4_shared)
 
 install(TARGETS ANTLR4GrammarTest 
 	DESTINATION "share" 

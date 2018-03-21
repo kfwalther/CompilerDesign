@@ -6,9 +6,9 @@
 #include "TParserBaseListener.h"
 
 /** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
-struct ParseTreeListener : public antlrcpptest::TParserBaseListener {
+struct ParseTreeListenerImpl : public antlrcpptest::TParserBaseListener {
 	/** Define a constructor. */
-	ParseTreeListener(antlrcpptest::TParser * const parser);
+	ParseTreeListenerImpl(antlrcpptest::TParser * const parser);
 
 	void enterProgram(antlrcpptest::TParser::ProgramContext * ctx);
 	void exitProgram(antlrcpptest::TParser::ProgramContext * ctx);

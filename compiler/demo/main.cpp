@@ -16,7 +16,8 @@
 #include "antlr4-runtime.h"
 #include "TLexer.h"
 #include "TParser.h"
-#include "ParseTreeListener.h"
+#include "ParseTreeListenerImpl.h"
+#include "ParseTreeVisitorImpl.h"
 
 using namespace antlrcpptest;
 using namespace antlr4;
@@ -41,7 +42,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 	parser.initializeSymbolTable();
 
 	/** Define our custom listener to perform actions during the parse. */
-	ParseTreeListener * parseTreeListener = new ParseTreeListener(&parser);
+	ParseTreeListenerImpl * parseTreeListener = new ParseTreeListenerImpl(&parser);
 	parser.addParseListener(parseTreeListener);
 
 	/** Tell the parser to parse the input starting from a given BNF rule, in this case 'program'. */
@@ -50,6 +51,13 @@ void ParseInputFile(std::ifstream & inputStream) {
 	std::cout << "Printing the parse tree..." << std::endl;
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
+	/** Create the AST from the parse tree. */
+	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(&parser);
+	AstTreeNode * astTree = parseTreeVisitor->visitProgram(dynamic_cast<antlrcpptest::TParser::ProgramContext *>(tree));
+	std::cout << "Printing the AST..." << std::endl;
+	std::cout << astTree->toString() << std::endl << std::endl;
+
+	/** Print the contents of the symbol table. */
 	parser.getSymbolTable()->printSymbolTable();
 }
 

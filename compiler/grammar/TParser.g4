@@ -16,6 +16,7 @@ options {
 @parser::postinclude {
 /* parser postinclude section */
 #include "SymbolTable.h"
+#include "AstTreeNode.h"
 
 #ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -39,6 +40,9 @@ std::shared_ptr<SymbolTable> symbolTable;
 void initializeSymbolTable() { this->symbolTable = std::make_shared<SymbolTable>(); }
 std::shared_ptr<SymbolTable> const getSymbolTable() { return this->symbolTable; }
 void setSymbolTable(std::shared_ptr<SymbolTable> symbolTable) { this->symbolTable = symbolTable; }
+
+/** Define an AstTreeNode object to hold the root of the AST as it is constructed. */
+std::shared_ptr<AstTreeNode> abstractSyntaxTree;
 
 bool myAction() { return true; }
 bool doesItBlend() { return true; }

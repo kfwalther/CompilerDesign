@@ -3,23 +3,23 @@
  * @date: 2018
  */
 
-#include "ParseTreeListener.h"
+#include "ParseTreeListenerImpl.h"
 #include "SymbolTable.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
-ParseTreeListener::ParseTreeListener(antlrcpptest::TParser * const parser) : parser(parser) {
+ParseTreeListenerImpl::ParseTreeListenerImpl(antlrcpptest::TParser * const parser) : parser(parser) {
 	return;
 }
 
-void ParseTreeListener::enterProgram(antlrcpptest::TParser::ProgramContext * ctx) {
+void ParseTreeListenerImpl::enterProgram(antlrcpptest::TParser::ProgramContext * ctx) {
 	std::cout << "Attempting parse of the program rule..." << std::endl;
 }
 
-void ParseTreeListener::exitProgram(antlrcpptest::TParser::ProgramContext * ctx) {
+void ParseTreeListenerImpl::exitProgram(antlrcpptest::TParser::ProgramContext * ctx) {
 	std::cout << "Completed parsing a program rule..." << std::endl;
 }
 
-void ParseTreeListener::exitEveryRule(antlr4::ParserRuleContext * ctx) {
+void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 	typedef std::vector<antlr4::tree::TerminalNode *> TerminalNodePtrVectorType;
 	TerminalNodePtrVectorType numTokenNodes = ctx->getTokens(this->parser->NUM);
 	TerminalNodePtrVectorType idTokenNodes = ctx->getTokens(this->parser->ID);
@@ -34,11 +34,14 @@ void ParseTreeListener::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 		}
 	}
 	// TODO: Return a pointer to symbolTable entry so this tree node can have a reference to it.
+
+	/** Build AST here. */
+	//this->parser->abstractSyntaxTree->
 }
 
 
 /** Define the default constructor for the Parse Tree Listener.
-ParseTreeListener::ParseTreeListener() {
+ParseTreeListenerImpl::ParseTreeListenerImpl() {
 	return;
 }
 */

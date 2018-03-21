@@ -10,6 +10,7 @@
 #include <memory>
 #include <map>
 #include "Token.h"
+#include "TerminalNode.h"
 
 /** Define an object to store a single entry in the symbol table. */
 struct SymbolRecord {

@@ -1,5 +1,7 @@
 /**
  * @author: Kevin Walther
+ * @date: 2018
+ * @class: SymbolRecord/SymbolTable
  */
 
 #include "SymbolTable.h"
@@ -19,6 +21,7 @@ SymbolTable::SymbolTable() {
 	return;
 }
 
+/** Insert the new SymbolTableRecord into the symbol table, if it does not already exist. */
 bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbol) {
 	/** Check if the symbol already exists in the table. */
 	if (this->symbolTable.count(newSymbol->token->getText()) == 0) {
@@ -31,6 +34,7 @@ bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymb
 	}
 }
 
+/** Print out the contents of the symbol table. */
 void SymbolTable::printSymbolTable() {
 	std::cout << "SYMBOL TABLE PRINTOUT" << std::endl;
 	for (auto const & entry : this->symbolTable) {
