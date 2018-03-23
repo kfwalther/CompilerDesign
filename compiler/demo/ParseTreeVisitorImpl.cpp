@@ -30,25 +30,28 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(antlrcpptest::TParser::V
 		}
 	}
 	std::cout << "Saving variable from VarDeclaration in AST..." << std::endl;
-	return astTreeNodeVector;
+	return antlrcpp::Any::Any<MyTempAstNode>(new MyTempAstNode("FunDeclaration"));
+	//return dynamic_cast<antlr4::tree::ParseTree *>(astTreeNodeVector.at(0));
 }
 
-
-/** Define a custom visitor for the VarDeclaration visitor. */
-antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(antlrcpptest::TParser::FunDeclarationContext * ctx) {
-	std::vector<AstTreeNode *> astTreeNodeVector;
-	/** Handle the typeSpecifier here. We want to save the type of the variable. */
-	auto variableType = this->visit(ctx->children.at(0));
-	//TODO: Save the variable type here.
-	// Save the ID as the current AST node.
-	AstTreeNode * curFunctionName = dynamic_cast<AstTreeNode *>(ctx->children.at(1));
-	// Save the function parameters.
-	curFunctionName->children.push_back(dynamic_cast<AstTreeNode *>(ctx->children.at(3)));
-	// Save the function body.
-	curFunctionName->children.push_back(dynamic_cast<AstTreeNode *>(ctx->children.at(5)));
-
-	std::cout << "Saving variable from FunDeclaration in AST..." << std::endl;
-	return curFunctionName;
-}
+//
+///** Define a custom visitor for the VarDeclaration visitor. */
+//antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(antlrcpptest::TParser::FunDeclarationContext * ctx) {
+//	std::vector<AstTreeNode *> astTreeNodeVector;
+//	/** Handle the typeSpecifier here. We want to save the type of the variable. */
+//	auto variableType = this->visit(ctx->children.at(0));
+//	//TODO: Save the variable type here.
+//	// Save the ID as the current AST node.
+//	AstTreeNode * curFunctionName = dynamic_cast<AstTreeNode *>(ctx->children.at(1));
+//	// Save the function parameters.
+//	curFunctionName->children.push_back(dynamic_cast<AstTreeNode *>(ctx->children.at(3)));
+//	// Save the function body.
+//	curFunctionName->children.push_back(dynamic_cast<AstTreeNode *>(ctx->children.at(5)));
+//
+//	std::cout << "Saving variable from FunDeclaration in AST..." << std::endl;
+//
+//	return *(new MyTempAstNode("FunDeclaration"));
+//	//return dynamic_cast<antlr4::tree::ParseTree *>(curFunctionName);
+//}
 
 

@@ -2,6 +2,9 @@
 cmake_minimum_required (VERSION 2.8)
 # 2.8 needed because of ExternalProject
 
+# Update the CMake module path.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+
 # Specify the location of the ANTLR jar file.
 set(ANTLR_JAR_LOCATION ${CMAKE_SOURCE_DIR}/jar/antlr-4.7.1-complete.jar CACHE FILE_PATH "ANTLR Jar file name and path.")
 # Indicate we want CMake to create new folder in the VS projects.

@@ -4,7 +4,6 @@
  */
 
 #include "TParserBaseVisitor.h"
-#include "AbstractParseTreeVisitor.h"
 
 /** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
 struct ParseTreeVisitorImpl : public antlrcpptest::TParserBaseVisitor {

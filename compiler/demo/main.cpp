@@ -17,7 +17,7 @@
 #include "TLexer.h"
 #include "TParser.h"
 #include "ParseTreeListenerImpl.h"
-#include "ParseTreeVisitorImpl.h"
+//#include "ParseTreeVisitorImpl.h"
 
 using namespace antlrcpptest;
 using namespace antlr4;
@@ -51,11 +51,11 @@ void ParseInputFile(std::ifstream & inputStream) {
 	std::cout << "Printing the parse tree..." << std::endl;
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-	/** Create the AST from the parse tree. */
-	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(&parser);
-	AstTreeNode * astTree = parseTreeVisitor->visitProgram(dynamic_cast<antlrcpptest::TParser::ProgramContext *>(tree));
-	std::cout << "Printing the AST..." << std::endl;
-	std::cout << astTree->toString() << std::endl << std::endl;
+	/** TODO: Create the AST from the parse tree. */
+	//ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(&parser);
+	//AstTreeNode * astTree = parseTreeVisitor->visitProgram(dynamic_cast<antlrcpptest::TParser::ProgramContext *>(tree));
+	//std::cout << "Printing the AST..." << std::endl;
+	//std::cout << astTree->toString() << std::endl << std::endl;
 
 	/** Print the contents of the symbol table. */
 	parser.getSymbolTable()->printSymbolTable();
@@ -64,7 +64,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 int main(int , const char **) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/demo/C-Input-1.txt");
+	std::string inputFile("D:/workspace/CompilerDesign/compiler/demo/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);

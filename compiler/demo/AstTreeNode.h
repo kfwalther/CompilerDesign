@@ -18,5 +18,14 @@ private:
 };
 
 // TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
+struct MyTempAstNode {
+	MyTempAstNode(std::string const & nodeType);
+	~MyTempAstNode();
+	MyTempAstNode * parent;
+	std::vector<MyTempAstNode *> children;
+	
+	std::string nodeType;
+};
+
 
 #endif ASTTREENODE_H

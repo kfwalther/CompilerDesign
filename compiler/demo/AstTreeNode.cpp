@@ -10,5 +10,11 @@ AstTreeNode::AstTreeNode(antlr4::tree::ParseTree * const parseTreeNode) {
 }
 
 
+MyTempAstNode::MyTempAstNode(std::string const & nodeType) : nodeType(nodeType)
+{
+	return;
+};
 
-
+MyTempAstNode::~MyTempAstNode() {
+	return;
+}
