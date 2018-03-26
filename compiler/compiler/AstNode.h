@@ -6,9 +6,11 @@
  * @date: 2018
  */
 
-#include "SymbolTable.h"
 #include "ParseTree.h"
 #include "CPPUtils.h"
+
+/** Forward declarations. */
+struct SymbolRecord;
 
 /** Copy these from the TParser.h generated file for use in our custom data structures. */
 enum class CMINUS_RULE_TYPE {
@@ -32,22 +34,35 @@ enum class CMINUS_TOKEN_TYPE {
 	GREATER_THAN_OR_EQUAL = 30, EQUALITY = 31, NON_EQUALITY = 32
 };
 
+/** Define the static list of rule names for the parse tree. */
+static const std::vector<std::string> ParseTreeRuleNames = {
+	"program", "declarationList", "declaration", "varDeclaration", "typeSpecifier",
+	"funDeclaration", "params", "paramList", "param", "compoundStmt", "localDeclaration",
+	"statementList", "statement", "expressionStmt", "selectionStmt", "iterationStmt",
+	"returnStmt", "expression", "var", "simpleExpression", "relop", "additiveExpression",
+	"addop", "term", "mulop", "factor", "call", "args", "argList"
+};
+
 // TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
 struct AstNode {
+
 	/** Alias some commonly used types for convenience. */
+	typedef std::shared_ptr<AstNode> AstNodePtrType;
 	typedef antlr4::Token * TokenPtrType;
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
-
+	
 	/** Define the constructors. */
 	AstNode(CMINUS_RULE_TYPE const ruleType);
 	AstNode(antlr4::tree::ParseTree * inputNode);
 	~AstNode();
 
-	std::string PrintTreeString();
+	bool hasToken() const;
+	std::string const & getString() const;
+	std::string printTreeString();
 
 	AstNode * parent;
-	std::vector<AstNode *> children;
-	/** Store a pointer to the token, if this nodes has a corresponding Token. */
+	std::vector<AstNodePtrType> children;
+	/** Store a pointer to the token, if this node has a corresponding Token. */
 	TokenPtrType token;
 	/** Store a pointer to the symbol table record this corresponds to. */
 	SymbolRecordPtrType symbolTableRecord;

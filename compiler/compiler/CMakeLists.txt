@@ -95,8 +95,8 @@ add_executable(ANTLR4GrammarTest
 
 # Make a Visual Studio folder in this project to house the grammars.
 source_group("grammar" FILES ${ANTLR4_GRAMMAR_RULE_FILES})
-source_group("generated" FILES ${ANTLR4_GRAMMAR_GENERATED_CODE})
-source_group("local" FILES ${ANTLR4_GRAMMAR_LOCAL_CODE})
+source_group("compiler" FILES ${ANTLR4_GRAMMAR_LOCAL_CODE})
+source_group("compiler\\generated" FILES ${ANTLR4_GRAMMAR_GENERATED_CODE})
 #source_group("grammar" FILES "${PROJECT_SOURCE_DIR}/grammar/TLexer.g4")
 #source_group("grammar" FILES "${PROJECT_SOURCE_DIR}/grammar/TParser.g4")
 #file(GLOB_RECURSE LEX_PARSER_RULE_FILES 
@@ -119,6 +119,12 @@ add_dependencies(ANTLR4GrammarTest GenerateParser)
 
 # NOTE: Cant change this to shared, program wont run. Can't use this with Visitors either...
 target_link_libraries(ANTLR4GrammarTest antlr4_shared)
+
+# Copy the dependent libraries to the executable directory after the build completes.
+add_custom_command(TARGET ANTLR4GrammarTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>"
+        $<TARGET_FILE_DIR:ANTLR4GrammarTest>)
 
 install(TARGETS ANTLR4GrammarTest 
 	DESTINATION "share" 

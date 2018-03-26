@@ -10,7 +10,10 @@
 #include <memory>
 #include <map>
 #include "Token.h"
-#include "AstNode.h"
+
+/** Forward declarations. */
+struct AstNode;
+
 
 enum class SYMBOL_RECORD_TYPE {
 	INT = 0,

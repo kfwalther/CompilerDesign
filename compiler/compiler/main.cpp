@@ -11,7 +11,6 @@
 //
 
 #include <iostream>
-//#include <fstream>
 
 #include "antlr4-runtime.h"
 #include "TLexer.h"
@@ -55,7 +54,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(&parser);
 	AstNode * ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(tree));
 	std::cout << "Printing the AST..." << std::endl;
-	//std::cout << astTree->toString() << std::endl << std::endl;
+	std::cout << ast->printTreeString() << std::endl << std::endl;
 
 	/** Print the contents of the symbol table. */
 	parser.getSymbolTable()->printSymbolTable();
@@ -64,7 +63,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 int main(int numArguments, char const * const arguments[]) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("D:/workspace/CompilerDesign/compiler/compiler/C-Input-1.txt");
+	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/compiler/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);
