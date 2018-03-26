@@ -11,6 +11,13 @@
 #include <map>
 #include "Token.h"
 #include "TerminalNode.h"
+#include "AstNode.h"
+
+enum class SYMBOL_RECORD_TYPE {
+	INT = 0,
+	ARRAY = 1,
+	FUNCTION = 2
+};
 
 /** Define an object to store a single entry in the symbol table. */
 struct SymbolRecord {
@@ -22,8 +29,16 @@ struct SymbolRecord {
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
 
-	/** Define the attributes to keep track of for each symbol. */
-	int additionalAttribute;
+	/** Define the type of this symbol table record. */
+	SYMBOL_RECORD_TYPE type;
+	/** Define how much memory this entity will require. */
+	size_t storageSize;
+
+	/** Define the return type if this is a function. */
+	std::string returnType;
+	/** Define number of arguments if this is a function. */
+	size_t numArguments;
+
 	TokenPtrType token;
 
 	/** Pointer to corresponding AST node. */

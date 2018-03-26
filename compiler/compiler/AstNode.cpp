@@ -7,13 +7,14 @@
 
 
 /** Define a default constructor. */
-AstNode::AstNode(std::string const & nodeType) : nodeType(nodeType)
+AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
 {
 	return;
 };
 
 AstNode::AstNode(antlr4::tree::TerminalNode * inputNode)
 {
+	//inputNode->getSymbol().
 	return;
 };
 

@@ -30,7 +30,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 			}
 		}
 	}
-	AstNode * tempAstNode = new AstNode("VarDecl");
+	AstNode * tempAstNode = new AstNode(CMINUS_RULE_TYPE::RuleVarDeclaration);
 	tempAstNode->children = astTreeNodeVector;
 	std::cout << "Saving variable from VarDeclaration in AST..." << std::endl;
 	return tempAstNode;
