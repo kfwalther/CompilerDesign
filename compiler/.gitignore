@@ -1,10 +1,11 @@
 # Ignore these files.
 VS15W64/
-dist/
-jar/
-demo/generated/
-runtime/src/
+antlr4/jar/
+antlr4/runtime/src/
+compiler/generated/
+
 
 *.filters
 *.vcxproj
 *.sln
+*.bak

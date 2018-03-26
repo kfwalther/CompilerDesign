@@ -11,7 +11,9 @@
 
 // TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
 struct AstNode {
+	/** Define the constructors. */
 	AstNode(std::string const & nodeType);
+	AstNode(antlr4::tree::TerminalNode * inputNode);
 	~AstNode();
 	AstNode * parent;
 	std::vector<AstNode *> children;

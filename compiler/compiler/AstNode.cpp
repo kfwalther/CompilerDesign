@@ -12,7 +12,7 @@ AstNode::AstNode(std::string const & nodeType) : nodeType(nodeType)
 	return;
 };
 
-AstNode::AstNode(antlr4::tree::TerminalNode * inputNode) : nodeType(nodeType)
+AstNode::AstNode(antlr4::tree::TerminalNode * inputNode)
 {
 	return;
 };

@@ -19,7 +19,7 @@
 #include "ParseTreeListenerImpl.h"
 //#include "ParseTreeVisitorImpl.h"
 
-using namespace antlrcpptest;
+using namespace AntlrGrammarGenerated;
 using namespace antlr4;
 
 
@@ -61,10 +61,10 @@ void ParseInputFile(std::ifstream & inputStream) {
 	parser.getSymbolTable()->printSymbolTable();
 }
 
-int main(int , const char **) {
+int main(int numArguments, char const * const arguments[]) {
 
 	/** Specify the input file to read. */
-	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/demo/C-Input-1.txt");
+	std::string inputFile("D:/workspace/CompilerDesign/compiler/compiler/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);

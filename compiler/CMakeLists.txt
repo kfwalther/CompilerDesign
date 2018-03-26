@@ -6,7 +6,7 @@ cmake_minimum_required (VERSION 2.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 # Specify the location of the ANTLR jar file.
-set(ANTLR_JAR_LOCATION ${CMAKE_SOURCE_DIR}/jar/antlr-4.7.1-complete.jar CACHE FILE_PATH "ANTLR Jar file name and path.")
+set(ANTLR_JAR_LOCATION ${CMAKE_SOURCE_DIR}/antlr4/jar/antlr-4.7.1-complete.jar CACHE FILE_PATH "ANTLR Jar file name and path.")
 # Indicate we want CMake to create new folder in the VS projects.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -121,8 +121,8 @@ else ()
 endif ()
 
 # Add the C++ runtime subdirectory.
-add_subdirectory(runtime)
-add_subdirectory(demo)
+add_subdirectory(antlr4/runtime)
+add_subdirectory(compiler)
 
 install(FILES README.md VERSION 
     DESTINATION "share/doc/libantlr4")

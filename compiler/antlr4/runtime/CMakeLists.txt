@@ -1,25 +1,25 @@
 
 include_directories(
-  ${PROJECT_SOURCE_DIR}/runtime/src
-  ${PROJECT_SOURCE_DIR}/runtime/src/atn
-  ${PROJECT_SOURCE_DIR}/runtime/src/dfa
-  ${PROJECT_SOURCE_DIR}/runtime/src/misc
-  ${PROJECT_SOURCE_DIR}/runtime/src/support
-  ${PROJECT_SOURCE_DIR}/runtime/src/tree
-  ${PROJECT_SOURCE_DIR}/runtime/src/tree/pattern
-  ${PROJECT_SOURCE_DIR}/runtime/src/tree/xpath
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/atn
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/dfa
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/misc
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/support
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/tree
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/tree/pattern
+  ${PROJECT_SOURCE_DIR}/antlr4/runtime/src/tree/xpath
 )
 
 
 file(GLOB libantlrcpp_SRC
-  "${PROJECT_SOURCE_DIR}/runtime/src/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/atn/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/dfa/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/misc/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/support/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/tree/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/tree/pattern/*.cpp"
-  "${PROJECT_SOURCE_DIR}/runtime/src/tree/xpath/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/atn/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/dfa/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/misc/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/support/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/tree/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/tree/pattern/*.cpp"
+  "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/tree/xpath/*.cpp"
 )
 
 add_library(antlr4_shared SHARED ${libantlrcpp_SRC})
@@ -98,7 +98,7 @@ install(TARGETS antlr4_shared
 install(TARGETS antlr4_static
         ARCHIVE DESTINATION lib)
 
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/runtime/src/" 
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/antlr4/runtime/src/" 
         DESTINATION "include/antlr4-runtime"
         COMPONENT dev 
         FILES_MATCHING PATTERN "*.h"

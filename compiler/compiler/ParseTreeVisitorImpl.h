@@ -12,14 +12,14 @@ antlrcpp::Any::Base::~Base() {
 }
 
 /** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
-struct ParseTreeVisitorImpl : public antlrcpptest::TParserBaseVisitor {
+struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a constructor. */
-	ParseTreeVisitorImpl(antlrcpptest::TParser * const parser);
+	ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser);
 
-	antlrcpp::Any visitVarDeclaration(antlrcpptest::TParser::VarDeclarationContext * ctx);
-	antlrcpp::Any visitFunDeclaration(antlrcpptest::TParser::FunDeclarationContext * ctx);
+	antlrcpp::Any visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx);
+	antlrcpp::Any visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx);
 private:
-	antlrcpptest::TParser * parser;
+	AntlrGrammarGenerated::TParser * parser;
 };
 
 // TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.

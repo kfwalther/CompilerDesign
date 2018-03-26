@@ -7,15 +7,15 @@
 #include "SymbolTable.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
-ParseTreeListenerImpl::ParseTreeListenerImpl(antlrcpptest::TParser * const parser) : parser(parser) {
+ParseTreeListenerImpl::ParseTreeListenerImpl(AntlrGrammarGenerated::TParser * const parser) : parser(parser) {
 	return;
 }
 
-void ParseTreeListenerImpl::enterProgram(antlrcpptest::TParser::ProgramContext * ctx) {
+void ParseTreeListenerImpl::enterProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx) {
 	std::cout << "Attempting parse of the program rule..." << std::endl;
 }
 
-void ParseTreeListenerImpl::exitProgram(antlrcpptest::TParser::ProgramContext * ctx) {
+void ParseTreeListenerImpl::exitProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx) {
 	std::cout << "Completed parsing a program rule..." << std::endl;
 }
 
