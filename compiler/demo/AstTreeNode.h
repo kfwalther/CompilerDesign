@@ -9,20 +9,20 @@
 #include "ParseTree.h"
 
 /** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
-struct AstTreeNode : public antlr4::tree::ParseTree {
-	/** Define a constructor. */
-	AstTreeNode(antlr4::tree::ParseTree * const parseTreeNode);
-
-private:
-	
-};
+//struct AstTreeNode : public antlr4::tree::ParseTree {
+//	/** Define a constructor. */
+//	AstTreeNode(antlr4::tree::ParseTree * const parseTreeNode);
+//
+//private:
+//	
+//};
 
 // TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
-struct MyTempAstNode {
-	MyTempAstNode(std::string const & nodeType);
-	~MyTempAstNode();
-	MyTempAstNode * parent;
-	std::vector<MyTempAstNode *> children;
+struct AstTreeNode {
+	AstTreeNode(std::string const & nodeType);
+	~AstTreeNode();
+	AstTreeNode * parent;
+	std::vector<AstTreeNode *> children;
 	
 	std::string nodeType;
 };

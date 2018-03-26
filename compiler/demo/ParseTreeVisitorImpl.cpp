@@ -5,6 +5,7 @@
 
 #include "ParseTreeVisitorImpl.h"
 #include "SymbolTable.h"
+#include "AstTreeNode.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeVisitorImpl::ParseTreeVisitorImpl(antlrcpptest::TParser * const parser) : parser(parser) {
@@ -29,8 +30,11 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(antlrcpptest::TParser::V
 			}
 		}
 	}
+	AstTreeNode * tempAstNode = new AstTreeNode("VarDecl");
+	tempAstNode->children = astTreeNodeVector;
 	std::cout << "Saving variable from VarDeclaration in AST..." << std::endl;
-	return antlrcpp::Any::Any<MyTempAstNode>(new MyTempAstNode("FunDeclaration"));
+	return tempAstNode;
+	//return antlrcpp::Any::Any<AstTreeNode>(new AstTreeNode("FunDeclaration"));
 	//return dynamic_cast<antlr4::tree::ParseTree *>(astTreeNodeVector.at(0));
 }
 

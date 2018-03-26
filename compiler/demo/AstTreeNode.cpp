@@ -5,16 +5,16 @@
 
 #include "AstTreeNode.h"
 
-AstTreeNode::AstTreeNode(antlr4::tree::ParseTree * const parseTreeNode) {
-	
-}
+//AstTreeNode::AstTreeNode(antlr4::tree::ParseTree * const parseTreeNode) {
+//	
+//}
 
 
-MyTempAstNode::MyTempAstNode(std::string const & nodeType) : nodeType(nodeType)
+AstTreeNode::AstTreeNode(std::string const & nodeType) : nodeType(nodeType)
 {
 	return;
 };
 
-MyTempAstNode::~MyTempAstNode() {
+AstTreeNode ::~AstTreeNode() {
 	return;
 }
