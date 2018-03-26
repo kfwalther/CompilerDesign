@@ -6,7 +6,9 @@
  * @date: 2018
  */
 
-#include "TerminalNode.h"
+#include "SymbolTable.h"
+#include "ParseTree.h"
+#include "CPPUtils.h"
 
 /** Copy these from the TParser.h generated file for use in our custom data structures. */
 enum class CMINUS_RULE_TYPE {
@@ -32,13 +34,24 @@ enum class CMINUS_TOKEN_TYPE {
 
 // TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
 struct AstNode {
+	/** Alias some commonly used types for convenience. */
+	typedef antlr4::Token * TokenPtrType;
+	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
+
 	/** Define the constructors. */
 	AstNode(CMINUS_RULE_TYPE const ruleType);
-	AstNode(antlr4::tree::TerminalNode * inputNode);
+	AstNode(antlr4::tree::ParseTree * inputNode);
 	~AstNode();
+
+	std::string PrintTreeString();
+
 	AstNode * parent;
 	std::vector<AstNode *> children;
-	
+	/** Store a pointer to the token, if this nodes has a corresponding Token. */
+	TokenPtrType token;
+	/** Store a pointer to the symbol table record this corresponds to. */
+	SymbolRecordPtrType symbolTableRecord;
+
 	CMINUS_RULE_TYPE ruleType;
 	CMINUS_TOKEN_TYPE tokenType;
 };

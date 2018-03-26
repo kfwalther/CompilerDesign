@@ -4,8 +4,6 @@
  */
 
 #include "ParseTreeVisitorImpl.h"
-#include "SymbolTable.h"
-#include "AstNode.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeVisitorImpl::ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser) : parser(parser) {

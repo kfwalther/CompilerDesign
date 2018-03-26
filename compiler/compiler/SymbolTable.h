@@ -10,7 +10,6 @@
 #include <memory>
 #include <map>
 #include "Token.h"
-#include "TerminalNode.h"
 #include "AstNode.h"
 
 enum class SYMBOL_RECORD_TYPE {
@@ -24,7 +23,7 @@ struct SymbolRecord {
 	/** Alias the types used with this class. */
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
 	typedef antlr4::Token * TokenPtrType;
-	typedef std::unique_ptr<antlr4::tree::TerminalNode> TreeTerminalNodePtrType;
+	typedef std::shared_ptr<AstNode> AstNodePtrType;
 	/** Define constructors. */
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
@@ -42,7 +41,7 @@ struct SymbolRecord {
 	TokenPtrType token;
 
 	/** Pointer to corresponding AST node. */
-	TreeTerminalNodePtrType astNodePtr;
+	AstNodePtrType astNode;
 	/** Define attributes to track how each token is used in the program. */
 	bool isDeclared = false;
 	bool isDefined = false;
