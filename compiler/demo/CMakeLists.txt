@@ -52,14 +52,14 @@ include_directories(
 )
 
 set(ANTLR4_GRAMMAR_LOCAL_HDRS 
-	${PROJECT_SOURCE_DIR}/demo/AstTreeNode.h
+	${PROJECT_SOURCE_DIR}/demo/AstNode.h
 	${PROJECT_SOURCE_DIR}/demo/ParseTreeListenerImpl.h
 	${PROJECT_SOURCE_DIR}/demo/ParseTreeVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/demo/SymbolTable.h
 )
 set(ANTLR4_GRAMMAR_LOCAL_SRCS 
 	${PROJECT_SOURCE_DIR}/demo/main.cpp
-	${PROJECT_SOURCE_DIR}/demo/AstTreeNode.cpp
+	${PROJECT_SOURCE_DIR}/demo/AstNode.cpp
 	${PROJECT_SOURCE_DIR}/demo/ParseTreeListenerImpl.cpp
 	${PROJECT_SOURCE_DIR}/demo/ParseTreeVisitorImpl.cpp
 	${PROJECT_SOURCE_DIR}/demo/SymbolTable.cpp
@@ -120,7 +120,7 @@ endif()
 add_dependencies(ANTLR4GrammarTest GenerateParser)
 
 # NOTE: Cant change this to shared, program wont run. Can't use this with Visitors either...
-target_link_libraries(ANTLR4GrammarTest antlr4_static)
+target_link_libraries(ANTLR4GrammarTest antlr4_shared)
 
 install(TARGETS ANTLR4GrammarTest 
 	DESTINATION "share" 

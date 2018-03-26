@@ -5,6 +5,12 @@
 
 #include "TParserBaseVisitor.h"
 
+/** Fix for issue identified on antlr4 GitHub:
+	https://github.com/antlr/antlr4/issues/2211 
+	Must copy the destructor here to avoid link errors. */
+antlrcpp::Any::Base::~Base() {
+}
+
 /** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
 struct ParseTreeVisitorImpl : public antlrcpptest::TParserBaseVisitor {
 	/** Define a constructor. */
