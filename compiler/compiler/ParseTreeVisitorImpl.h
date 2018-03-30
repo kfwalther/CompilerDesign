@@ -25,8 +25,15 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	antlrcpp::Any visitParams(AntlrGrammarGenerated::TParser::ParamsContext * ctx);
 	antlrcpp::Any visitParamList(AntlrGrammarGenerated::TParser::ParamListContext * ctx);
 	antlrcpp::Any visitParam(AntlrGrammarGenerated::TParser::ParamContext * ctx);
-	antlrcpp::Any visitCompountStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx);
+	antlrcpp::Any visitCompoundStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx);
+	antlrcpp::Any visitLocalDeclaration(AntlrGrammarGenerated::TParser::LocalDeclarationContext * ctx);
+	antlrcpp::Any visitStatementList(AntlrGrammarGenerated::TParser::StatementListContext * ctx);
 
+	antlrcpp::Any visitExpressionStmt(AntlrGrammarGenerated::TParser::ExpressionStmtContext * ctx);
+	antlrcpp::Any visitExpression(AntlrGrammarGenerated::TParser::ExpressionContext * ctx);
+	antlrcpp::Any visitSelectionStmt(AntlrGrammarGenerated::TParser::SelectionStmtContext * ctx);
+	antlrcpp::Any visitIterationStmt(AntlrGrammarGenerated::TParser::IterationStmtContext * ctx);
+	antlrcpp::Any visitReturnStmt(AntlrGrammarGenerated::TParser::ReturnStmtContext * ctx);
 
 private:
 	AntlrGrammarGenerated::TParser * parser;

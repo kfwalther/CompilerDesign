@@ -115,6 +115,9 @@ std::string AstNode::printTreeString() {
 					// Reached the end of the current level. See if we can step up from here.
 					childIndex = nodeStack.top();
 					nodeStack.pop();
+					if (curNode->parent == NULL) {
+						int breakHere = 0;
+					}
 					curNode = curNode->parent;
 					treeString += ")";
 				}

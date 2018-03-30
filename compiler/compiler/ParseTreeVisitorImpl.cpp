@@ -110,8 +110,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		AstNode * paramListNode = this->visit(ctx->children.at(3));
 		paramListNode->parent = funDeclNode;
 		funDeclNode->children.push_back(paramListNode);
-		// Save the function body.
-		funDeclNode->children.push_back(new AstNode(ctx->children.at(5), funDeclNode));
+		// Save the function body compound statement.
+		AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
+		compoundStatementNode->parent = funDeclNode;
+		funDeclNode->children.push_back(compoundStatementNode);
 		// Find the associated entry in the symbol table and update its information.
 		auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(idNode->getSymbol()->getText());
 		if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
@@ -151,7 +153,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParams(AntlrGrammarGenerated::TParser::
 	AstNode * paramsNode = new AstNode(ctx);
 	// Check if we have any parameters, a terminal node will indicate VOID or no params.
 	if (!antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
-		std::vector<AstNode *> childNodes = this->visit(ctx->children.at(0));
+		AstNode::AstNodePtrVectorType childNodes = this->visit(ctx->children.at(0));
 		// Update the parent of each node.
 		for (auto & node : childNodes) {
 			node->parent = paramsNode;
@@ -163,7 +165,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParams(AntlrGrammarGenerated::TParser::
 
 /** Define a custom visitor for the params node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParser::ParamListContext * ctx) {
-	// Traverse the tree to populate a vector of declaration AstNode nodes. 
+	// Traverse the tree to populate a vector of param AstNode nodes. 
 	return this->populateChildrenFromList<AntlrGrammarGenerated::TParser::ParamContext, AntlrGrammarGenerated::TParser::ParamListContext>(ctx);
 }
 
@@ -218,31 +220,104 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 }
 
 /** Define a custom visitor for the compound statement. */
-antlrcpp::Any ParseTreeVisitorImpl::visitCompountStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx) {
+antlrcpp::Any ParseTreeVisitorImpl::visitCompoundStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx) {
 	AstNode * compoundStatementNode = new AstNode(ctx);
-	//TOOD: Fix this!
-	// Build two vectors, declarations and statements, to hold in this node.
-	std::vector<AstNode *> declarationChildNodes = this->visit(ctx->children.at(1));
-	// Update the parent of each node.
-	for (auto & node : declarationChildNodes) {
-		node->parent = compoundStatementNode;
+	// Build a local declarations node, whose children are variable declarations.
+	AstNode * localDeclsNode = new AstNode(ctx->children.at(1)); 
+	AstNode::AstNodePtrVectorType varDeclsVector = this->visit(ctx->children.at(1));
+	localDeclsNode->children = varDeclsVector;
+	// Update the parent of each new variable declaration node.
+	for (auto & node : localDeclsNode->children) {
+		node->parent = localDeclsNode;
 	}
-	//compoundStatementNode->children = declarationChildNodes;
-	std::vector<AstNode *> statementChildNodes = this->visit(ctx->children.at(2));
-	// Update the parent of each node.
-	for (auto & node : statementChildNodes) {
-		node->parent = compoundStatementNode;
+	localDeclsNode->parent = compoundStatementNode;
+	compoundStatementNode->children.push_back(localDeclsNode);
+	// Build a statement list node, whose children are function statements.
+	AstNode * statementListNode = new AstNode(ctx->children.at(2));
+	AstNode::AstNodePtrVectorType statementsVector = this->visit(ctx->children.at(2));
+	statementListNode->children = statementsVector;
+	// Update the parent of each new statement node.
+	for (auto & node : statementListNode->children) {
+		node->parent = statementListNode;
 	}
-	//compoundStatementNode->children = statementChildNodes;
+	statementListNode->parent = compoundStatementNode;
+	compoundStatementNode->children.push_back(statementListNode);
 	return compoundStatementNode;
 }
 
+/** Define a custom visitor for the local function variable declarations (zero or many). */
+antlrcpp::Any ParseTreeVisitorImpl::visitLocalDeclaration(AntlrGrammarGenerated::TParser::LocalDeclarationContext * ctx) {
+	AstNode::AstNodePtrVectorType varDeclNodes;
+	// Check if there are any local declarations for this function.
+	if (!ctx->children.empty()) {
+		// Traverse the tree to populate a vector of variable declaration AstNode nodes. 
+		varDeclNodes = this->populateChildrenFromList<AntlrGrammarGenerated::TParser::VarDeclarationContext, AntlrGrammarGenerated::TParser::LocalDeclarationContext>(ctx);
+	}
+	return varDeclNodes;
+}
+
+/** Define a custom visitor for the function statements (zero or many). */
+antlrcpp::Any ParseTreeVisitorImpl::visitStatementList(AntlrGrammarGenerated::TParser::StatementListContext * ctx) {
+	AstNode::AstNodePtrVectorType statementNodes;
+	// Check if there are any statements for this function body.
+	if (!ctx->children.empty()) {
+		// Traverse the tree to populate a vector of statement AstNode nodes. 
+		statementNodes = this->populateChildrenFromList<AntlrGrammarGenerated::TParser::StatementContext, AntlrGrammarGenerated::TParser::StatementListContext>(ctx);
+	}
+	return statementNodes;
+}
+
+antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::TParser::ExpressionStmtContext * ctx) {
+	// Check if this is an empty expression.
+	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
+		// Return an AstNode representing an empty expression statement.
+		// TODO: Prune this out later.
+		return new AstNode(ctx);
+	}
+	// Otherwise, visit the expression and save its information.
+	else {
+		return this->visit(ctx->children.at(0));
+	}
+}
 
 
+antlrcpp::Any ParseTreeVisitorImpl::visitSelectionStmt(AntlrGrammarGenerated::TParser::SelectionStmtContext * ctx) {
+	// Check number of children to see if an ELSE is used.
+	if (ctx->children.size() == 5) {
+		// Save expression and statement as children.
+		std::cout << "visitSelectionStatement: Encountered if-statement." << std::endl;
+	}
+	// Process an ELSE statement also.
+	else {
+		// Save expression and 2 statements as children.
+		std::cout << "visitSelectionStatement: Encountered if-else-statement." << std::endl;
+	}
+	// TODO: Fix this up.
+	return new AstNode(ctx);
+}
 
+antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TParser::IterationStmtContext * ctx) {
+	// Save expression and statement.
+	return new AstNode(ctx);
+}
 
+antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TParser::ReturnStmtContext * ctx) {
+	// Check if there is any return value.
+	if (ctx->children.size() == 3) {
+		// Save return expression as child.
+		std::cout << "visitReturnStatement: Encountered return expression." << std::endl;
+	}
+	else {
+		std::cout << "visitReturnStatement: Encountered return." << std::endl;
+	}
+	// TODO: Fix this up.
+	return new AstNode(ctx);
+}
 
-
+antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TParser::ExpressionContext * ctx) {
+	// TODO: Fill this in.
+	return new AstNode(ctx);
+}
 
 
 
