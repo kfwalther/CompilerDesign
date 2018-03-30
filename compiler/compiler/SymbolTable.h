@@ -40,7 +40,8 @@ struct SymbolRecord {
 	size_t storageSize = 0;
 
 	/** Define the return type if this is a function. */
-	std::string returnType;
+	//TODO: Do we need return type, it seems redundant with type above...
+	CMINUS_NATIVE_TYPES returnType;
 	/** Define number of arguments if this is a function. */
 	size_t numArguments;
 

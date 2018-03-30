@@ -29,6 +29,14 @@ AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNo
 	return;
 }
 
+/** Define a copy constructor. */
+AstNode::AstNode(AstNode * const & otherAstNode) : 
+		parent(otherAstNode->parent), children(otherAstNode->children), token(otherAstNode->token),
+		symbolTableRecord(otherAstNode->symbolTableRecord), ruleType(otherAstNode->ruleType), tokenType(otherAstNode->tokenType) 
+{
+	return;
+}
+
 void AstNode::initialize(antlr4::tree::ParseTree * inputNode) {
 	std::vector<std::string> ruleNames;
 	antlr4::tree::Trees::getNodeText(inputNode, ruleNames);

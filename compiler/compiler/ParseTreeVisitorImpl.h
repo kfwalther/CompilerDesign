@@ -17,6 +17,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	antlrcpp::Any visitDeclarationList(AntlrGrammarGenerated::TParser::DeclarationListContext *ctx);
 	antlrcpp::Any visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx);
 	antlrcpp::Any visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx);
+	antlrcpp::Any visitTypeSpecifier(AntlrGrammarGenerated::TParser::TypeSpecifierContext * ctx);
 private:
 	AntlrGrammarGenerated::TParser * parser;
 };

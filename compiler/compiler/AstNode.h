@@ -62,6 +62,8 @@ struct AstNode {
 	AstNode(CMINUS_RULE_TYPE const ruleType);
 	AstNode(antlr4::tree::ParseTree * inputNode);
 	AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNode);
+	/** Define a copy constructor. */
+	AstNode(AstNode * const & otherAstNode);
 	~AstNode();
 
 	/** Initialize some of the data members. */
