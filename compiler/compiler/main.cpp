@@ -64,9 +64,14 @@ int main(int numArguments, char const * const arguments[]) {
 
 	/** Specify the input file to read. */
 	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/compiler/C-Input-1.txt");
+	std::string inputFileDesktop("D:/workspace/CompilerDesign/compiler/compiler/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
+	std::ifstream inputStreamDesktop(inputFileDesktop);
 	if (inputStream.is_open()) {
 		ParseInputFile(inputStream);
+	}
+	else if (inputStreamDesktop.is_open()) {
+		ParseInputFile(inputStreamDesktop);
 	}
 	else {
 		std::cerr << ("ERROR: Problem opening the provided input file with std::ifstream: " + inputFile) << std::endl;

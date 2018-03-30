@@ -34,6 +34,13 @@ enum class CMINUS_TOKEN_TYPE {
 	GREATER_THAN_OR_EQUAL = 30, EQUALITY = 31, NON_EQUALITY = 32
 };
 
+/** Define the C-Minus language native types. */
+enum class CMINUS_NATIVE_TYPES {
+	UNKNOWN = 0,
+	INT = 1,
+	VOID = 2
+};
+
 /** Define the static list of rule names for the parse tree. */
 static const std::vector<std::string> ParseTreeRuleNames = {
 	"program", "declarationList", "declaration", "varDeclaration", "typeSpecifier",
@@ -54,14 +61,18 @@ struct AstNode {
 	/** Define the constructors. */
 	AstNode(CMINUS_RULE_TYPE const ruleType);
 	AstNode(antlr4::tree::ParseTree * inputNode);
+	AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNode);
 	~AstNode();
 
+	/** Initialize some of the data members. */
+	void initialize(antlr4::tree::ParseTree * inputNode);
+
 	bool hasToken() const;
-	std::string const & getString() const;
+	std::string const getString() const;
 	std::string printTreeString();
 
 	AstNode * parent;
-	std::vector<AstNodePtrType> children;
+	std::vector<AstNode *> children;
 	/** Store a pointer to the token, if this node has a corresponding Token. */
 	TokenPtrType token;
 	/** Store a pointer to the symbol table record this corresponds to. */

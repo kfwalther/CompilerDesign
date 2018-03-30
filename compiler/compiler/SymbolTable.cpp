@@ -35,10 +35,13 @@ bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymb
 }
 
 /** Print out the contents of the symbol table. */
-void SymbolTable::printSymbolTable() {
+void SymbolTable::printSymbolTable() const {
 	std::cout << "SYMBOL TABLE PRINTOUT" << std::endl;
 	for (auto const & entry : this->symbolTable) {
 		std::cout << entry.first << ", " << entry.second->token->toString() << std::endl;
+		std::cout << "Type: " << static_cast<unsigned int>(entry.second->type) 
+				<< ", Kind: " << static_cast<unsigned int>(entry.second->kind) << std::endl;
+		std::cout << "StorageSize: " << entry.second->storageSize << std::endl;
 	}
 
 }

@@ -3,6 +3,8 @@
  * @date: 2018
  */
 
+#include <utility>
+
 #include "AstNode.h"
 #include "tree/Trees.h"
 #include "TParser.h"
@@ -15,6 +17,19 @@ AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
 
 AstNode::AstNode(antlr4::tree::ParseTree * inputNode) : token(NULL)
 {
+	// Initialize some members. 
+	this->initialize(inputNode);
+	return;
+};
+
+AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNode) : token(NULL), parent(parentNode)
+{
+	// Initialize some members
+	this->initialize(inputNode);
+	return;
+}
+
+void AstNode::initialize(antlr4::tree::ParseTree * inputNode) {
 	std::vector<std::string> ruleNames;
 	antlr4::tree::Trees::getNodeText(inputNode, ruleNames);
 	/** Save the Token, if this is a leaf node. */
@@ -26,8 +41,7 @@ AstNode::AstNode(antlr4::tree::ParseTree * inputNode) : token(NULL)
 		antlr4::RuleContext * tempRuleNode = dynamic_cast<antlr4::RuleContext *>(inputNode);
 		this->ruleType = static_cast<CMINUS_RULE_TYPE>(tempRuleNode->getRuleIndex());
 	}
-	return;
-};
+}
 
 AstNode::~AstNode() {
 	return;
@@ -44,14 +58,14 @@ bool AstNode::hasToken() const {
 }
 
 /** Define a function to return the string representation of this node. */
-std::string const & AstNode::getString() const {
+std::string const AstNode::getString() const {
 	if (this->hasToken()) {
 		//return this->token->getText();
-		return "TokenText";
+		return std::move("TokenText");
 	}
 	else {
-		//return ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
-		return "RuleText";
+		return ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
+		//return std::move("RuleText");
 	}
 }
 
@@ -76,7 +90,7 @@ std::string AstNode::printTreeString() {
 		if (childIndex > 0) {
 			treeString += ' ';
 		}
-		AstNode * child = curNode->children[childIndex].get();
+		AstNode * child = curNode->children[childIndex];
 		temp = child->getString();
 		// If that child has children... 
 		if (!child->children.empty()) {

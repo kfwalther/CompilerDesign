@@ -13,12 +13,13 @@
 
 /** Forward declarations. */
 struct AstNode;
+enum class CMINUS_NATIVE_TYPES;
 
-
-enum class SYMBOL_RECORD_TYPE {
-	INT = 0,
-	ARRAY = 1,
-	FUNCTION = 2
+enum class SYMBOL_RECORD_KIND {
+	UNKNOWN = 0,
+	VARIABLE = 1,
+	ARRAY = 2,
+	FUNCTION = 3
 };
 
 /** Define an object to store a single entry in the symbol table. */
@@ -31,10 +32,12 @@ struct SymbolRecord {
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
 
-	/** Define the type of this symbol table record. */
-	SYMBOL_RECORD_TYPE type;
-	/** Define how much memory this entity will require. */
-	size_t storageSize;
+	/** Define the kind of this symbol table record. */
+	SYMBOL_RECORD_KIND kind;
+	/** Define the type of this symbol table record (INT or VOID). */
+	CMINUS_NATIVE_TYPES type;
+	/** Define how much memory in bytes this entity will require. Assume 32-bit integers. */
+	size_t storageSize = 0;
 
 	/** Define the return type if this is a function. */
 	std::string returnType;
@@ -64,7 +67,7 @@ struct SymbolTable {
 
 	/** Define a function to insert a new token into the symbol table, if it doesn't already exist. */
 	bool insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbol);
-	void printSymbolTable();
+	void printSymbolTable() const;
 	/** Define the map data structure to hold all of the symbol table entries. */
 	SymbolTableType symbolTable;
 
