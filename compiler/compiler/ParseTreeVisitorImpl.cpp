@@ -48,7 +48,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitDeclarationList(AntlrGrammarGenerated::
 
 /** Define a custom visitor for the VarDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx) {
-	AstNode * valDeclNode = new AstNode(ctx);
+	AstNode * varDeclNode = new AstNode(ctx);
 	
 	// Loop through all children and save AST node. 
 	for (auto const & child : ctx->children) {
@@ -59,7 +59,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 			if ((nodeType == this->parser->NUM) || (nodeType == this->parser->ID) || 
 					(nodeType == this->parser->LEFT_BRACKET) || (nodeType == this->parser->RIGHT_BRACKET)) {
 				// Create new AST node and save it. 
-				valDeclNode->children.push_back(new AstNode(child, valDeclNode));
+				// TODO: Don't need to save all these children. Get info from them and make the current node the leaf.
+				varDeclNode->children.push_back(new AstNode(child, varDeclNode));
 			}
 			// Extra processing if we have the ID.
 			if (nodeType == this->parser->ID) {
@@ -72,7 +73,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 					// Declaration and definition of variables of primitive types is synonymous.
 					symbolTableIterator->second->isDeclared = true;
 					symbolTableIterator->second->isDefined = true;
-					symbolTableIterator->second->astNode = std::make_shared<AstNode>(valDeclNode);
+					symbolTableIterator->second->astNode = std::make_shared<AstNode>(varDeclNode);
 					// TODO: Populate SYMBOL_RECORD_KIND here.
 					//symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
 					//symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
@@ -85,7 +86,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 		}
 	}
 	std::cout << "Saving variable from VarDeclaration in AST..." << std::endl;
-	return valDeclNode;
+	return varDeclNode;
 }
 
 /** Define a custom visitor for the FunDeclaration visitor. */
@@ -100,7 +101,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
 		funDeclNode->children.push_back(new AstNode(ctx->children.at(1), funDeclNode));
 		// Save the function parameters.
-		funDeclNode->children.push_back(new AstNode(ctx->children.at(3), funDeclNode));
+		AstNode * paramListNode = this->visit(ctx->children.at(3));
+		paramListNode->parent = funDeclNode;
+		funDeclNode->children.push_back(paramListNode);
 		// Save the function body.
 		funDeclNode->children.push_back(new AstNode(ctx->children.at(5), funDeclNode));
 		// Find the associated entry in the symbol table and update its information.
@@ -135,4 +138,91 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 /** Define a custom visitor for the type specifier. */
 antlrcpp::Any ParseTreeVisitorImpl::visitTypeSpecifier(AntlrGrammarGenerated::TParser::TypeSpecifierContext * ctx) {
 	return dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getText();
+}
+
+/** Define a custom visitor for the params node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitParams(AntlrGrammarGenerated::TParser::ParamsContext * ctx) {
+	AstNode * paramsNode = new AstNode(ctx);
+	// Check if we have any parameters, a terminal node will indicate VOID or no params.
+	if (!antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
+		std::vector<AstNode *> childNodes = this->visit(ctx->children.at(0));
+		// Update the parent of each node.
+		for (auto & node : childNodes) {
+			node->parent = paramsNode;
+		}
+		paramsNode->children = childNodes;
+	}
+	return paramsNode;
+}
+
+/** Define a custom visitor for the params node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParser::ParamListContext * ctx) {
+	// Declare a vector of AstNodes to return.
+	std::vector<AstNode *> paramNodeVector;
+	// Loop through all nodes in the param list (param | paramList COMMA param).
+	for (auto const & curNode : ctx->children) {
+		// If the current node is just a param, add it to the paramNodeVector.
+		if (antlrcpp::is<AntlrGrammarGenerated::TParser::ParamContext *>(curNode)) {
+			// Visit the child first to create a node for specific parameter.
+			paramNodeVector.push_back(this->visit(curNode));
+		}
+		// Append the paramNodes from the nested ParamList to paramNodeVector.
+		if (antlrcpp::is<AntlrGrammarGenerated::TParser::ParamListContext *>(curNode)) {
+			std::vector<AstNode *> otherParamNodeVector = this->visit(curNode);
+			// TODO: Figure out if this is the correct order (prepend or append?).
+			paramNodeVector.insert(paramNodeVector.end(), otherParamNodeVector.begin(), otherParamNodeVector.end());
+		}
+	}
+	// Return the vector of param nodes.
+	return paramNodeVector;
+}
+
+/** Define a custom visitor for the params node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::ParamContext * ctx) {
+	AstNode * paramNode = new AstNode(ctx);
+	bool gotLeftBracket = false;
+	bool gotRightBracket = false;
+	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.begin();
+	// Loop through all children and populate this AST node. 
+	for (auto const & child : ctx->children) {
+		// Find the ID or BRACKET nodes that define the parameter. 
+		if (antlrcpp::is<antlr4::tree::TerminalNode *>(child)) {
+			auto curNode = dynamic_cast<antlr4::tree::TerminalNode *>(child);
+			auto nodeType = (dynamic_cast<antlr4::tree::TerminalNode *>(child))->getSymbol()->getType();
+			// Save some info from the parameter ID node.
+			if (nodeType == this->parser->ID) {
+				// Find the associated entry in the symbol table and update its information.
+				symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(curNode->getSymbol()->getText());
+				if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
+					// All parameter declarations will be integer types. 
+					symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
+					symbolTableIterator->second->storageSize = 4;
+					// Declaration and definition of parameters of primitive types is synonymous.
+					symbolTableIterator->second->isDeclared = true;
+					symbolTableIterator->second->isDefined = true;
+					symbolTableIterator->second->astNode = std::make_shared<AstNode>(paramNode);
+				} else {
+					std::cout << "visitParam: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
+					// TODO: Token not found in symbol table. Insert it? ERROR?
+				}
+			}
+			// Keep track of brackets if we see them.
+			else if (nodeType == this->parser->LEFT_BRACKET) {
+				gotLeftBracket = true;
+			} else if (nodeType == this->parser->RIGHT_BRACKET) {
+				gotRightBracket = true;
+			}
+		}
+	}
+	// Check if this was an array parameter.
+	if (gotLeftBracket && gotRightBracket) {
+		symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
+	} else if (!gotLeftBracket && !gotRightBracket) {
+		symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
+	} else {
+		// Should not hit this case b/c it wouldn't have parsed. 
+		std::cerr << "visitParam: WARNING: Missing bracket in array function paramter!" << std::endl;
+	}
+	std::cout << "Saving parameter from Param in AST..." << std::endl;
+	return paramNode;
 }
