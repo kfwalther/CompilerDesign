@@ -27,7 +27,8 @@ struct SymbolRecord {
 	/** Alias the types used with this class. */
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
 	typedef antlr4::Token * TokenPtrType;
-	typedef std::shared_ptr<AstNode> AstNodePtrType;
+	typedef std::shared_ptr<AstNode> AstNodeSmartPtrType;
+
 	/** Define constructors. */
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
@@ -48,7 +49,7 @@ struct SymbolRecord {
 	TokenPtrType token;
 
 	/** Pointer to corresponding AST node. */
-	AstNodePtrType astNode;
+	AstNodeSmartPtrType astNode;
 	/** Define attributes to track how each token is used in the program. */
 	bool isDeclared = false;
 	bool isDefined = false;

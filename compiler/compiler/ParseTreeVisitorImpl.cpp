@@ -10,12 +10,34 @@ ParseTreeVisitorImpl::ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * cons
 	return;
 }
 
+/** Define a helper function to support parse tree traversal of list nodes. */
+template<class EntityType, class EntityListType>
+AstNode::AstNodePtrVectorType ParseTreeVisitorImpl::populateChildrenFromList(EntityListType * ctx) {
+	// Declare a vector of AstNodes to return.
+	AstNode::AstNodePtrVectorType entityNodeVector;
+	// Loop through all children (grammar is: Entity | EntityList Entity).
+	for (auto const & curNode : ctx->children) {
+		// If the current node is just a entity, add it to the entityNodeVector.
+		if (antlrcpp::is<EntityType *>(curNode)) {
+			// Visit the child first to create a node for specific type of entity.
+			entityNodeVector.push_back(this->visit(curNode));
+		}
+		// Append the entity nodes from the nested EntityList to entityNodeVector.
+		if (antlrcpp::is<EntityListType *>(curNode)) {
+			AstNode::AstNodePtrVectorType otherEntityNodeVector = this->visit(curNode);
+			// TODO: Figure out if this is the correct order (prepend or append?).
+			entityNodeVector.insert(entityNodeVector.end(), otherEntityNodeVector.begin(), otherEntityNodeVector.end());
+		}
+	}
+	return entityNodeVector;
+}
+
 /** Define a custom visitor for the declaration list visitor to make a list of declarations. */
 antlrcpp::Any ParseTreeVisitorImpl::visitProgram(AntlrGrammarGenerated::TParser::ProgramContext *ctx) {
 	/** Create the root node of the AST, the ProgramContext rule node. */
 	AstNode * programNode = new AstNode(ctx);
 	/** Set the vector of Declaration nodes as the children of the Program node. */
-	std::vector<AstNode *> declNodeVector = this->visitChildren(ctx);
+	AstNode::AstNodePtrVectorType declNodeVector = this->visitChildren(ctx);
 	// Update the parent of each node.
 	for (auto & node : declNodeVector) {
 		node->parent = programNode;
@@ -26,24 +48,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitProgram(AntlrGrammarGenerated::TParser:
 
 /** Define a custom visitor for the declaration list visitor to make a list of declarations. */
 antlrcpp::Any ParseTreeVisitorImpl::visitDeclarationList(AntlrGrammarGenerated::TParser::DeclarationListContext * ctx) {
-	// Declare a vector of AstNodes to return.
-	std::vector<AstNode *> declNodeVector;
-	// Loop through all nodes in the declaration list (either Declaration OR DeclarationList Declaration).
-	for (auto const & curNode : ctx->children) {
-		// If the current node is just a declaration, add it to the declNodeVector.
-		if (antlrcpp::is<AntlrGrammarGenerated::TParser::DeclarationContext *>(curNode)) {
-			// Visit the child first to create a node for specific type of declaration (function or variable decl).
-			declNodeVector.push_back(this->visit(curNode));
-		}
-		// Append the declNodes from the nested DeclarationList to declNodeVector.
-		if (antlrcpp::is<AntlrGrammarGenerated::TParser::DeclarationListContext *>(curNode)) {
-			std::vector<AstNode *> otherDeclNodeVector = this->visit(curNode);
-			// TODO: Figure out if this is the correct order (prepend or append?).
-			declNodeVector.insert(declNodeVector.end(), otherDeclNodeVector.begin(), otherDeclNodeVector.end());
-		}
-	}
-	// Return the vector of declaration nodes.
-	return declNodeVector;
+	// Traverse the tree to populate a vector of declaration AstNode nodes. 
+	return this->populateChildrenFromList<AntlrGrammarGenerated::TParser::DeclarationContext, AntlrGrammarGenerated::TParser::DeclarationListContext>(ctx);
 }
 
 /** Define a custom visitor for the VarDeclaration visitor. */
@@ -157,24 +163,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParams(AntlrGrammarGenerated::TParser::
 
 /** Define a custom visitor for the params node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParser::ParamListContext * ctx) {
-	// Declare a vector of AstNodes to return.
-	std::vector<AstNode *> paramNodeVector;
-	// Loop through all nodes in the param list (param | paramList COMMA param).
-	for (auto const & curNode : ctx->children) {
-		// If the current node is just a param, add it to the paramNodeVector.
-		if (antlrcpp::is<AntlrGrammarGenerated::TParser::ParamContext *>(curNode)) {
-			// Visit the child first to create a node for specific parameter.
-			paramNodeVector.push_back(this->visit(curNode));
-		}
-		// Append the paramNodes from the nested ParamList to paramNodeVector.
-		if (antlrcpp::is<AntlrGrammarGenerated::TParser::ParamListContext *>(curNode)) {
-			std::vector<AstNode *> otherParamNodeVector = this->visit(curNode);
-			// TODO: Figure out if this is the correct order (prepend or append?).
-			paramNodeVector.insert(paramNodeVector.end(), otherParamNodeVector.begin(), otherParamNodeVector.end());
-		}
-	}
-	// Return the vector of param nodes.
-	return paramNodeVector;
+	// Traverse the tree to populate a vector of declaration AstNode nodes. 
+	return this->populateChildrenFromList<AntlrGrammarGenerated::TParser::ParamContext, AntlrGrammarGenerated::TParser::ParamListContext>(ctx);
 }
 
 /** Define a custom visitor for the params node. */

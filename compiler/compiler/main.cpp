@@ -61,7 +61,6 @@ void ParseInputFile(std::ifstream & inputStream) {
 }
 
 int main(int numArguments, char const * const arguments[]) {
-
 	/** Specify the input file to read. */
 	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/compiler/C-Input-1.txt");
 	std::string inputFileDesktop("D:/workspace/CompilerDesign/compiler/compiler/C-Input-1.txt");

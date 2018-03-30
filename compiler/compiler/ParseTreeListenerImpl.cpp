@@ -4,7 +4,6 @@
  */
 
 #include "ParseTreeListenerImpl.h"
-//#include "SymbolTable.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeListenerImpl::ParseTreeListenerImpl(AntlrGrammarGenerated::TParser * const parser) : parser(parser) {
@@ -35,15 +34,7 @@ void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 	}
 	// TODO: Return a pointer to symbolTable entry so this tree node can have a reference to it.
 
-	/** Build AST here. */
-	//this->parser->abstractSyntaxTree->
 }
 
-
-/** Define the default constructor for the Parse Tree Listener.
-ParseTreeListenerImpl::ParseTreeListenerImpl() {
-	return;
-}
-*/
 
 

@@ -22,7 +22,7 @@ AstNode::AstNode(antlr4::tree::ParseTree * inputNode) : token(NULL)
 	return;
 };
 
-AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNode) : token(NULL), parent(parentNode)
+AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNodePtrType const & parentNode) : token(NULL), parent(parentNode)
 {
 	// Initialize some members
 	this->initialize(inputNode);
@@ -30,7 +30,7 @@ AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNo
 }
 
 /** Define a copy constructor. */
-AstNode::AstNode(AstNode * const & otherAstNode) : 
+AstNode::AstNode(AstNodePtrType const & otherAstNode) :
 		parent(otherAstNode->parent), children(otherAstNode->children), token(otherAstNode->token),
 		symbolTableRecord(otherAstNode->symbolTableRecord), ruleType(otherAstNode->ruleType), tokenType(otherAstNode->tokenType) 
 {
@@ -91,13 +91,13 @@ std::string AstNode::printTreeString() {
 	// Implement the recursive walk as iteration to avoid trouble with deep nesting.
 	std::stack<size_t> nodeStack;
 	size_t childIndex = 0;
-	AstNode * curNode = this;
+	AstNodePtrType curNode = this;
 	// Loop through all of this node's children. 
 	while (childIndex < curNode->children.size()) {
 		if (childIndex > 0) {
 			treeString += ' ';
 		}
-		AstNode * child = curNode->children[childIndex];
+		AstNodePtrType child = curNode->children[childIndex];
 		temp = child->getString();
 		// If that child has children... 
 		if (!child->children.empty()) {

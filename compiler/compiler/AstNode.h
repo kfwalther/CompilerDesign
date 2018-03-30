@@ -54,14 +54,16 @@ static const std::vector<std::string> ParseTreeRuleNames = {
 struct AstNode {
 
 	/** Alias some commonly used types for convenience. */
-	typedef std::shared_ptr<AstNode> AstNodePtrType;
+	typedef AstNode * AstNodePtrType;
+	typedef std::shared_ptr<AstNode> AstNodeSmartPtrType;
 	typedef antlr4::Token * TokenPtrType;
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
-	
+	typedef std::vector<AstNodePtrType> AstNodePtrVectorType;
+
 	/** Define the constructors. */
 	AstNode(CMINUS_RULE_TYPE const ruleType);
 	AstNode(antlr4::tree::ParseTree * inputNode);
-	AstNode(antlr4::tree::ParseTree * inputNode, AstNode * const & parentNode);
+	AstNode(antlr4::tree::ParseTree * inputNode, AstNodePtrType const & parentNode);
 	/** Define a copy constructor. */
 	AstNode(AstNode * const & otherAstNode);
 	~AstNode();
@@ -73,8 +75,8 @@ struct AstNode {
 	std::string const getString() const;
 	std::string printTreeString();
 
-	AstNode * parent;
-	std::vector<AstNode *> children;
+	AstNodePtrType parent;
+	AstNodePtrVectorType children;
 	/** Store a pointer to the token, if this node has a corresponding Token. */
 	TokenPtrType token;
 	/** Store a pointer to the symbol table record this corresponds to. */

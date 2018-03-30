@@ -13,6 +13,10 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a constructor. */
 	ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser);
 
+	/** Define a helper function to support parse tree traversal of list nodes. */
+	template<class EntityType, class EntityListType>
+	AstNode::AstNodePtrVectorType populateChildrenFromList(EntityListType * ctx);
+
 	antlrcpp::Any visitProgram(AntlrGrammarGenerated::TParser::ProgramContext *ctx);
 	antlrcpp::Any visitDeclarationList(AntlrGrammarGenerated::TParser::DeclarationListContext *ctx);
 	antlrcpp::Any visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx);
