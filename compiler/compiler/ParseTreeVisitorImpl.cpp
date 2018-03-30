@@ -90,12 +90,15 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 
 /** Define a custom visitor for the FunDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx) {
-	AstNode * funDeclNode = new AstNode(ctx->children.at(1));
-	// Visit the type specifier node to get the return type of this function. */
-	std::string functionReturnType = this->visit(ctx->children.at(0));
-	// Save the function name (ID) as the current AST node.
+	AstNode * funDeclNode = new AstNode(ctx);	
+
+	// Check if an ID exists where we expect. If so, populate the current node as a function declaration.
 	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(1))) {
+		// Visit the type specifier node to get the return type of this function. */
+		std::string functionReturnType = this->visit(ctx->children.at(0));
+		// Save the function name (ID) for further processing.
 		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
+		funDeclNode->children.push_back(new AstNode(ctx->children.at(1), funDeclNode));
 		// Save the function parameters.
 		funDeclNode->children.push_back(new AstNode(ctx->children.at(3), funDeclNode));
 		// Save the function body.

@@ -73,7 +73,6 @@ std::string const AstNode::getString() const {
 	}
 	else {
 		return ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
-		//return std::move("RuleText");
 	}
 }
 
