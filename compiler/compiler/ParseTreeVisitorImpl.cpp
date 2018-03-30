@@ -55,41 +55,40 @@ antlrcpp::Any ParseTreeVisitorImpl::visitDeclarationList(AntlrGrammarGenerated::
 /** Define a custom visitor for the VarDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx) {
 	AstNode * varDeclNode = new AstNode(ctx);
-	
+	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.begin();
 	// Loop through all children and save AST node. 
 	for (auto const & child : ctx->children) {
 		// Find the ID/NUM nodes that declare the variable. 
 		if (antlrcpp::is<antlr4::tree::TerminalNode *>(child)) {
 			auto curNode = dynamic_cast<antlr4::tree::TerminalNode *>(child);
 			auto nodeType = (dynamic_cast<antlr4::tree::TerminalNode *>(child))->getSymbol()->getType();
-			if ((nodeType == this->parser->NUM) || (nodeType == this->parser->ID) || 
-					(nodeType == this->parser->LEFT_BRACKET) || (nodeType == this->parser->RIGHT_BRACKET)) {
-				// Create new AST node and save it. 
-				// TODO: Don't need to save all these children. Get info from them and make the current node the leaf.
-				varDeclNode->children.push_back(new AstNode(child, varDeclNode));
-			}
-			// Extra processing if we have the ID.
+			// Update symbol table info if we have the ID.
 			if (nodeType == this->parser->ID) {
 				// Find the associated entry in the symbol table and update its information.
-				auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(curNode->getSymbol()->getText());
+				symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(curNode->getSymbol()->getText());
 				if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
 					// All variable declarations will be integer types. 
 					symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
-					symbolTableIterator->second->storageSize = 4;
+					// Assume we have just a single integer declaration here, can update for array afterward.
+					symbolTableIterator->second->storageSize = sizeof(int);
+					symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
 					// Declaration and definition of variables of primitive types is synonymous.
 					symbolTableIterator->second->isDeclared = true;
 					symbolTableIterator->second->isDefined = true;
+					// Exchange pointers for association of this node with this symbol table entry.
 					symbolTableIterator->second->astNode = std::make_shared<AstNode>(varDeclNode);
-					// Give this node a pointer to the corresponding symbol table record.
 					varDeclNode->symbolTableRecord = symbolTableIterator->second;
-					// TODO: Populate SYMBOL_RECORD_KIND here.
-					//symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
-					//symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
 				}
 				else {
 					std::cout << "visitVarDeclaration: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
 					// TODO: Token not found in symbol table. Insert it? ERROR?
 				}
+			}
+			// If we find a NUM token, we know we have an array variable declaration.
+			else if (nodeType == this->parser->NUM) {
+				symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
+				// Storage size in memory is sizeof(int) * numElements.
+				symbolTableIterator->second->storageSize = sizeof(int) * std::stoi(curNode->getSymbol()->getText());
 			}
 		}
 	}
@@ -100,15 +99,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 /** Define a custom visitor for the FunDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx) {
 	AstNode * funDeclNode = new AstNode(ctx);	
-
 	// Check if an ID exists where we expect. If so, populate the current node as a function declaration.
 	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(1))) {
-		// Visit the type specifier node to get the return type of this function. */
-		std::string functionReturnType = this->visit(ctx->children.at(0));
 		// Save the function name (ID) for further processing.
 		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
-		// TODO: Don't save ID as a child, we already save all the needed info...
-		funDeclNode->children.push_back(new AstNode(ctx->children.at(1), funDeclNode));
 		// Save the function parameters.
 		AstNode * paramListNode = this->visit(ctx->children.at(3));
 		paramListNode->parent = funDeclNode;
@@ -120,8 +114,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		// Find the associated entry in the symbol table and update its information.
 		auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(idNode->getSymbol()->getText());
 		if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
-			symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);
-			// Populate the return type of this function.
+			// Visit the type specifier node to get the function's return type.
+			std::string functionReturnType = this->visit(ctx->children.at(0));
 			if (functionReturnType == "int") {
 				symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
 				symbolTableIterator->second->returnType = CMINUS_NATIVE_TYPES::INT;
@@ -134,7 +128,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 			// When a C-Minus function is declared, it is also defined .
 			symbolTableIterator->second->isDeclared = true;
 			symbolTableIterator->second->isDefined = true;
-			// Give this node a pointer to the corresponding symbol table record.
+			// Exchange pointers for association of this node with this symbol table entry.
+			symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);
 			funDeclNode->symbolTableRecord = symbolTableIterator->second;
 			// TODO: Fill this in when we are able to parse the function 'params' node.
 			//symbolTableIterator->second->numArguments = ;
@@ -177,8 +172,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParse
 /** Define a custom visitor for the params node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::ParamContext * ctx) {
 	AstNode * paramNode = new AstNode(ctx);
-	bool gotLeftBracket = false;
-	bool gotRightBracket = false;
 	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.begin();
 	// Loop through all children and populate this AST node. 
 	for (auto const & child : ctx->children) {
@@ -193,35 +186,27 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 				if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
 					// All parameter declarations will be integer types. 
 					symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
+					// Assume we have a simple integer parameter, can update later if it is actually an array parameter.
+					symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
 					symbolTableIterator->second->storageSize = 4;
 					// Declaration and definition of parameters of primitive types is synonymous.
 					symbolTableIterator->second->isDeclared = true;
 					symbolTableIterator->second->isDefined = true;
+					// Exchange pointers for association of this node with this symbol table entry.
 					symbolTableIterator->second->astNode = std::make_shared<AstNode>(paramNode);
-					// Give this node a pointer to the corresponding symbol table record.
-
 					paramNode->symbolTableRecord = symbolTableIterator->second;
 				} else {
 					std::cout << "visitParam: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
 					// TODO: Token not found in symbol table. Insert it? ERROR?
 				}
 			}
-			// Keep track of brackets if we see them.
+			// If we see the brackets, we know this is an array parameter.
 			else if (nodeType == this->parser->LEFT_BRACKET) {
-				gotLeftBracket = true;
-			} else if (nodeType == this->parser->RIGHT_BRACKET) {
-				gotRightBracket = true;
+				symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
+				// TODO: Need more context to update storage size of array parameter...
+				//symbolTableIterator->second->storageSize = 4;
 			}
 		}
-	}
-	// Check if this was an array parameter.
-	if (gotLeftBracket && gotRightBracket) {
-		symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
-	} else if (!gotLeftBracket && !gotRightBracket) {
-		symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
-	} else {
-		// Should not hit this case b/c it wouldn't have parsed. 
-		std::cerr << "visitParam: WARNING: Missing bracket in array function paramter!" << std::endl;
 	}
 	std::cout << "Saving parameter from Param in AST..." << std::endl;
 	return paramNode;
