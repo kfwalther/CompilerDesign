@@ -80,6 +80,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 					symbolTableIterator->second->isDeclared = true;
 					symbolTableIterator->second->isDefined = true;
 					symbolTableIterator->second->astNode = std::make_shared<AstNode>(varDeclNode);
+					// Give this node a pointer to the corresponding symbol table record.
+					varDeclNode->symbolTableRecord = symbolTableIterator->second;
 					// TODO: Populate SYMBOL_RECORD_KIND here.
 					//symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
 					//symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
@@ -105,6 +107,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		std::string functionReturnType = this->visit(ctx->children.at(0));
 		// Save the function name (ID) for further processing.
 		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
+		// TODO: Don't save ID as a child, we already save all the needed info...
 		funDeclNode->children.push_back(new AstNode(ctx->children.at(1), funDeclNode));
 		// Save the function parameters.
 		AstNode * paramListNode = this->visit(ctx->children.at(3));
@@ -131,6 +134,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 			// When a C-Minus function is declared, it is also defined .
 			symbolTableIterator->second->isDeclared = true;
 			symbolTableIterator->second->isDefined = true;
+			// Give this node a pointer to the corresponding symbol table record.
+			funDeclNode->symbolTableRecord = symbolTableIterator->second;
 			// TODO: Fill this in when we are able to parse the function 'params' node.
 			//symbolTableIterator->second->numArguments = ;
 		}
@@ -193,6 +198,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 					symbolTableIterator->second->isDeclared = true;
 					symbolTableIterator->second->isDefined = true;
 					symbolTableIterator->second->astNode = std::make_shared<AstNode>(paramNode);
+					// Give this node a pointer to the corresponding symbol table record.
+
+					paramNode->symbolTableRecord = symbolTableIterator->second;
 				} else {
 					std::cout << "visitParam: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
 					// TODO: Token not found in symbol table. Insert it? ERROR?

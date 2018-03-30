@@ -68,8 +68,11 @@ bool AstNode::hasToken() const {
 /** Define a function to return the string representation of this node. */
 std::string const AstNode::getString() const {
 	if (this->hasToken()) {
-		//return this->token->getText();
-		return std::move("TokenText");
+		if (this->symbolTableRecord != nullptr) {
+			return this->symbolTableRecord->token->getText();
+		} else {
+			return std::move("TokenText");
+		}
 	}
 	else {
 		return ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
@@ -115,9 +118,6 @@ std::string AstNode::printTreeString() {
 					// Reached the end of the current level. See if we can step up from here.
 					childIndex = nodeStack.top();
 					nodeStack.pop();
-					if (curNode->parent == NULL) {
-						int breakHere = 0;
-					}
 					curNode = curNode->parent;
 					treeString += ")";
 				}
