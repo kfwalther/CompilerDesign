@@ -32,7 +32,7 @@ void ParseInputFile(std::ifstream & inputStream) {
 	CommonTokenStream tokens(&lexer);
 
 	tokens.fill();
-	std::cout << "****TOKENS*****" << std::endl;
+	std::cout << "*****TOKENS*****" << std::endl;
 	for (auto token : tokens.getTokens()) {
 		std::cout << token->toString() << std::endl;
 	}

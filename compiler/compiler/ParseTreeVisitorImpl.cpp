@@ -226,3 +226,37 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 	std::cout << "Saving parameter from Param in AST..." << std::endl;
 	return paramNode;
 }
+
+/** Define a custom visitor for the compound statement. */
+antlrcpp::Any ParseTreeVisitorImpl::visitCompountStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx) {
+	AstNode * compoundStatementNode = new AstNode(ctx);
+	//TOOD: Fix this!
+	// Build two vectors, declarations and statements, to hold in this node.
+	std::vector<AstNode *> declarationChildNodes = this->visit(ctx->children.at(1));
+	// Update the parent of each node.
+	for (auto & node : declarationChildNodes) {
+		node->parent = compoundStatementNode;
+	}
+	//compoundStatementNode->children = declarationChildNodes;
+	std::vector<AstNode *> statementChildNodes = this->visit(ctx->children.at(2));
+	// Update the parent of each node.
+	for (auto & node : statementChildNodes) {
+		node->parent = compoundStatementNode;
+	}
+	//compoundStatementNode->children = statementChildNodes;
+	return compoundStatementNode;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
