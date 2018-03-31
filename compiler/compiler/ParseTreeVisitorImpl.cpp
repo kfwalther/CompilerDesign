@@ -11,6 +11,7 @@ ParseTreeVisitorImpl::ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * cons
 }
 
 /** Define a helper function to update the parent attribute of each child node. */
+// TOOD: Finish rolling this out throughout all node visitors.
 void ParseTreeVisitorImpl::updateParents(AstNode * const & curNode) {
 	for (auto & curChild : curNode->children) {
 		curChild->parent = curNode;
@@ -439,7 +440,24 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 
 /** Define a custom visitor for the call node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
-	return new AstNode(ctx);
+	AstNode * callNode = new AstNode(ctx);
+	// Get the arguments for the function call and save them as children.
+	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
+	callNode->children = argumentsVector;
+	return callNode;
+}
+
+/** Define a custom visitor for the arguments node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitArgs(AntlrGrammarGenerated::TParser::ArgsContext * ctx) {
+	// Check if there are any arguments for the function call.
+	AstNode::AstNodePtrVectorType argumentsVector;
+	if (!ctx->children.empty()) {
+		// TODO: This is causing a bad_cast exception. FIXME!
+		argumentsVector = this->populateChildrenFromList<
+				AntlrGrammarGenerated::TParser::ExpressionContext, AntlrGrammarGenerated::TParser::ArgListContext>(
+						reinterpret_cast<AntlrGrammarGenerated::TParser::ArgListContext *>(ctx->children.at(0)));
+	}
+	return argumentsVector;
 }
 
 
