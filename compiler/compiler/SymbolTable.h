@@ -19,7 +19,8 @@ enum class SYMBOL_RECORD_KIND {
 	UNKNOWN = 0,
 	VARIABLE = 1,
 	ARRAY = 2,
-	FUNCTION = 3
+	FUNCTION = 3,
+	NUMBER = 4
 };
 
 /** Define an object to store a single entry in the symbol table. */
@@ -32,13 +33,15 @@ struct SymbolRecord {
 	/** Define constructors. */
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
-
+	
 	/** Define the kind of this symbol table record. */
 	SYMBOL_RECORD_KIND kind;
 	/** Define the type of this symbol table record (INT or VOID). */
 	CMINUS_NATIVE_TYPES type;
 	/** Define how much memory in bytes this entity will require. Assume 32-bit integers. */
 	size_t storageSize = 0;
+	/** If this is a variable, define the value it takes on (assume zero-initialized memory). */
+	int value;
 
 	/** Define the return type if this is a function. */
 	//TODO: Do we need return type, it seems redundant with type above...
@@ -46,10 +49,10 @@ struct SymbolRecord {
 	/** Define number of arguments if this is a function. */
 	size_t numArguments;
 
+	/** Pointer to one of its corresponding AST nodes. */
+	AstNodeSmartPtrType astNode;
 	TokenPtrType token;
 
-	/** Pointer to corresponding AST node. */
-	AstNodeSmartPtrType astNode;
 	/** Define attributes to track how each token is used in the program. */
 	bool isDeclared = false;
 	bool isDefined = false;

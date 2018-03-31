@@ -10,6 +10,13 @@ ParseTreeVisitorImpl::ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * cons
 	return;
 }
 
+/** Define a helper function to update the parent attribute of each child node. */
+void ParseTreeVisitorImpl::updateParents(AstNode * const & curNode) {
+	for (auto & curChild : curNode->children) {
+		curChild->parent = curNode;
+	}
+}
+
 /** Define a helper function to support parse tree traversal of list nodes. */
 template<class EntityType, class EntityListType>
 AstNode::AstNodePtrVectorType ParseTreeVisitorImpl::populateChildrenFromList(EntityListType * ctx) {
@@ -275,18 +282,25 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::T
 
 
 antlrcpp::Any ParseTreeVisitorImpl::visitSelectionStmt(AntlrGrammarGenerated::TParser::SelectionStmtContext * ctx) {
+	AstNode * selectionStatementNode = new AstNode(ctx);
 	// Check number of children to see if an ELSE is used.
 	if (ctx->children.size() == 5) {
-		// Save expression and statement as children.
 		std::cout << "visitSelectionStatement: Encountered if-statement." << std::endl;
+		// Save expression and statement as children.
+		selectionStatementNode->children.push_back(this->visit(ctx->children.at(2)));
+		selectionStatementNode->children.push_back(this->visit(ctx->children.at(4)));
 	}
 	// Process an ELSE statement also.
 	else {
-		// Save expression and 2 statements as children.
 		std::cout << "visitSelectionStatement: Encountered if-else-statement." << std::endl;
+		// Save expression and 2 statements as children.
+		selectionStatementNode->children.push_back(this->visit(ctx->children.at(2)));
+		selectionStatementNode->children.push_back(this->visit(ctx->children.at(4)));
+		selectionStatementNode->children.push_back(this->visit(ctx->children.at(6)));
 	}
-	// TODO: Fix this up.
-	return new AstNode(ctx);
+	// Set the parents of this node's children.
+	this->updateParents(selectionStatementNode);
+	return selectionStatementNode;
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TParser::IterationStmtContext * ctx) {
@@ -307,14 +321,125 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 	return new AstNode(ctx);
 }
 
+/** Define a custom visitor for the Expression node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TParser::ExpressionContext * ctx) {
-	// TODO: Fill this in.
-	return new AstNode(ctx);
+	AstNode * expressionNode = new AstNode(ctx);
+	// Check if this is an assignment expression (3 children).
+	if (ctx->children.size() == 3) {
+		// Visit the var node.
+		AstNode * varNode = this->visit(ctx->children.at(0));
+		// Ensure the variable is declared and defined before we assign to it!
+		if (varNode->symbolTableRecord->isDeclared && varNode->symbolTableRecord->isDefined) {
+			// Designate the variable as "assigned" in the symbol table.
+			varNode->symbolTableRecord->isAssigned = true;
+		} else {
+			// Stop compilation with error.
+			// TODO: Use token info to print the line in the file where this error occurred.
+			std::cerr << "visitExpression: ERROR: Undefined variable " << varNode->getString() << std::endl;
+		}
+		expressionNode->children.push_back(varNode);
+		// Visit the expression node.
+		expressionNode->children.push_back(this->visit(ctx->children.at(2)));
+	}
+	else {
+		// Visit the simpleExpression node, saving it instead of this node.
+		expressionNode = this->visitChildren(ctx);
+	}
+	// Set the parents of this node's children.
+	this->updateParents(expressionNode);
+	return expressionNode;
+}
+
+/** Define a custom visitor for the variable node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::VarContext * ctx) {
+	AstNode * varNode = new AstNode(ctx);
+	// Link this node to its corresponding ID entry in the symbol table.
+	varNode->symbolTableRecord = (this->parser->getSymbolTable()->symbolTable.find(
+			dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()->getText()))->second;
+	// Check if this is an array, not an integer.
+	if (ctx->children.size() > 1) {
+		// Visit the expression child to get the index into the array.
+		AstNode * expressionNode = this->visit(ctx->children.at(2));
+		// TODO: Get the array index from this expression node.
+		//unsigned int arrayIndex = 
+	}
+	return varNode;
 }
 
 
+/** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
+template<class EntityType>
+AstNode * ParseTreeVisitorImpl::visitAndCollapseExpressionNodes(EntityType * ctx) {
+	AstNode * curExpNode = new AstNode(ctx);
+	// Check if this has a relative/additive/mult operation to process.
+	if (ctx->children.size() > 1) {
+		// Get the specific operator.
+		curExpNode->token = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1)->children.at(0))->getSymbol();
+		// Save the two expressions on each side, which are the operands.
+		curExpNode->children.push_back(this->visit(ctx->children.at(0)));
+		curExpNode->children.push_back(this->visit(ctx->children.at(2)));
+	}
+	else {
+		// Visit the child expression node, saving it in place of this node.
+		curExpNode = this->visitChildren(ctx);
+	}
+	// Set the parents of this node's children.
+	this->updateParents(curExpNode);
+	return curExpNode;
+}
 
+/** Define a custom visitor for the simple expression node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitSimpleExpression(AntlrGrammarGenerated::TParser::SimpleExpressionContext * ctx) {
+	// Process the children of this simple expression node.
+	return this->visitAndCollapseExpressionNodes<AntlrGrammarGenerated::TParser::SimpleExpressionContext>(ctx);
+}
 
+/** Define a custom visitor for the additive expression node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitAdditiveExpression(AntlrGrammarGenerated::TParser::AdditiveExpressionContext * ctx) {
+	// Process the children of this additive expression node.
+	return this->visitAndCollapseExpressionNodes<AntlrGrammarGenerated::TParser::AdditiveExpressionContext>(ctx);
+}
 
+/** Define a custom visitor for the term node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitTerm(AntlrGrammarGenerated::TParser::TermContext * ctx) {
+	// Process the children of this term node.
+	return this->visitAndCollapseExpressionNodes<AntlrGrammarGenerated::TParser::TermContext>(ctx);
+}
+
+/** Define a custom visitor for the factor node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::FactorContext * ctx) {
+	AstNode * factorNode = new AstNode(ctx);
+	// Check for a nested expression (nested in parentheses).
+	if (ctx->children.size() > 1) {
+		// Visit the nested expression node, saving it in place of this node.
+		factorNode = this->visit(ctx->children.at(1));
+	} else {
+		// Check if the one child is simply a number.
+		if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
+			auto numNode = (dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0)));
+			// Find this number in the symbol table.
+			auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(numNode->getText());
+			if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
+				// Store some info about this integer number. 
+				symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
+				symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::NUMBER;
+				// Exchange pointers for association of this node with this symbol table entry.
+				symbolTableIterator->second->astNode = std::make_shared<AstNode>(factorNode);
+				factorNode->symbolTableRecord = symbolTableIterator->second;
+			}
+		} else {
+			// Visit the call/var node, saving it in place of this node.
+			factorNode = this->visitChildren(ctx);
+		}
+	}
+	// Set the parents of this node's children.
+	this->updateParents(factorNode);
+	return factorNode;
+}
+
+/** Define a custom visitor for the call node. */
+antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
+	return new AstNode(ctx);
+}
 
 

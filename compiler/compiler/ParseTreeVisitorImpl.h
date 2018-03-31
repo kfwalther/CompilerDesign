@@ -17,6 +17,13 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	template<class EntityType, class EntityListType>
 	AstNode::AstNodePtrVectorType populateChildrenFromList(EntityListType * ctx);
 
+	/** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
+	template<class EntityType>
+	AstNode * visitAndCollapseExpressionNodes(EntityType * ctx);
+
+	/** Define a helper function to update the parent attribute of each child node. */
+	void updateParents(AstNode * const & curNode);
+
 	antlrcpp::Any visitProgram(AntlrGrammarGenerated::TParser::ProgramContext *ctx);
 	antlrcpp::Any visitDeclarationList(AntlrGrammarGenerated::TParser::DeclarationListContext *ctx);
 	antlrcpp::Any visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx);
@@ -30,10 +37,18 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	antlrcpp::Any visitStatementList(AntlrGrammarGenerated::TParser::StatementListContext * ctx);
 
 	antlrcpp::Any visitExpressionStmt(AntlrGrammarGenerated::TParser::ExpressionStmtContext * ctx);
-	antlrcpp::Any visitExpression(AntlrGrammarGenerated::TParser::ExpressionContext * ctx);
 	antlrcpp::Any visitSelectionStmt(AntlrGrammarGenerated::TParser::SelectionStmtContext * ctx);
 	antlrcpp::Any visitIterationStmt(AntlrGrammarGenerated::TParser::IterationStmtContext * ctx);
 	antlrcpp::Any visitReturnStmt(AntlrGrammarGenerated::TParser::ReturnStmtContext * ctx);
+
+	antlrcpp::Any visitExpression(AntlrGrammarGenerated::TParser::ExpressionContext * ctx);
+	antlrcpp::Any visitVar(AntlrGrammarGenerated::TParser::VarContext * ctx);
+	antlrcpp::Any visitSimpleExpression(AntlrGrammarGenerated::TParser::SimpleExpressionContext * ctx);
+	antlrcpp::Any visitAdditiveExpression(AntlrGrammarGenerated::TParser::AdditiveExpressionContext * ctx);
+	antlrcpp::Any visitTerm(AntlrGrammarGenerated::TParser::TermContext * ctx);
+	antlrcpp::Any visitFactor(AntlrGrammarGenerated::TParser::FactorContext * ctx);
+	antlrcpp::Any visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx);
+
 
 private:
 	AntlrGrammarGenerated::TParser * parser;
