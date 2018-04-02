@@ -49,6 +49,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	antlrcpp::Any visitFactor(AntlrGrammarGenerated::TParser::FactorContext * ctx);
 	antlrcpp::Any visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx);
 	antlrcpp::Any visitArgs(AntlrGrammarGenerated::TParser::ArgsContext * ctx);
+	antlrcpp::Any visitArgList(AntlrGrammarGenerated::TParser::ArgListContext * ctx);
 
 
 private:

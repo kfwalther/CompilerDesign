@@ -452,12 +452,16 @@ antlrcpp::Any ParseTreeVisitorImpl::visitArgs(AntlrGrammarGenerated::TParser::Ar
 	// Check if there are any arguments for the function call.
 	AstNode::AstNodePtrVectorType argumentsVector;
 	if (!ctx->children.empty()) {
-		// TODO: This is causing a bad_cast exception. FIXME!
-		argumentsVector = this->populateChildrenFromList<
-				AntlrGrammarGenerated::TParser::ExpressionContext, AntlrGrammarGenerated::TParser::ArgListContext>(
-						reinterpret_cast<AntlrGrammarGenerated::TParser::ArgListContext *>(ctx->children.at(0)));
+		return this->visit(ctx->children.at(0));
 	}
 	return argumentsVector;
 }
+
+/** Define a custom visitor for the argument list to create a vector of arguments. */
+antlrcpp::Any ParseTreeVisitorImpl::visitArgList(AntlrGrammarGenerated::TParser::ArgListContext * ctx) {
+	// Traverse the tree to populate a vector of argument AstNode nodes. 
+	return this->populateChildrenFromList<AntlrGrammarGenerated::TParser::ExpressionContext, AntlrGrammarGenerated::TParser::ArgListContext>(ctx);
+}
+
 
 
