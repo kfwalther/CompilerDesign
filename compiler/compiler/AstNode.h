@@ -81,7 +81,11 @@ struct AstNode {
 	TokenPtrType token;
 	/** Store a pointer to the symbol table record this corresponds to. */
 	SymbolRecordPtrType symbolTableRecord;
-
+	/** Define booleans to indicate when this node is a variable, and is an L-value or R-value.
+	// TODO: Incorporate use of these in AST-creation visitors.
+	bool isLValue = false;
+	bool isRValue = false;
+	
 	CMINUS_RULE_TYPE ruleType;
 	CMINUS_TOKEN_TYPE tokenType;
 };
