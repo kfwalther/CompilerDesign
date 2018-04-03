@@ -367,7 +367,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 	return varNode;
 }
 
-
 /** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
 template<class EntityType>
 AstNode * ParseTreeVisitorImpl::visitAndCollapseExpressionNodes(EntityType * ctx) {

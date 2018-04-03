@@ -13,6 +13,10 @@ struct ParseTreeListenerImpl : public AntlrGrammarGenerated::TParserBaseListener
 	void enterProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx);
 	void exitProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx);
 
+	void exitRelop(AntlrGrammarGenerated::TParser::RelopContext * ctx);
+	void exitAddop(AntlrGrammarGenerated::TParser::AddopContext * ctx);
+	void exitMulop(AntlrGrammarGenerated::TParser::MulopContext * ctx);
+
 	/** Call this method every time a rule is exited. */
 	void exitEveryRule(antlr4::ParserRuleContext * ctx);
 

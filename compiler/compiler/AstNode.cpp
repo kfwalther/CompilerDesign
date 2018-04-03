@@ -42,6 +42,7 @@ void AstNode::initialize(antlr4::tree::ParseTree * inputNode) {
 	antlr4::tree::Trees::getNodeText(inputNode, ruleNames);
 	/** Save the Token, if this is a leaf node. */
 	if (antlrcpp::is<antlr4::tree::TerminalNode *>(inputNode)) {
+		std::cout << "Creating AstNode with token: " << this->token->getText() << std::endl;
 		this->token = dynamic_cast<antlr4::tree::TerminalNode *>(inputNode)->getSymbol();
 	}
 	/** Save the rule type, if this is a rule context node. */
