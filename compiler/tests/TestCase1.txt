@@ -1,0 +1,10 @@
+/** 
+ * @author: Walther
+ * @brief: This test case has an illegal variable type declaration.
+ */
+ 
+void main(void) {
+	int x;
+	void y;
+	x = 5;
+}

@@ -35,9 +35,9 @@ struct SymbolRecord {
 	SymbolRecord(antlr4::Token * const & inputToken);
 	
 	/** Define the kind of this symbol table record. */
-	SYMBOL_RECORD_KIND kind;
+	SYMBOL_RECORD_KIND kind = SYMBOL_RECORD_KIND::UNKNOWN;
 	/** Define the type of this symbol table record (INT or VOID). */
-	CMINUS_NATIVE_TYPES type;
+	CMINUS_NATIVE_TYPES type = static_cast<CMINUS_NATIVE_TYPES>(0);
 	/** Define how much memory in bytes this entity will require. Assume 32-bit integers. */
 	size_t storageSize = 0;
 	/** If this is a variable, define the value it takes on (assume zero-initialized memory). */
@@ -45,7 +45,7 @@ struct SymbolRecord {
 
 	/** Define the return type if this is a function. */
 	//TODO: Do we need return type, it seems redundant with type above...
-	CMINUS_NATIVE_TYPES returnType;
+	CMINUS_NATIVE_TYPES returnType = static_cast<CMINUS_NATIVE_TYPES>(0);
 	/** Define number of arguments if this is a function. */
 	size_t numArguments;
 
@@ -58,7 +58,8 @@ struct SymbolRecord {
 	bool isDefined = false;
 	bool isAssigned = false;
 	bool isUsed = false;
-
+	/** Define a method to quickly determine if the entry can be used (when it's declared/defined and assigned). */
+	bool canBeUsed();
 };
 
 /** Define an object to store all of the symbols in the symbol table. */

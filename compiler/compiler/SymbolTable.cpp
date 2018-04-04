@@ -16,6 +16,14 @@ SymbolRecord::SymbolRecord(antlr4::Token * const & inputToken) {
 	return;
 }
 
+/** Define a method to quickly determine if the entry can be used (when it's declared/defined and assigned). */
+bool SymbolRecord::canBeUsed() {
+	if (this->isDeclared && this->isDefined && this->isAssigned) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 SymbolTable::SymbolTable() {
 	return;

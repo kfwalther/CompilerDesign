@@ -91,8 +91,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 						symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
 					} else {
 						// Void is illegal for variable declarations. 
-						// TODO: Improve this error message a bit.
-						std::cerr << "Illegal type used for variable declaration: " << std::endl;
+						// TODO: Improve this error message a bit. Describe line in input where error exists.
+						std::cerr << "ERROR: Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl;
+						exit(1);
 					}
 				}
 				else {
@@ -318,16 +319,25 @@ antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TP
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TParser::ReturnStmtContext * ctx) {
+	AstNode * returnNode = new AstNode(ctx);
 	// Check if there is any return value.
 	if (ctx->children.size() == 3) {
-		// Save return expression as child.
+		// Visit the expression node and save return expression as child.
+		AstNode * expressionNode = this->visit(ctx->children.at(1));
 		std::cout << "visitReturnStatement: Encountered return expression." << std::endl;
+		if (expressionNode->symbolTableRecord->canBeUsed()) {
+			expressionNode->symbolTableRecord->isUsed = true;
+			// TODO: Check here if the return type matches the function signature.
+		} else {
+			// Illegal to use before declared or assigned!
+			// TODO: Improve this error message a bit. Describe line in input where error exists.
+			// TODO: Are we allowed to return an unassigned value? Maybe we can...
+			std::cerr << "ERROR: Undeclared or unassigned expression returned from function!" << std::endl;
+			exit(1);
+		}
+		returnNode->children.push_back(expressionNode);
 	}
-	else {
-		std::cout << "visitReturnStatement: Encountered return." << std::endl;
-	}
-	// TODO: Fix this up.
-	return new AstNode(ctx);
+	return returnNode;
 }
 
 /** Define a custom visitor for the Expression node. */
@@ -336,19 +346,19 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 	// Check if this is an assignment expression (3 children).
 	if (ctx->children.size() == 3) {
 		// Visit the var node.
-		AstNode * varNode = this->visit(ctx->children.at(0));
+		expressionNode->children.push_back(this->visit(ctx->children.at(0)));
+		// Visit the expression node.
+		expressionNode->children.push_back(this->visit(ctx->children.at(2)));
+		// TODO: Perform another check here to ensure r-value type matches l-value type.
 		// Ensure the variable is declared and defined before we assign to it!
-		if (varNode->symbolTableRecord->isDeclared && varNode->symbolTableRecord->isDefined) {
+		if (expressionNode->children.at(0)->symbolTableRecord->isDeclared && expressionNode->children.at(0)->symbolTableRecord->isDefined) {
 			// Designate the variable as "assigned" in the symbol table.
-			varNode->symbolTableRecord->isAssigned = true;
+			expressionNode->children.at(0)->symbolTableRecord->isAssigned = true;
 		} else {
 			// Stop compilation with error.
 			// TODO: Use token info to print the line in the file where this error occurred.
-			std::cerr << "visitExpression: ERROR: Undefined variable " << varNode->getString() << std::endl;
+			std::cerr << "visitExpression: ERROR: Undefined variable " << expressionNode->children.at(0)->getString() << std::endl;
 		}
-		expressionNode->children.push_back(varNode);
-		// Visit the expression node.
-		expressionNode->children.push_back(this->visit(ctx->children.at(2)));
 	}
 	else {
 		// Visit the simpleExpression node, saving it instead of this node.
@@ -369,13 +379,15 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 	if (ctx->children.size() > 1) {
 		// Visit the expression child to get the index into the array.
 		AstNode * expressionNode = this->visit(ctx->children.at(2));
-		// TODO: Get the array index from this expression node.
-		//unsigned int arrayIndex = 
+		// Save the expression as a child to be evaluated later.
+		varNode->children.push_back(expressionNode);
+		// TODO: This type is actually INT b/c it's an unknown index into array. How do we handle this?
 	}
 	return varNode;
 }
 
 /** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
+// TODO: May not want to collapse here to preserve order of expressions?
 template<class EntityType>
 AstNode * ParseTreeVisitorImpl::visitAndCollapseExpressionNodes(EntityType * ctx) {
 	AstNode * curExpNode = new AstNode(ctx);
