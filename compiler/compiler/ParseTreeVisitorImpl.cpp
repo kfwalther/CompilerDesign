@@ -4,6 +4,7 @@
  */
 
 #include "ParseTreeVisitorImpl.h"
+#include "ErrorHandler.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeVisitorImpl::ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser) : parser(parser) {
@@ -92,7 +93,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 					} else {
 						// Void is illegal for variable declarations. 
 						// TODO: Improve this error message a bit. Describe line in input where error exists.
-						std::cerr << "ERROR: Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl;
+						std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
+						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl;
 						exit(1);
 					}
 				}
@@ -332,6 +334,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 			// Illegal to use before declared or assigned!
 			// TODO: Improve this error message a bit. Describe line in input where error exists.
 			// TODO: Are we allowed to return an unassigned value? Maybe we can...
+			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
 			std::cerr << "ERROR: Undeclared or unassigned expression returned from function!" << std::endl;
 			exit(1);
 		}
