@@ -75,8 +75,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 				// Find the associated entry in the symbol table and update its information.
 				symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(curNode->getSymbol()->getText());
 				if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
-					// All variable declarations will be integer types. 
-					symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
 					// Assume we have just a single integer declaration here, can update for array afterward.
 					symbolTableIterator->second->storageSize = sizeof(int);
 					symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
@@ -86,6 +84,16 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 					// Exchange pointers for association of this node with this symbol table entry.
 					symbolTableIterator->second->astNode = std::make_shared<AstNode>(varDeclNode);
 					varDeclNode->symbolTableRecord = symbolTableIterator->second;
+					// Check to make sure this variable declaration is an INT.
+					std::string variableType = this->visit(ctx->children.at(0));
+					if (variableType == "int") {
+						// All variable declarations will be integer types. 
+						symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
+					} else {
+						// Void is illegal for variable declarations. 
+						// TODO: Improve this error message a bit.
+						std::cerr << "Illegal type used for variable declaration: " << std::endl;
+					}
 				}
 				else {
 					std::cout << "visitVarDeclaration: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
