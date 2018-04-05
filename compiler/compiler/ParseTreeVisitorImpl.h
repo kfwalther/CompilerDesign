@@ -4,11 +4,12 @@
 /**
  * @author: Kevin Walther
  * @date: 2018
+ * @class: ParseTreeVisitorImpl
  */
 
 #include "TParserBaseVisitor.h"
 
-/** TODO: Remove or rename this namespace constraint, it conflicts other of same name. */
+ /** Define the ParseTreeVisitorImpl class, which implements the abstract methods defined in TParserBaseVisitor. */
 struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a constructor. */
 	ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser);
@@ -56,8 +57,5 @@ private:
 	AntlrGrammarGenerated::TParser * parser;
 };
 
-// TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
 
-
-
-#endif PARSETREEVISITORIMPL_H
+#endif /* PARSETREEVISITORIMPL_H */

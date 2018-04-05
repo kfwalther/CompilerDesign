@@ -48,6 +48,9 @@ struct SymbolRecord {
 	CMINUS_NATIVE_TYPES returnType = static_cast<CMINUS_NATIVE_TYPES>(0);
 	/** Define number of arguments if this is a function. */
 	size_t numArguments;
+	/** TODO: Consider vector for function arguments (type, name, value, storage location, or link to other record). 
+		Removes the need for numArguments attribute above. */
+	// std::vector< std::tuple< CMINUS_NATIVE_TYPES, std::string, int, unsignedInt > >
 
 	/** Pointer to one of its corresponding AST nodes. */
 	AstNodeSmartPtrType astNode;
@@ -80,4 +83,4 @@ struct SymbolTable {
 };
 
 
-#endif SYMBOLTABLE_H	
+#endif	/* SYMBOLTABLE_H */

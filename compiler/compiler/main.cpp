@@ -46,11 +46,10 @@ void ParseInputFile(std::ifstream & inputStream) {
 
 	/** Tell the parser to parse the input starting from a given BNF rule, in this case 'program'. */
 	tree::ParseTree * tree = parser.program();
-	// TODO: Do we need to build AST after completing Parse Tree? 
 	std::cout << "Printing the parse tree..." << std::endl;
 	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-	/** TODO: Create the AST from the parse tree. */
+	/** Create the AST from the parse tree. */
 	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(&parser);
 	AstNode * ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(tree));
 	std::cout << "Printing the AST..." << std::endl;

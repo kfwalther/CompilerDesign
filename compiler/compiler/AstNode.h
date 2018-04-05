@@ -91,4 +91,4 @@ struct AstNode {
 };
 
 
-#endif ASTNODE_H
+#endif  /* ASTNODE_H */

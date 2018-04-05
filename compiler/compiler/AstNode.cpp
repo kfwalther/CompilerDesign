@@ -80,6 +80,8 @@ std::string const AstNode::getString() const {
 	}
 }
 
+/** Print the entire AST. */
+// TODO: Consider cleaning this up to print values and indents.
 std::string AstNode::printTreeString() {
 	// Get the string for the current node. 
 	std::string temp = this->getString();

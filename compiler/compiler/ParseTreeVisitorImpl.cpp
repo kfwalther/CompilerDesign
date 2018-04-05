@@ -91,7 +91,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 						// All variable declarations will be integer types. 
 						symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
 					} else {
-						// Void is illegal for variable declarations. 
+						// VOID is illegal for variable declarations. 
 						// TODO: Improve this error message a bit. Describe line in input where error exists.
 						std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
 						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl;
@@ -99,8 +99,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 					}
 				}
 				else {
-					std::cout << "visitVarDeclaration: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
-					// TODO: Token not found in symbol table. Insert it? ERROR?
+					std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
+					std::cerr << "visitVarDeclaration: AST visit encountered Token not in symbol table yet. "
+							<< "This typically indicates a problem with the ParseTreeListener." << std::endl;
 				}
 			}
 			// If we find a NUM token, we know we have an array variable declaration.
@@ -111,7 +112,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 			}
 		}
 	}
-	std::cout << "Saving variable from VarDeclaration in AST..." << std::endl;
 	return varDeclNode;
 }
 
@@ -144,21 +144,22 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 				symbolTableIterator->second->returnType = CMINUS_NATIVE_TYPES::VOID;
 			}
 			symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::FUNCTION;
-			// When a C-Minus function is declared, it is also defined .
+			// When a C-Minus function is declared, it is also defined.
 			symbolTableIterator->second->isDeclared = true;
 			symbolTableIterator->second->isDefined = true;
+			// Populate the number of arguments for this function.
+			// TODO: Figure out if we have to track same function name with different num of args separately...
+			symbolTableIterator->second->numArguments = paramListNode->children.size();
 			// Exchange pointers for association of this node with this symbol table entry.
 			symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);
 			funDeclNode->symbolTableRecord = symbolTableIterator->second;
-			// TODO: Fill this in when we are able to parse the function 'params' node.
-			//symbolTableIterator->second->numArguments = ;
 		}
 		else {
-			std::cout << "visitFunDeclaration: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
-			// TODO: Token not found in symbol table. Insert it? ERROR?
+			std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
+			std::cerr << "visitFunDeclaration: AST visit encountered Token not in symbol table yet. "
+					<< "This typically indicates a problem with the ParseTreeListener." << std::endl;
 		}
 	}
-	std::cout << "Saving variable from FunDeclaration in AST..." << std::endl;
 	return funDeclNode;
 }
 
@@ -215,14 +216,17 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 					symbolTableIterator->second->astNode = std::make_shared<AstNode>(paramNode);
 					paramNode->symbolTableRecord = symbolTableIterator->second;
 				} else {
-					std::cout << "visitParam: WARNING: AST visit encountered Token not in symbol table yet..." << std::endl;
-					// TODO: Token not found in symbol table. Insert it? ERROR?
+					std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
+					std::cerr << "visitParam: AST visit encountered Token not in symbol table yet. "
+							<< "This typically indicates a problem with the ParseTreeListener." << std::endl;
 				}
 			}
 			// If we see the brackets, we know this is an array parameter.
 			else if (nodeType == this->parser->LEFT_BRACKET) {
 				symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
-				// TODO: Need more context to update storage size of array parameter...
+				/* TODO: Need more context to update storage size of array parameter, need to lookup function
+					declaration and get original array param name passed. */
+				// TODO: Functionize this.
 				//symbolTableIterator->second->storageSize = 4;
 			}
 		}
@@ -283,7 +287,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::T
 	// Check if this is an empty expression.
 	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
 		// Return an AstNode representing an empty expression statement.
-		// TODO: Prune this out later.
+		// TODO: Prune this out in the AST walk later.
 		return new AstNode(ctx);
 	}
 	// Otherwise, visit the expression and save its information.
@@ -292,19 +296,16 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::T
 	}
 }
 
-
 antlrcpp::Any ParseTreeVisitorImpl::visitSelectionStmt(AntlrGrammarGenerated::TParser::SelectionStmtContext * ctx) {
 	AstNode * selectionStatementNode = new AstNode(ctx);
 	// Check number of children to see if an ELSE is used.
 	if (ctx->children.size() == 5) {
-		std::cout << "visitSelectionStatement: Encountered if-statement." << std::endl;
 		// Save expression and statement as children.
 		selectionStatementNode->children.push_back(this->visit(ctx->children.at(2)));
 		selectionStatementNode->children.push_back(this->visit(ctx->children.at(4)));
 	}
 	// Process an ELSE statement also.
 	else {
-		std::cout << "visitSelectionStatement: Encountered if-else-statement." << std::endl;
 		// Save expression and 2 statements as children.
 		selectionStatementNode->children.push_back(this->visit(ctx->children.at(2)));
 		selectionStatementNode->children.push_back(this->visit(ctx->children.at(4)));
@@ -329,7 +330,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 		std::cout << "visitReturnStatement: Encountered return expression." << std::endl;
 		if (expressionNode->symbolTableRecord->canBeUsed()) {
 			expressionNode->symbolTableRecord->isUsed = true;
-			// TODO: Check here if the return type matches the function signature.
+			// TODO: Check if the return type matches the function signature. This is easier to do via AST walk.
 		} else {
 			// Illegal to use before declared or assigned!
 			// TODO: Improve this error message a bit. Describe line in input where error exists.
@@ -352,15 +353,16 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 		expressionNode->children.push_back(this->visit(ctx->children.at(0)));
 		// Visit the expression node.
 		expressionNode->children.push_back(this->visit(ctx->children.at(2)));
-		// TODO: Perform another check here to ensure r-value type matches l-value type.
+		// TODO: Perform another check here to ensure r-value type matches l-value type. Do in AST walk.
 		// Ensure the variable is declared and defined before we assign to it!
 		if (expressionNode->children.at(0)->symbolTableRecord->isDeclared && expressionNode->children.at(0)->symbolTableRecord->isDefined) {
 			// Designate the variable as "assigned" in the symbol table.
 			expressionNode->children.at(0)->symbolTableRecord->isAssigned = true;
 		} else {
-			// Stop compilation with error.
+			// Cannot assign a value to undefined variable.
 			// TODO: Use token info to print the line in the file where this error occurred.
-			std::cerr << "visitExpression: ERROR: Undefined variable " << expressionNode->children.at(0)->getString() << std::endl;
+			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
+			std::cerr << "Undeclared identifier being assigned to : " << expressionNode->children.at(0)->getString() << std::endl;
 		}
 	}
 	else {
@@ -376,6 +378,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::VarContext * ctx) {
 	AstNode * varNode = new AstNode(ctx);
 	// Link this node to its corresponding ID entry in the symbol table.
+	// TODO: Make this a conditional lookup, and error if this variable definition is out of scope...
 	varNode->symbolTableRecord = (this->parser->getSymbolTable()->symbolTable.find(
 			dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()->getText()))->second;
 	// Check if this is an array, not an integer.

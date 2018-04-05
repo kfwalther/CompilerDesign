@@ -18,7 +18,8 @@ struct ErrorHandler {
 	
 	/** Define the C-Minus language native types. */
 	enum class ErrorCodes : unsigned int { 
-		INVALID_SYNTAX = 0,
+		COMPILER_ERROR = 0,
+		INVALID_SYNTAX,
 		UNDEFINED_TYPE,
 		TYPE_MISMATCH,
 		INVALID_TYPE,
@@ -34,4 +35,4 @@ struct ErrorHandler {
 };
 
 
-#endif ERRORCODES_H
+#endif /* ERRORCODES_H */
