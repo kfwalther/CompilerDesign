@@ -8,6 +8,7 @@
 #include "ParseTreeListenerImpl.h"
 #include "ParseTreeVisitorImpl.h"
 #include "AstVisitorImpl.h"
+#include "ErrorHandler.h"
 
 using namespace AntlrGrammarGenerated;
 using namespace antlr4;
@@ -51,8 +52,22 @@ void Compiler::parseTokens() {
 	this->parser->addParseListener(parseTreeListener);
 	// Tell the parser to parse the tokens starting from a given BNF rule, in this case 'program'.
 	this->parseTree = this->parser->program();
+	// Check for any syntax errors during parse, in which BNF rules were not matched by input. 
+	this->checkForSyntaxErrors();
 	std::cout << "Printing the parse tree..." << std::endl;
 	std::cout << parseTree->toStringTree(this->parser) << std::endl << std::endl;
+}
+
+/** Define a function to account for syntax errors (incorrect grammar) in the input. */
+void Compiler::checkForSyntaxErrors() {
+	if (this->parser->getNumberOfSyntaxErrors()) {
+		std::stringstream errorStr;
+		errorStr << ErrorHandler::ErrorCodes::INVALID_SYNTAX << std::endl;
+		errorStr << "Problem occurred matching input file syntax to expected C-Minus language grammar rules. "
+				<< "Please consult the previous errors to correct the syntax issue in your program." << std::endl << std::endl;
+		// If syntax errors occurred, exit the compiler program as further semantic analysis may crash.
+		throw std::invalid_argument(errorStr.str());
+	}
 }
 
 /** Define the function to generate the AST from the parse tree. */

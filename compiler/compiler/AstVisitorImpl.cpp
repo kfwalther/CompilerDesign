@@ -11,11 +11,16 @@ AstVisitorImpl::AstVisitorImpl() {
 	return;
 }
 
+// TODO: Finish filling out these visitors.
+
 /** Define a custom visitor for the AST root node. */
 antlrcpp::Any AstVisitorImpl::visitProgram(AstNode * ctx) {
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
-	// TOOD: Finish filling out these visitors.
-	return new AstNode(ctx);
+	if (ctx->children.back()->symbolTableRecord->token->getText() != "main") {
+		// TODO: Does this case need a new error code?
+		std::cerr << "ERROR: Main is not the last declaration!" << std::endl << std::endl;
+	}
+	return ctx;
 }
 
 

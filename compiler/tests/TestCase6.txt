@@ -1,0 +1,20 @@
+/** 
+ * @author: Walther
+ * @brief: This test case illegally has another function declaration after main!
+ */
+
+int foo(int var, int var2) {
+	var2 = 5;
+	return var2;
+}
+ 
+void main(void) {
+	int x;
+	int y;
+	x = 5;
+	y = foo(x);
+}
+
+void bar(void) {
+	int num;
+}

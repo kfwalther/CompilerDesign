@@ -334,8 +334,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 			// TODO: Improve this error message a bit. Describe line in input where error exists.
 			// TODO: Are we allowed to return an unassigned value? Maybe we can...
 			// TODO: Move this error to AST walk when we have more info...
-			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
-			std::cerr << "Undeclared or unassigned expression returned from function!" << std::endl << std::endl;
+			//std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
+			//std::cerr << "Undeclared or unassigned expression returned from function!" << std::endl << std::endl;
 		}
 		returnNode->children.push_back(expressionNode);
 		// Set the parents of this node's children.

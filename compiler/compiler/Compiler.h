@@ -24,6 +24,8 @@ struct Compiler {
 	void tokenizeInputFile();
 	/** Define the function to parse the token stream. */
 	void parseTokens();
+	/** Define a function to account for syntax errors (incorrect grammar) in the input. */
+	void checkForSyntaxErrors();
 	/** Define the function to generate the AST from the parse tree. */
 	void generateAst();
 	/** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */

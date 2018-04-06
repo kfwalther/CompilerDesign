@@ -1,0 +1,7 @@
+/** 
+ * @author: Walther
+ * @brief: This test case has a program with no declarations and
+ * should fail the grammar parsing.
+ */
+
+
