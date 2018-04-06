@@ -32,8 +32,8 @@ SymbolTable::SymbolTable() {
 	*/
 	// Add the input() function.
 	std::shared_ptr<SymbolRecord> inputFunctionRecord = std::make_shared<SymbolRecord>();
-	//inputFunctionRecord->type = CMINUS_NATIVE_TYPES::INT;
-	//inputFunctionRecord->returnType = CMINUS_NATIVE_TYPES::INT;
+	inputFunctionRecord->type = CMINUS_NATIVE_TYPES::INT;
+	inputFunctionRecord->returnType = CMINUS_NATIVE_TYPES::INT;
 	inputFunctionRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
 	inputFunctionRecord->isDeclared = true;
 	inputFunctionRecord->isDefined = true;
@@ -41,8 +41,8 @@ SymbolTable::SymbolTable() {
 	this->symbolTable["input"] = inputFunctionRecord;
 	// Add the output() function.
 	std::shared_ptr<SymbolRecord> outputFunctionRecord = std::make_shared<SymbolRecord>();
-	//outputFunctionRecord->type = CMINUS_NATIVE_TYPES::VOID;
-	//outputFunctionRecord->returnType = CMINUS_NATIVE_TYPES::VOID;
+	outputFunctionRecord->type = CMINUS_NATIVE_TYPES::VOID;
+	outputFunctionRecord->returnType = CMINUS_NATIVE_TYPES::VOID;
 	outputFunctionRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
 	outputFunctionRecord->isDeclared = true;
 	outputFunctionRecord->isDefined = true;

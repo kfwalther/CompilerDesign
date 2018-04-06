@@ -57,6 +57,7 @@ set(ANTLR4_GRAMMAR_LOCAL_HDRS
 	${PROJECT_SOURCE_DIR}/compiler/AstVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/Compiler.h
 	${PROJECT_SOURCE_DIR}/compiler/ErrorHandler.h
+	${PROJECT_SOURCE_DIR}/compiler/LanguageDefinitions.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/SymbolTable.h
