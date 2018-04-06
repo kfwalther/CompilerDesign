@@ -27,7 +27,8 @@ struct ErrorHandler {
 		TOO_FEW_ARGS,
 		TOO_MANY_ARGS,
 		MISSING_RETURN_VAL,
-		NO_RETURN_VAL
+		NO_RETURN_VAL,
+		NO_MATCHING_SIGNATURE
 	};
 	
 	/** Define an operator overload for streaming the error code to a string. */

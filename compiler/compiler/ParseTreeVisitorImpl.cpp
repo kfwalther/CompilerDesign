@@ -19,6 +19,20 @@ void ParseTreeVisitorImpl::updateParents(AstNode * const & curNode) {
 	}
 }
 
+/** Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration. */
+bool ParseTreeVisitorImpl::validateFunctionParameterTypes(AstNode * const & callNode) const {
+	/** If there are zero arguments, type is void. If there are more than zero arguments, all types should be int. */
+	if (callNode->symbolTableRecord->numArguments == callNode->children.size()) {
+		return true;
+	} else {
+		// Print an error saying function parameter type mismatch.
+		// TODO: Improve this error message a bit. Describe line in input where error exists.
+		std::cerr << ErrorHandler::ErrorCodes::NO_MATCHING_SIGNATURE << std::endl;
+		std::cerr << "Function arguments provide for call do not match formal parameters in function definition: " << callNode->getString() << std::endl;
+		return false;
+	}
+}
+
 /** Define a helper function to support parse tree traversal of list nodes. */
 template<class EntityType, class EntityListType>
 AstNode::AstNodePtrVectorType ParseTreeVisitorImpl::populateChildrenFromList(EntityListType * ctx) {
@@ -95,7 +109,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 						// TODO: Improve this error message a bit. Describe line in input where error exists.
 						std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
 						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl;
-						exit(1);
 					}
 				}
 				else {
@@ -123,9 +136,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		// Save the function name (ID) for further processing.
 		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
 		// Save the function parameters.
-		AstNode * paramListNode = this->visit(ctx->children.at(3));
-		paramListNode->parent = funDeclNode;
-		funDeclNode->children.push_back(paramListNode);
+		AstNode * paramsNode = this->visit(ctx->children.at(3));
+		paramsNode->parent = funDeclNode;
+		funDeclNode->children.push_back(paramsNode);
 		// Save the function body compound statement.
 		AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
 		compoundStatementNode->parent = funDeclNode;
@@ -149,7 +162,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 			symbolTableIterator->second->isDefined = true;
 			// Populate the number of arguments for this function.
 			// TODO: Figure out if we have to track same function name with different num of args separately...
-			symbolTableIterator->second->numArguments = paramListNode->children.size();
+			symbolTableIterator->second->numArguments = paramsNode->children.size();
 			// Exchange pointers for association of this node with this symbol table entry.
 			symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);
 			funDeclNode->symbolTableRecord = symbolTableIterator->second;
@@ -228,6 +241,16 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 					declaration and get original array param name passed. */
 				// TODO: Functionize this.
 				//symbolTableIterator->second->storageSize = 4;
+			}
+		}
+		// Visit the typeSpecifier node to verify this is an INT type. All function parameters should be INT!
+		else {
+			std::string functionReturnType = this->visit(child);
+			if (functionReturnType == "void") {
+				// TODO: Put better error reporting info here...
+				std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
+				std::cerr << "Illegal type used for function parameter: void " 
+						<< dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1))->getSymbol()->getText() << std::endl;
 			}
 		}
 	}
@@ -340,7 +363,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 			// TODO: Are we allowed to return an unassigned value? Maybe we can...
 			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
 			std::cerr << "ERROR: Undeclared or unassigned expression returned from function!" << std::endl;
-			exit(1);
 		}
 		returnNode->children.push_back(expressionNode);
 	}
@@ -469,10 +491,21 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 /** Define a custom visitor for the call node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
 	AstNode * callNode = new AstNode(ctx);
+	// Get the function name (ID) and store it in the symbol table if it doesn't already exist.
+	auto functionNameNode = (dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0)));
+	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(functionNameNode->getText());
+	if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
+		// Exchange pointers for association of this node with this symbol table entry.
+		callNode->symbolTableRecord = symbolTableIterator->second;
+	}
 	// Get the arguments for the function call and save them as children.
 	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
 	callNode->children = argumentsVector;
-	// TODO: Check if the function params match product composition of function declaration! See slides!
+	// Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration.
+	if (!this->validateFunctionParameterTypes(callNode)) {
+		// TODO: Print error here.
+		//std::cout << 
+	}
 	return callNode;
 }
 

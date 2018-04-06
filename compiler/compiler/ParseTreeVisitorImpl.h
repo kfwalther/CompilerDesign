@@ -26,6 +26,9 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a helper function to update the parent attribute of each child node. */
 	void updateParents(AstNode * const & curNode);
 
+	/** Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration. */
+	bool validateFunctionParameterTypes(AstNode * const & callNode) const;
+
 	antlrcpp::Any visitProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx);
 	antlrcpp::Any visitDeclarationList(AntlrGrammarGenerated::TParser::DeclarationListContext *ctx);
 	antlrcpp::Any visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx);

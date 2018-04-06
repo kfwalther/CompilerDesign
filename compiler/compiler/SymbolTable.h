@@ -52,6 +52,7 @@ struct SymbolRecord {
 		Removes the need for numArguments attribute above. */
 	// std::vector< std::tuple< CMINUS_NATIVE_TYPES, std::string, int, unsignedInt > >
 
+
 	/** Pointer to one of its corresponding AST nodes. */
 	AstNodeSmartPtrType astNode;
 	TokenPtrType token;

@@ -14,7 +14,7 @@ AstVisitorImpl::AstVisitorImpl() {
 /** Define a custom visitor for the AST root node. */
 antlrcpp::Any AstVisitorImpl::visitProgram(AstNode * ctx) {
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
-	return this;
+	return new AstNode(ctx);
 }
 
 
