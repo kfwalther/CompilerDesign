@@ -10,14 +10,6 @@ ParseTreeListenerImpl::ParseTreeListenerImpl(AntlrGrammarGenerated::TParser * co
 	return;
 }
 
-void ParseTreeListenerImpl::enterProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx) {
-	std::cout << "Attempting parse of the program rule..." << std::endl;
-}
-
-void ParseTreeListenerImpl::exitProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx) {
-	std::cout << "Completed parsing a program rule..." << std::endl;
-}
-
 /** Add the NUM/ID tokens to the symbol table. */
 void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 	typedef std::vector<antlr4::tree::TerminalNode *> TerminalNodePtrVectorType;
@@ -36,19 +28,19 @@ void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 /** Add any relative operators to the symbol table. */
 void ParseTreeListenerImpl::exitRelop(AntlrGrammarGenerated::TParser::RelopContext * ctx) {
 	this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(
-			dynamic_cast<antlr4::tree::TerminalNode *>(ctx)->getSymbol()));
+			dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 /** Add any additive operators to the symbol table. */
 void ParseTreeListenerImpl::exitAddop(AntlrGrammarGenerated::TParser::AddopContext * ctx) {
 	this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(
-		dynamic_cast<antlr4::tree::TerminalNode *>(ctx)->getSymbol()));
+		dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 /** Add any multiplicative operators to the symbol table. */
 void ParseTreeListenerImpl::exitMulop(AntlrGrammarGenerated::TParser::MulopContext * ctx) {
 	this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(
-		dynamic_cast<antlr4::tree::TerminalNode *>(ctx)->getSymbol()));
+		dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 

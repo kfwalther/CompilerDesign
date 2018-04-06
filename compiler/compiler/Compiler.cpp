@@ -25,19 +25,23 @@ TParser * const Compiler::getParser() const {
 
 /** Define a function to generate a list of tokens from the input file. */
 void Compiler::tokenizeInputFile() {
-	/** Define the stream of tokens. */
+	// Define the stream of tokens.
 	this->tokenStream = new CommonTokenStream(
 			new TLexer(
 					new antlr4::ANTLRInputStream(this->inputFileStream)));
 	tokenStream->fill();
-	std::cout << "*****TOKENS*****" << std::endl;
-	for (auto token : tokenStream->getTokens()) {
-		std::cout << token->toString() << std::endl;
+	// Print out the token if debugging is enabled.
+	if (this->debuggingOn) {
+		std::cout << "*****TOKENS*****" << std::endl;
+		for (auto token : tokenStream->getTokens()) {
+			std::cout << token->toString() << std::endl;
+		}
 	}
 }
 
 /** Define the function to parse the token stream. */
 void Compiler::parseTokens() {
+	std::cout << "Parsing tokens to generate parse tree and symbol table..." << std::endl;
 	// Create the parser object.
 	this->parser = new TParser(this->tokenStream);
 	// Initialize the symbol table associated with this parser.
@@ -53,6 +57,7 @@ void Compiler::parseTokens() {
 
 /** Define the function to generate the AST from the parse tree. */
 void Compiler::generateAst() {
+	std::cout << "Generating AST from the parse tree..." << std::endl;
 	/** Create the AST from the parse tree. */
 	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(parser);
 	this->ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(parseTree));
@@ -66,6 +71,10 @@ void Compiler::performSemanticAnalysis() {
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
 	AstVisitorImpl * astVisitor = new AstVisitorImpl();
 	this->ast = astVisitor->visitProgram(this->ast);
+	// Print the contents of the symbol table, if debugging is enabled. 
+	if (this->debuggingOn) {
+		this->parser->getSymbolTable()->printSymbolTable();
+	}
 }
 
 

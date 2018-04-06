@@ -37,7 +37,7 @@ bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymb
 		return true;
 	}
 	else {
-		std::cout << "WARNING: Value " << newSymbol->token->getText() << " already in map..." << std::endl;
+		//std::cout << "WARNING: Value " << newSymbol->token->getText() << " already in map..." << std::endl;
 		return false;
 	}
 }

@@ -32,6 +32,9 @@ struct Compiler {
 	/** Define getters and setters for the compiler-related objects in this class. */
 	AntlrGrammarGenerated::TParser * const getParser() const;
 
+	/** Define a debugging flag to turn on trace printing. */
+	bool debuggingOn = false;
+
 private:
 	std::ifstream & inputFileStream;
 	/** Define the token stream to be populate from the input file. */

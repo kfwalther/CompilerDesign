@@ -12,6 +12,7 @@
 void compileInputFile(std::ifstream & inputStream) {
 	// Create the Compiler class to manage the objects used during compilation.
 	std::unique_ptr<Compiler> cMinusCompiler = std::make_unique<Compiler>(inputStream);
+	//cMinusCompiler->debuggingOn = true;
 	// Generate a list of tokens from the input file. 
 	cMinusCompiler->tokenizeInputFile();
 	// Parse the tokens to populate the symbol table and generate the parse tree.
@@ -20,14 +21,12 @@ void compileInputFile(std::ifstream & inputStream) {
 	cMinusCompiler->generateAst();
 	// Walk the AST to complete semantic analysis.
 	cMinusCompiler->performSemanticAnalysis();
-	// Print the contents of the symbol table. 
-	cMinusCompiler->getParser()->getSymbolTable()->printSymbolTable();
 }
 
 int main(int numArguments, char const * const arguments[]) {
 	/** Specify the input file to read. */
-	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/tests/TestCase4.txt");
-	std::string inputFileDesktop("D:/workspace/CompilerDesign/compiler/tests/TestCase4.txt");
+	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/tests/C-Input-1.txt");
+	std::string inputFileDesktop("D:/workspace/CompilerDesign/compiler/tests/C-Input-1.txt");
 	std::ifstream inputStream(inputFile);
 	std::ifstream inputStreamDesktop(inputFileDesktop);
 	if (inputStream.is_open()) {

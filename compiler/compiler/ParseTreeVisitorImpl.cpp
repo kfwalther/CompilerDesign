@@ -29,32 +29,11 @@ bool ParseTreeVisitorImpl::validateFunctionParameterTypes(AstNode * const & call
 		// TODO: Improve this error message a bit. Describe line in input where error exists.
 		std::cerr << ErrorHandler::ErrorCodes::NO_MATCHING_SIGNATURE << std::endl;
 		std::cerr << "Arguments provided for function call do not match formal parameters in function definition: "
-				<< callNode->symbolTableRecord->token->getText() << std::endl;
+				<< callNode->symbolTableRecord->token->getText() << std::endl << std::endl;
 		return false;
 	}
 }
 
-/** Define a helper function to support parse tree traversal of list nodes. */
-template<class EntityType, class EntityListType>
-AstNode::AstNodePtrVectorType ParseTreeVisitorImpl::populateChildrenFromList(EntityListType * ctx) {
-	// Declare a vector of AstNodes to return.
-	AstNode::AstNodePtrVectorType entityNodeVector;
-	// Loop through all children (grammar is: Entity | EntityList Entity).
-	for (auto const & curNode : ctx->children) {
-		// If the current node is just a entity, add it to the entityNodeVector.
-		if (antlrcpp::is<EntityType *>(curNode)) {
-			// Visit the child first to create a node for specific type of entity.
-			entityNodeVector.push_back(this->visit(curNode));
-		}
-		// Append the entity nodes from the nested EntityList to entityNodeVector.
-		if (antlrcpp::is<EntityListType *>(curNode)) {
-			AstNode::AstNodePtrVectorType otherEntityNodeVector = this->visit(curNode);
-			// TODO: Figure out if this is the correct order (prepend or append?).
-			entityNodeVector.insert(entityNodeVector.end(), otherEntityNodeVector.begin(), otherEntityNodeVector.end());
-		}
-	}
-	return entityNodeVector;
-}
 
 /** Define a custom visitor for the declaration list visitor to make a list of declarations. */
 antlrcpp::Any ParseTreeVisitorImpl::visitProgram(AntlrGrammarGenerated::TParser::ProgramContext *ctx) {
@@ -62,11 +41,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitProgram(AntlrGrammarGenerated::TParser:
 	AstNode * programNode = new AstNode(ctx);
 	/** Set the vector of Declaration nodes as the children of the Program node. */
 	AstNode::AstNodePtrVectorType declNodeVector = this->visitChildren(ctx);
-	// Update the parent of each node.
-	for (auto & node : declNodeVector) {
-		node->parent = programNode;
-	}
 	programNode->children = declNodeVector;
+	// Set the parents of this node's children.
+	this->updateParents(programNode);
 	return programNode;
 }
 
@@ -109,13 +86,13 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 						// VOID is illegal for variable declarations. 
 						// TODO: Improve this error message a bit. Describe line in input where error exists.
 						std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
-						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl;
+						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl << std::endl;
 					}
 				}
 				else {
 					std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
 					std::cerr << "visitVarDeclaration: AST visit encountered Token not in symbol table yet. "
-							<< "This typically indicates a problem with the ParseTreeListener." << std::endl;
+							<< "This typically indicates a problem with the ParseTreeListener." << std::endl << std::endl;
 				}
 			}
 			// If we find a NUM token, we know we have an array variable declaration.
@@ -138,11 +115,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
 		// Save the function parameters.
 		AstNode * paramsNode = this->visit(ctx->children.at(3));
-		paramsNode->parent = funDeclNode;
 		funDeclNode->children.push_back(paramsNode);
 		// Save the function body compound statement.
 		AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
-		compoundStatementNode->parent = funDeclNode;
 		funDeclNode->children.push_back(compoundStatementNode);
 		// Find the associated entry in the symbol table and update its information.
 		auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(idNode->getSymbol()->getText());
@@ -171,8 +146,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		else {
 			std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
 			std::cerr << "visitFunDeclaration: AST visit encountered Token not in symbol table yet. "
-					<< "This typically indicates a problem with the ParseTreeListener." << std::endl;
+					<< "This typically indicates a problem with the ParseTreeListener." << std::endl << std::endl;
 		}
+		// Set the parents of this node's children.
+		this->updateParents(funDeclNode);
 	}
 	return funDeclNode;
 }
@@ -188,11 +165,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParams(AntlrGrammarGenerated::TParser::
 	// Check if we have any parameters, a terminal node will indicate VOID or no params.
 	if (!antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
 		AstNode::AstNodePtrVectorType childNodes = this->visit(ctx->children.at(0));
-		// Update the parent of each node.
-		for (auto & node : childNodes) {
-			node->parent = paramsNode;
-		}
 		paramsNode->children = childNodes;
+		// Set the parents of this node's children.
+		this->updateParents(paramsNode);
 	}
 	return paramsNode;
 }
@@ -232,7 +207,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 				} else {
 					std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
 					std::cerr << "visitParam: AST visit encountered Token not in symbol table yet. "
-							<< "This typically indicates a problem with the ParseTreeListener." << std::endl;
+							<< "This typically indicates a problem with the ParseTreeListener." << std::endl << std::endl;
 				}
 			}
 			// If we see the brackets, we know this is an array parameter.
@@ -251,11 +226,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 				// TODO: Put better error reporting info here...
 				std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
 				std::cerr << "Illegal type used for function parameter: void " 
-						<< dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1))->getSymbol()->getText() << std::endl;
+						<< dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1))->getSymbol()->getText() << std::endl << std::endl;
 			}
 		}
 	}
-	std::cout << "Saving parameter from Param in AST..." << std::endl;
 	return paramNode;
 }
 
@@ -266,22 +240,18 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCompoundStmt(AntlrGrammarGenerated::TPa
 	AstNode * localDeclsNode = new AstNode(ctx->children.at(1)); 
 	AstNode::AstNodePtrVectorType varDeclsVector = this->visit(ctx->children.at(1));
 	localDeclsNode->children = varDeclsVector;
-	// Update the parent of each new variable declaration node.
-	for (auto & node : localDeclsNode->children) {
-		node->parent = localDeclsNode;
-	}
-	localDeclsNode->parent = compoundStatementNode;
+	// Set the parents of this localDeclsNode's children.
+	this->updateParents(localDeclsNode);
 	compoundStatementNode->children.push_back(localDeclsNode);
 	// Build a statement list node, whose children are function statements.
 	AstNode * statementListNode = new AstNode(ctx->children.at(2));
 	AstNode::AstNodePtrVectorType statementsVector = this->visit(ctx->children.at(2));
 	statementListNode->children = statementsVector;
-	// Update the parent of each new statement node.
-	for (auto & node : statementListNode->children) {
-		node->parent = statementListNode;
-	}
-	statementListNode->parent = compoundStatementNode;
+	// Set the parents of this statementListNode's children.
+	this->updateParents(statementListNode);
 	compoundStatementNode->children.push_back(statementListNode);
+	// Set the parents of this node's children.
+	this->updateParents(compoundStatementNode);
 	return compoundStatementNode;
 }
 
@@ -345,6 +315,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TP
 	// Save expression and statement.
 	iterationStatementNode->children.push_back(this->visit(ctx->children.at(2)));
 	iterationStatementNode->children.push_back(this->visit(ctx->children.at(4)));
+	// Set the parents of this node's children.
+	this->updateParents(iterationStatementNode);
 	return iterationStatementNode;
 }
 
@@ -354,7 +326,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 	if (ctx->children.size() == 3) {
 		// Visit the expression node and save return expression as child.
 		AstNode * expressionNode = this->visit(ctx->children.at(1));
-		std::cout << "visitReturnStatement: Encountered return expression." << std::endl;
 		if (expressionNode->symbolTableRecord->canBeUsed()) {
 			expressionNode->symbolTableRecord->isUsed = true;
 			// TODO: Check if the return type matches the function signature. This is easier to do via AST walk.
@@ -362,10 +333,13 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 			// Illegal to use before declared or assigned!
 			// TODO: Improve this error message a bit. Describe line in input where error exists.
 			// TODO: Are we allowed to return an unassigned value? Maybe we can...
+			// TODO: Move this error to AST walk when we have more info...
 			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
-			std::cerr << "ERROR: Undeclared or unassigned expression returned from function!" << std::endl;
+			std::cerr << "Undeclared or unassigned expression returned from function!" << std::endl << std::endl;
 		}
 		returnNode->children.push_back(expressionNode);
+		// Set the parents of this node's children.
+		this->updateParents(returnNode);
 	}
 	return returnNode;
 }
@@ -388,7 +362,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 			// Cannot assign a value to undefined variable.
 			// TODO: Use token info to print the line in the file where this error occurred.
 			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
-			std::cerr << "Undeclared identifier being assigned to : " << expressionNode->children.at(0)->getString() << std::endl;
+			std::cerr << "Undeclared identifier being assigned to : " << expressionNode->children.at(0)->getString() << std::endl << std::endl;
 		}
 	}
 	else {
@@ -413,31 +387,11 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 		AstNode * expressionNode = this->visit(ctx->children.at(2));
 		// Save the expression as a child to be evaluated later.
 		varNode->children.push_back(expressionNode);
+		// Set the parents of this node's children.
+		this->updateParents(varNode);
 		// TODO: This type is actually INT b/c it's an unknown index into array. How do we handle this?
 	}
 	return varNode;
-}
-
-/** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
-// TODO: May not want to collapse here to preserve order of expressions?
-template<class EntityType>
-AstNode * ParseTreeVisitorImpl::visitAndCollapseExpressionNodes(EntityType * ctx) {
-	AstNode * curExpNode = new AstNode(ctx);
-	// Check if this has a relative/additive/mult operation to process.
-	if (ctx->children.size() > 1) {
-		// Get the specific operator.
-		curExpNode->token = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1)->children.at(0))->getSymbol();
-		// Save the two expressions on each side, which are the operands.
-		curExpNode->children.push_back(this->visit(ctx->children.at(0)));
-		curExpNode->children.push_back(this->visit(ctx->children.at(2)));
-	}
-	else {
-		// Visit the child expression node, saving it in place of this node.
-		curExpNode = this->visitChildren(ctx);
-	}
-	// Set the parents of this node's children.
-	this->updateParents(curExpNode);
-	return curExpNode;
 }
 
 /** Define a custom visitor for the simple expression node. */
@@ -503,10 +457,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::Ca
 	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
 	callNode->children = argumentsVector;
 	// Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration.
-	if (!this->validateFunctionParameterTypes(callNode)) {
-		// TODO: Print error here.
-		//std::cout << 
-	}
+	this->validateFunctionParameterTypes(callNode);
+	// Set the parents of this node's children.
+	this->updateParents(callNode);
 	return callNode;
 }
 
