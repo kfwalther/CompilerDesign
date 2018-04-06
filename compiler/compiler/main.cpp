@@ -1,69 +1,27 @@
-/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
- * Use of this file is governed by the BSD 3-clause license that
- * can be found in the LICENSE.txt file in the project root.
- */
-
-//
-//  main.cpp
-//  antlr4-cpp-demo
-//
-//  Created by Mike Lischke on 13.03.16.
-//
+/**
+* @author: Kevin Walther
+* @date: 2018
+* @brief: This file is the main entry point to the C-Minus compiler program.
+*/
 
 #include <iostream>
 
-#include "antlr4-runtime.h"
-#include "TLexer.h"
-#include "TParser.h"
-#include "ParseTreeListenerImpl.h"
-#include "ParseTreeVisitorImpl.h"
-#include "AstVisitorImpl.h"
+#include "Compiler.h"
 
-using namespace AntlrGrammarGenerated;
-using namespace antlr4;
-
-
-/** Define the function to parse the input file. */
-void ParseInputFile(std::ifstream & inputStream) {
-	/** Define the ANTLRInputStream object. */
-	ANTLRInputStream antlrInputStream(inputStream);
-	/** Define the lexer object. */
-	TLexer lexer(&antlrInputStream);
-	/** Define the stream of tokens. */
-	CommonTokenStream tokens(&lexer);
-
-	tokens.fill();
-	std::cout << "*****TOKENS*****" << std::endl;
-	for (auto token : tokens.getTokens()) {
-		std::cout << token->toString() << std::endl;
-	}
-	/** Create the parser object, and initialize the symbol table. */
-	TParser parser(&tokens);
-	parser.initializeSymbolTable();
-
-	/** Define our custom listener to perform actions during the parse. */
-	ParseTreeListenerImpl * parseTreeListener = new ParseTreeListenerImpl(&parser);
-	parser.addParseListener(parseTreeListener);
-
-	/** Tell the parser to parse the input starting from a given BNF rule, in this case 'program'. */
-	tree::ParseTree * tree = parser.program();
-	std::cout << "Printing the parse tree..." << std::endl;
-	std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
-
-	/** Create the AST from the parse tree. */
-	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(&parser);
-	AstNode * ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(tree));
-	std::cout << "Printing the AST..." << std::endl;
-	std::cout << ast->printTreeString() << std::endl << std::endl;
-
-	/** Walk the AST to complete semantic analysis. */
-	// TODO: Should we make a SemanticAnalyzer class to track higher level stuff here?
-	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
-	AstVisitorImpl * astVisitor = new AstVisitorImpl();
-	AstNode * decoratedAst = astVisitor->visitProgram(ast);
-
-	/** Print the contents of the symbol table. */
-	parser.getSymbolTable()->printSymbolTable();
+/** Define a function to perform all of the actions of a compiler. */
+void compileInputFile(std::ifstream & inputStream) {
+	// Create the Compiler class to manage the objects used during compilation.
+	std::unique_ptr<Compiler> cMinusCompiler = std::make_unique<Compiler>(inputStream);
+	// Generate a list of tokens from the input file. 
+	cMinusCompiler->tokenizeInputFile();
+	// Parse the tokens to populate the symbol table and generate the parse tree.
+	cMinusCompiler->parseTokens();
+	// Create the AST from the parse tree.
+	cMinusCompiler->generateAst();
+	// Walk the AST to complete semantic analysis.
+	cMinusCompiler->performSemanticAnalysis();
+	// Print the contents of the symbol table. 
+	cMinusCompiler->getParser()->getSymbolTable()->printSymbolTable();
 }
 
 int main(int numArguments, char const * const arguments[]) {
@@ -73,10 +31,10 @@ int main(int numArguments, char const * const arguments[]) {
 	std::ifstream inputStream(inputFile);
 	std::ifstream inputStreamDesktop(inputFileDesktop);
 	if (inputStream.is_open()) {
-		ParseInputFile(inputStream);
+		compileInputFile(inputStream);
 	}
 	else if (inputStreamDesktop.is_open()) {
-		ParseInputFile(inputStreamDesktop);
+		compileInputFile(inputStream);
 	}
 	else {
 		std::cerr << ("ERROR: Problem opening the provided input file with std::ifstream: " + inputFile) << std::endl;
