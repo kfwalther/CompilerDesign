@@ -317,8 +317,11 @@ antlrcpp::Any ParseTreeVisitorImpl::visitSelectionStmt(AntlrGrammarGenerated::TP
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TParser::IterationStmtContext * ctx) {
+	AstNode * iterationStatementNode = new AstNode(ctx);
 	// Save expression and statement.
-	return new AstNode(ctx);
+	iterationStatementNode->children.push_back(this->visit(ctx->children.at(2)));
+	iterationStatementNode->children.push_back(this->visit(ctx->children.at(4)));
+	return iterationStatementNode;
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TParser::ReturnStmtContext * ctx) {
@@ -469,6 +472,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::Ca
 	// Get the arguments for the function call and save them as children.
 	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
 	callNode->children = argumentsVector;
+	// TODO: Check if the function params match product composition of function declaration! See slides!
 	return callNode;
 }
 

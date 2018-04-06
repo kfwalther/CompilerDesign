@@ -17,6 +17,7 @@
 #include "TParser.h"
 #include "ParseTreeListenerImpl.h"
 #include "ParseTreeVisitorImpl.h"
+#include "AstVisitorImpl.h"
 
 using namespace AntlrGrammarGenerated;
 using namespace antlr4;
@@ -54,6 +55,12 @@ void ParseInputFile(std::ifstream & inputStream) {
 	AstNode * ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(tree));
 	std::cout << "Printing the AST..." << std::endl;
 	std::cout << ast->printTreeString() << std::endl << std::endl;
+
+	/** Walk the AST to complete semantic analysis. */
+	// TODO: Should we make a SemanticAnalyzer class to track higher level stuff here?
+	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
+	AstVisitorImpl * astVisitor = new AstVisitorImpl();
+	AstNode * decoratedAst = astVisitor->visitProgram(ast);
 
 	/** Print the contents of the symbol table. */
 	parser.getSymbolTable()->printSymbolTable();

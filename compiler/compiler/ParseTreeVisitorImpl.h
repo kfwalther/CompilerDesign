@@ -15,6 +15,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser);
 
 	/** Define a helper function to support parse tree traversal of list nodes. */
+	//TODO: These are templated, move the whole function into header!
 	template<class EntityType, class EntityListType>
 	AstNode::AstNodePtrVectorType populateChildrenFromList(EntityListType * ctx);
 
@@ -25,7 +26,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a helper function to update the parent attribute of each child node. */
 	void updateParents(AstNode * const & curNode);
 
-	antlrcpp::Any visitProgram(AntlrGrammarGenerated::TParser::ProgramContext *ctx);
+	antlrcpp::Any visitProgram(AntlrGrammarGenerated::TParser::ProgramContext * ctx);
 	antlrcpp::Any visitDeclarationList(AntlrGrammarGenerated::TParser::DeclarationListContext *ctx);
 	antlrcpp::Any visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx);
 	antlrcpp::Any visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx);

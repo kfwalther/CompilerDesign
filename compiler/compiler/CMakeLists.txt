@@ -53,6 +53,8 @@ include_directories(
 
 set(ANTLR4_GRAMMAR_LOCAL_HDRS 
 	${PROJECT_SOURCE_DIR}/compiler/AstNode.h
+	${PROJECT_SOURCE_DIR}/compiler/AstVisitor.h
+	${PROJECT_SOURCE_DIR}/compiler/AstVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/ErrorHandler.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.h
@@ -61,6 +63,7 @@ set(ANTLR4_GRAMMAR_LOCAL_HDRS
 set(ANTLR4_GRAMMAR_LOCAL_SRCS 
 	${PROJECT_SOURCE_DIR}/compiler/main.cpp
 	${PROJECT_SOURCE_DIR}/compiler/AstNode.cpp
+	${PROJECT_SOURCE_DIR}/compiler/AstVisitorImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ErrorHandler.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.cpp
