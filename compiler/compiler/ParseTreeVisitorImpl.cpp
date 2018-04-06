@@ -28,7 +28,8 @@ bool ParseTreeVisitorImpl::validateFunctionParameterTypes(AstNode * const & call
 		// Print an error saying function parameter type mismatch.
 		// TODO: Improve this error message a bit. Describe line in input where error exists.
 		std::cerr << ErrorHandler::ErrorCodes::NO_MATCHING_SIGNATURE << std::endl;
-		std::cerr << "Function arguments provide for call do not match formal parameters in function definition: " << callNode->getString() << std::endl;
+		std::cerr << "Arguments provided for function call do not match formal parameters in function definition: "
+				<< callNode->symbolTableRecord->token->getText() << std::endl;
 		return false;
 	}
 }

@@ -68,8 +68,8 @@ void ParseInputFile(std::ifstream & inputStream) {
 
 int main(int numArguments, char const * const arguments[]) {
 	/** Specify the input file to read. */
-	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/tests/TestCase2.txt");
-	std::string inputFileDesktop("D:/workspace/CompilerDesign/compiler/tests/TestCase2.txt");
+	std::string inputFile("C:/Users/walther/CompilerDesign/compiler/tests/TestCase4.txt");
+	std::string inputFileDesktop("D:/workspace/CompilerDesign/compiler/tests/TestCase4.txt");
 	std::ifstream inputStream(inputFile);
 	std::ifstream inputStreamDesktop(inputFileDesktop);
 	if (inputStream.is_open()) {

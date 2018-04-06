@@ -1,0 +1,16 @@
+/** 
+ * @author: Walther
+ * @brief: This test case has invalid function argument types.
+ */
+
+int foo(void var, int var2) {
+	var2 = 5;
+	return var2;
+}
+ 
+void main(void) {
+	int x;
+	int y;
+	x = 5;
+	y = foo(x, 6);
+}
