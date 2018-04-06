@@ -4,6 +4,7 @@
 /**
  * @author: Kevin Walther
  * @date: 2018
+ * @class: AstNode
  */
 
 #include "ParseTree.h"
