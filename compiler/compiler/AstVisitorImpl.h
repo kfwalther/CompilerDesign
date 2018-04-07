@@ -21,31 +21,31 @@ struct AstVisitorImpl : public AstVisitor {
 
 
 	void visitProgram(AstNode * ctx);
-	//void visitDeclarationList(AstNode * ctx);
-	// void visitVarDeclaration(AstNode * ctx);
+	void visitDeclarationList(AstNode * ctx);
+	void visitVarDeclaration(AstNode * ctx);
 	void visitFunDeclaration(AstNode * ctx);
-	// void visitTypeSpecifier(AstNode * ctx);
-	// void visitParams(AstNode * ctx);
-	// void visitParamList(AstNode * ctx);
-	// void visitParam(AstNode * ctx);
-	// void visitCompoundStmt(AstNode * ctx);
-	// void visitLocalDeclaration(AstNode * ctx);
-	// void visitStatementList(AstNode * ctx);
+	void visitTypeSpecifier(AstNode * ctx);
+	void visitParams(AstNode * ctx);
+	void visitParamList(AstNode * ctx);
+	void visitParam(AstNode * ctx);
+	void visitCompoundStmt(AstNode * ctx);
+	void visitLocalDeclaration(AstNode * ctx);
+	void visitStatementList(AstNode * ctx);
 
-	// void visitExpressionStmt(AstNode * ctx);
-	// void visitSelectionStmt(AstNode * ctx);
-	// void visitIterationStmt(AstNode * ctx);
-	// void visitReturnStmt(AstNode * ctx);
+	void visitExpressionStmt(AstNode * ctx);
+	void visitSelectionStmt(AstNode * ctx);
+	void visitIterationStmt(AstNode * ctx);
+	void visitReturnStmt(AstNode * ctx);
 
-	// void visitExpression(AstNode * ctx);
-	// void visitVar(AstNode * ctx);
-	// void visitSimpleExpression(AstNode * ctx);
-	// void visitAdditiveExpression(AstNode * ctx);
-	// void visitTerm(AstNode * ctx);
-	// void visitFactor(AstNode * ctx);
-	// void visitCall(AstNode * ctx);
-	// void visitArgs(AstNode * ctx);
-	// void visitArgList(AstNode * ctx);
+	void visitExpression(AstNode * ctx);
+	void visitVar(AstNode * ctx);
+	void visitSimpleExpression(AstNode * ctx);
+	void visitAdditiveExpression(AstNode * ctx);
+	void visitTerm(AstNode * ctx);
+	void visitFactor(AstNode * ctx);
+	void visitCall(AstNode * ctx);
+	void visitArgs(AstNode * ctx);
+	void visitArgList(AstNode * ctx);
 
 private:
 	AntlrGrammarGenerated::TParser * parser;

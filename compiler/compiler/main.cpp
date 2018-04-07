@@ -33,7 +33,7 @@ void compileInputFile(std::ifstream & inputStream) {
 
 int main(int numArguments, char const * const arguments[]) {
 	/** Specify the input file to read. */
-	std::string inputFile("TestCase7.txt");
+	std::string inputFile("TestCase2.txt");
 	std::string inputFilePathLaptop("C:/Users/walther/CompilerDesign/compiler/tests/" + inputFile);
 	std::string inputFilePathDesktop("D:/workspace/CompilerDesign/compiler/tests/" + inputFile);
 	std::ifstream inputStreamLaptop(inputFilePathLaptop);

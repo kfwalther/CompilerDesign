@@ -16,41 +16,35 @@ AstVisitorImpl::AstVisitorImpl() {
 void AstVisitorImpl::visit(AstNode * ctx) {
 	switch (ctx->ruleType) {
 		case CMINUS_RULE_TYPE::RuleProgram: this->visitProgram(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleDeclarationList: this->visitDeclarationList(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleDeclaration: this->visitDeclaration(ctx); return; 
-		//case CMINUS_RULE_TYPE::RuleVarDeclaration: this->visitVarDeclaration(ctx); return; 
-		//case CMINUS_RULE_TYPE::RuleTypeSpecifier: this->visitTypeSpecifier(ctx); return;
+		case CMINUS_RULE_TYPE::RuleDeclarationList: this->visitDeclarationList(ctx); return;
+		case CMINUS_RULE_TYPE::RuleVarDeclaration: this->visitVarDeclaration(ctx); return; 
+		case CMINUS_RULE_TYPE::RuleTypeSpecifier: this->visitTypeSpecifier(ctx); return;
 		case CMINUS_RULE_TYPE::RuleFunDeclaration: this->visitFunDeclaration(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleParams: this->visitParams(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleParamList: this->visitParamList(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleParam: this->visitParam(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleCompoundStmt: this->visitCompoundStmt(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleLocalDeclaration: this->visitLocalDeclaration(ctx); return; 
-		//case CMINUS_RULE_TYPE::RuleStatementList: this->visitStatementList(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleStatement: this->visitStatement(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleExpressionStmt: this->visitExpressionStmt(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleSelectionStmt: this->visitSelectionStmt(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleIterationStmt: this->visitIterationStmt(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleReturnStmt: this->visitReturnStmt(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleExpression: this->visitExpression(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleVar: this->visitVar(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleSimpleExpression: this->visitSimpleExpression(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleRelop: this->visitRelop(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleAdditiveExpression: this->visitAdditiveExpression(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleAddop: this->visitAddop(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleTerm: this->visitTerm(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleMulop: this->visitMulop(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleFactor: this->visitFactor(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleCall: this->visitCall(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleArgs: this->visitArgs(ctx); return;
-		//case CMINUS_RULE_TYPE::RuleArgList: this->visitArgList(ctx); return;
+		case CMINUS_RULE_TYPE::RuleParams: this->visitParams(ctx); return;
+		case CMINUS_RULE_TYPE::RuleParamList: this->visitParamList(ctx); return;
+		case CMINUS_RULE_TYPE::RuleParam: this->visitParam(ctx); return;
+		case CMINUS_RULE_TYPE::RuleCompoundStmt: this->visitCompoundStmt(ctx); return;
+		case CMINUS_RULE_TYPE::RuleLocalDeclaration: this->visitLocalDeclaration(ctx); return; 
+		case CMINUS_RULE_TYPE::RuleStatementList: this->visitStatementList(ctx); return;
+		case CMINUS_RULE_TYPE::RuleExpressionStmt: this->visitExpressionStmt(ctx); return;
+		case CMINUS_RULE_TYPE::RuleSelectionStmt: this->visitSelectionStmt(ctx); return;
+		case CMINUS_RULE_TYPE::RuleIterationStmt: this->visitIterationStmt(ctx); return;
+		case CMINUS_RULE_TYPE::RuleReturnStmt: this->visitReturnStmt(ctx); return;
+		case CMINUS_RULE_TYPE::RuleExpression: this->visitExpression(ctx); return;
+		case CMINUS_RULE_TYPE::RuleVar: this->visitVar(ctx); return;
+		case CMINUS_RULE_TYPE::RuleSimpleExpression: this->visitSimpleExpression(ctx); return;
+		case CMINUS_RULE_TYPE::RuleAdditiveExpression: this->visitAdditiveExpression(ctx); return;
+		case CMINUS_RULE_TYPE::RuleTerm: this->visitTerm(ctx); return;
+		case CMINUS_RULE_TYPE::RuleFactor: this->visitFactor(ctx); return;
+		case CMINUS_RULE_TYPE::RuleCall: this->visitCall(ctx); return;
+		case CMINUS_RULE_TYPE::RuleArgs: this->visitArgs(ctx); return;
+		case CMINUS_RULE_TYPE::RuleArgList: this->visitArgList(ctx); return;
 	}
 }
 
 /** Define a function to visit all children in this node. */
 void AstVisitorImpl::visitChildren(AstNode * ctx) {
 	for (auto & child : ctx->children) {
-		// TODO: Decide how to do this...
 		this->visit(child);
 	}
 	return;
@@ -67,11 +61,99 @@ void AstVisitorImpl::visitProgram(AstNode * ctx) {
 	return;
 }
 
-/** Define a custom visitor for the AST root node. */
-void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
-	std::cout << "in visitFunDeclaration" << std::endl;
+void AstVisitorImpl::visitDeclarationList(AstNode * ctx) {
+	this->visitChildren(ctx);
 	return;
 }
+void AstVisitorImpl::visitVarDeclaration(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitTypeSpecifier(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitParams(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitParamList(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitParam(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitCompoundStmt(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitLocalDeclaration(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitStatementList(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitExpressionStmt(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitSelectionStmt(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitIterationStmt(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitReturnStmt(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitExpression(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitVar(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitAdditiveExpression(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitTerm(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitFactor(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitCall(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitArgs(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+void AstVisitorImpl::visitArgList(AstNode * ctx) {
+	this->visitChildren(ctx);
+	return;
+}
+
 
 
 

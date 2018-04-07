@@ -15,7 +15,6 @@
 /** Forward declarations. */
 struct SymbolRecord;
 
-// TODO: Create a wrapper around this type, or make Terminal node wrapper to contruct AST.
 struct AstNode {
 
 	/** Alias some commonly used types for convenience. */
@@ -47,7 +46,6 @@ struct AstNode {
 	/** Store a pointer to the symbol table record this corresponds to. */
 	SymbolRecordPtrType symbolTableRecord;
 	/** Define booleans to indicate when this node is a variable, and is an L-value or R-value. */
-	// TODO: Incorporate use of these in AST-creation visitors.
 	bool isLValue = false;
 	bool isRValue = false;
 	

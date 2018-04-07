@@ -3,8 +3,8 @@
  * @brief: This test case returns an undeclared variable from function.
  */
  
-int foo(int var) {
-	var = 5;
+int foo(int myVal) {
+	myVal = 5;
 	return bar;
 }
  

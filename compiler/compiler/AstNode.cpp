@@ -33,7 +33,8 @@ AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNodePtrType const & par
 /** Define a copy constructor. */
 AstNode::AstNode(AstNodePtrType const & otherAstNode) :
 		parent(otherAstNode->parent), children(otherAstNode->children), token(otherAstNode->token),
-		symbolTableRecord(otherAstNode->symbolTableRecord), ruleType(otherAstNode->ruleType), tokenType(otherAstNode->tokenType) 
+		symbolTableRecord(otherAstNode->symbolTableRecord), ruleType(otherAstNode->ruleType), tokenType(otherAstNode->tokenType),
+		isRValue(otherAstNode->isRValue), isLValue(otherAstNode->isLValue)
 {
 	return;
 }
@@ -50,6 +51,14 @@ void AstNode::initialize(antlr4::tree::ParseTree * inputNode) {
 	if (antlrcpp::is<antlr4::RuleContext *>(inputNode)) {
 		antlr4::RuleContext * tempRuleNode = dynamic_cast<antlr4::RuleContext *>(inputNode);
 		this->ruleType = static_cast<CMINUS_RULE_TYPE>(tempRuleNode->getRuleIndex());
+		// Define certain nodes as R-Values or L-Values.
+		if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {
+			this->isLValue = true;
+		} else if ((this->ruleType == CMINUS_RULE_TYPE::RuleExpression) || (this->ruleType == CMINUS_RULE_TYPE::RuleSimpleExpression) ||
+				(this->ruleType == CMINUS_RULE_TYPE::RuleAdditiveExpression) || (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) ||
+				(this->ruleType == CMINUS_RULE_TYPE::RuleFactor) || (this->ruleType == CMINUS_RULE_TYPE::RuleCall)) {
+			this->isRValue = true;
+		}
 	}
 }
 
@@ -77,7 +86,6 @@ std::string const AstNode::getString() const {
 }
 
 /** Print the entire AST. */
-// TODO: Consider cleaning this up to print values and indents.
 std::string AstNode::printTreeString() {
 	// Get the string for the current node. 
 	std::string temp = this->getString();
