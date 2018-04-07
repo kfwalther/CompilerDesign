@@ -1,0 +1,9 @@
+/** 
+ * @author: Walther
+ * @brief: This test case ...
+ */
+ 
+void main(void) {
+	int x;
+	x = 5;
+}

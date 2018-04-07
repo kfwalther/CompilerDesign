@@ -41,7 +41,7 @@ int main(int numArguments, char const * const arguments[]) {
 		compileInputFile(inputStream);
 	}
 	else if (inputStreamDesktop.is_open()) {
-		compileInputFile(inputStream);
+		compileInputFile(inputStreamDesktop);
 	}
 	else {
 		std::cerr << ("ERROR: Problem opening the provided input file with std::ifstream: " + inputFile) << std::endl;
