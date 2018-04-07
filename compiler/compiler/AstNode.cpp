@@ -69,16 +69,11 @@ bool AstNode::hasToken() const {
 
 /** Define a function to return the string representation of this node. */
 std::string const AstNode::getString() const {
-	if (this->hasToken()) {
-		if (this->symbolTableRecord != nullptr) {
-			return this->symbolTableRecord->text;
-		} else {
-			return std::move("TokenText");
-		}
+	std::string returnString = ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
+	if (this->symbolTableRecord != nullptr) {
+		returnString += (" " + this->symbolTableRecord->text);
 	}
-	else {
-		return ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
-	}
+	return returnString;
 }
 
 /** Print the entire AST. */
@@ -115,7 +110,7 @@ std::string AstNode::printTreeString() {
 			treeString += "(" + temp + " ";
 		}
 		else {
-			treeString += temp;
+			treeString += "(" + temp + ")";
 			while (++childIndex == curNode->children.size()) {
 				// Check if the call stack is empty.
 				if (nodeStack.size() > 0) {

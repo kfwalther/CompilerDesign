@@ -3,9 +3,9 @@
  * @brief: This test case illegally has a function call as a parameter to another function.
  */
 
-int foo(int var) {
-	var = 5;
-	return var;
+int foo(int myVal) {
+	myVal = 5;
+	return myVal;
 }
  
 int foo2(void) {

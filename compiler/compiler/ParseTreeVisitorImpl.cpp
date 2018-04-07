@@ -12,7 +12,7 @@ ParseTreeVisitorImpl::ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * cons
 }
 
 /** Define a helper function to update the parent attribute of each child node. */
-// TOOD: Finish rolling this out throughout all node visitors.
+// TODO: Finish rolling this out throughout all node visitors.
 void ParseTreeVisitorImpl::updateParents(AstNode * const & curNode) {
 	for (auto & curChild : curNode->children) {
 		curChild->parent = curNode;
@@ -414,6 +414,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 		this->updateParents(varNode);
 		// TODO: This type is actually INT b/c it's an unknown index into array. How do we handle this?
 	}
+	// Variables are the only C-Minus entity that can be L-Values.
+	varNode->isLValue = true;
 	return varNode;
 }
 
