@@ -35,8 +35,32 @@ bool ParseTreeVisitorImpl::validateFunctionParameterTypes(AstNode * const & call
 }
 
 
+/** Update information about the input() and output() functions in the symbol table. They have the following signatures:
+int input(void) { ... }
+void output(int x) { ... }
+*/
+void ParseTreeVisitorImpl::populateLanguageSpecificFunctionInfo() {
+	// Update the input() function.
+	this->parser->getSymbolTable()->symbolTable["input"]->type = CMINUS_NATIVE_TYPES::INT;
+	this->parser->getSymbolTable()->symbolTable["input"]->returnType = CMINUS_NATIVE_TYPES::INT;
+	this->parser->getSymbolTable()->symbolTable["input"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
+	this->parser->getSymbolTable()->symbolTable["input"]->isDeclared = true;
+	this->parser->getSymbolTable()->symbolTable["input"]->isDefined = true;
+	this->parser->getSymbolTable()->symbolTable["input"]->numArguments = 0;
+	// Update the output() function.
+	this->parser->getSymbolTable()->symbolTable["output"]->type = CMINUS_NATIVE_TYPES::VOID;
+	this->parser->getSymbolTable()->symbolTable["output"]->returnType = CMINUS_NATIVE_TYPES::VOID;
+	this->parser->getSymbolTable()->symbolTable["output"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
+	this->parser->getSymbolTable()->symbolTable["output"]->isDeclared = true;
+	this->parser->getSymbolTable()->symbolTable["output"]->isDefined = true;
+	this->parser->getSymbolTable()->symbolTable["output"]->numArguments = 1;
+}
+
+
 /** Define a custom visitor for the declaration list visitor to make a list of declarations. */
 antlrcpp::Any ParseTreeVisitorImpl::visitProgram(AntlrGrammarGenerated::TParser::ProgramContext *ctx) {
+	/** Before starting AST, populate info about language-specific functions, input() and output(). */
+	this->populateLanguageSpecificFunctionInfo();
 	/** Create the root node of the AST, the ProgramContext rule node. */
 	AstNode * programNode = new AstNode(ctx);
 	/** Set the vector of Declaration nodes as the children of the Program node. */

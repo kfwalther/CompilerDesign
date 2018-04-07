@@ -59,6 +59,9 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 		return curExpNode;
 	}
 
+	/** Update information about the input() and output() functions in the symbol table. */
+	void populateLanguageSpecificFunctionInfo();
+
 	/** Define a helper function to update the parent attribute of each child node. */
 	void updateParents(AstNode * const & curNode);
 

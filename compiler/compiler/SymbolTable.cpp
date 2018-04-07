@@ -26,28 +26,6 @@ bool SymbolRecord::canBeUsed() {
 }
 
 SymbolTable::SymbolTable() {
-	/** Add the input() and output() function names to the symbol table. They have the following signature:
-		int input(void) { ... }
-		void output(int x) { ... }
-	*/
-	// Add the input() function.
-	std::shared_ptr<SymbolRecord> inputFunctionRecord = std::make_shared<SymbolRecord>();
-	inputFunctionRecord->type = CMINUS_NATIVE_TYPES::INT;
-	inputFunctionRecord->returnType = CMINUS_NATIVE_TYPES::INT;
-	inputFunctionRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
-	inputFunctionRecord->isDeclared = true;
-	inputFunctionRecord->isDefined = true;
-	inputFunctionRecord->numArguments = 0;
-	this->symbolTable["input"] = inputFunctionRecord;
-	// Add the output() function.
-	std::shared_ptr<SymbolRecord> outputFunctionRecord = std::make_shared<SymbolRecord>();
-	outputFunctionRecord->type = CMINUS_NATIVE_TYPES::VOID;
-	outputFunctionRecord->returnType = CMINUS_NATIVE_TYPES::VOID;
-	outputFunctionRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
-	outputFunctionRecord->isDeclared = true;
-	outputFunctionRecord->isDefined = true;
-	outputFunctionRecord->numArguments = 1;
-	this->symbolTable["output"] = outputFunctionRecord;
 	return;
 }
 
