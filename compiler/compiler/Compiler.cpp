@@ -29,7 +29,7 @@ void Compiler::tokenizeInputFile() {
 	// Define the stream of tokens.
 	this->tokenStream = new CommonTokenStream(
 			new TLexer(
-					new antlr4::ANTLRInputStream(this->inputFileStream)));
+					new ANTLRInputStream(this->inputFileStream)));
 	tokenStream->fill();
 	// Print out the token if debugging is enabled.
 	if (this->debuggingOn) {
@@ -55,7 +55,7 @@ void Compiler::parseTokens() {
 	// Check for any syntax errors during parse, in which BNF rules were not matched by input. 
 	this->checkForSyntaxErrors();
 	std::cout << "Printing the parse tree..." << std::endl;
-	std::cout << parseTree->toStringTree(this->parser) << std::endl << std::endl;
+	std::cout << this->parseTree->toStringTree(this->parser) << std::endl << std::endl;
 }
 
 /** Define a function to account for syntax errors (incorrect grammar) in the input. */

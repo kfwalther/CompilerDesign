@@ -14,9 +14,14 @@ struct AstVisitorImpl : public AstVisitor {
 	/** Define a constructor. */
 	AstVisitorImpl();
 	
+	/** Define a function to visit a specific node. */
+	antlrcpp::Any visit(AstNode * ctx);
+	/** Define a function to visit all children in this node. */
+	antlrcpp::Any visitChildren(AstNode * ctx);
+
+
 	antlrcpp::Any visitProgram(AstNode * ctx);
-	// antlrcpp::Any visitProgram(AstNode * ctx) = 0;
-	// antlrcpp::Any visitDeclarationList(AstNode * ctx) = 0;
+	antlrcpp::Any visitDeclarationList(AstNode * ctx);
 	// antlrcpp::Any visitVarDeclaration(AstNode * ctx) = 0;
 	// antlrcpp::Any visitFunDeclaration(AstNode * ctx) = 0;
 	// antlrcpp::Any visitTypeSpecifier(AstNode * ctx) = 0;

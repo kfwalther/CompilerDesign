@@ -109,48 +109,42 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 /** Define a custom visitor for the FunDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx) {
 	AstNode * funDeclNode = new AstNode(ctx);	
-	// Check if an ID exists where we expect. If so, populate the current node as a function declaration.
-	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(1))) {
-		// Save the function name (ID) for further processing.
-		auto idNode = dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1));
-		// Save the function parameters.
-		AstNode * paramsNode = this->visit(ctx->children.at(3));
-		funDeclNode->children.push_back(paramsNode);
-		// Save the function body compound statement.
-		AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
-		funDeclNode->children.push_back(compoundStatementNode);
-		// Find the associated entry in the symbol table and update its information.
-		auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(idNode->getSymbol()->getText());
-		if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
-			// Visit the type specifier node to get the function's return type.
-			std::string functionReturnType = this->visit(ctx->children.at(0));
-			if (functionReturnType == "int") {
-				symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
-				symbolTableIterator->second->returnType = CMINUS_NATIVE_TYPES::INT;
-			}
-			else {
-				symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::VOID;
-				symbolTableIterator->second->returnType = CMINUS_NATIVE_TYPES::VOID;
-			}
-			symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::FUNCTION;
-			// When a C-Minus function is declared, it is also defined.
-			symbolTableIterator->second->isDeclared = true;
-			symbolTableIterator->second->isDefined = true;
-			// Populate the number of arguments for this function.
-			// TODO: Figure out if we have to track same function name with different num of args separately...
-			symbolTableIterator->second->numArguments = paramsNode->children.size();
-			// Exchange pointers for association of this node with this symbol table entry.
-			symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);
-			funDeclNode->symbolTableRecord = symbolTableIterator->second;
+	// Save the function parameters.
+	AstNode * paramsNode = this->visit(ctx->children.at(3));
+	funDeclNode->children.push_back(paramsNode);
+	// Save the function body compound statement.
+	AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
+	funDeclNode->children.push_back(compoundStatementNode);
+	// Find the associated ID entry in the symbol table and update its information.
+	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText());
+	if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
+		// Visit the type specifier node to get the function's return type.
+		std::string functionReturnType = this->visit(ctx->children.at(0));
+		if (functionReturnType == "int") {
+			symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
+			symbolTableIterator->second->returnType = CMINUS_NATIVE_TYPES::INT;
+		} else {
+			symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::VOID;
+			symbolTableIterator->second->returnType = CMINUS_NATIVE_TYPES::VOID;
 		}
-		else {
-			std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
-			std::cerr << "visitFunDeclaration: AST visit encountered Token not in symbol table yet. "
-					<< "This typically indicates a problem with the ParseTreeListener." << std::endl << std::endl;
-		}
-		// Set the parents of this node's children.
-		this->updateParents(funDeclNode);
+		symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		// When a C-Minus function is declared, it is also defined.
+		symbolTableIterator->second->isDeclared = true;
+		symbolTableIterator->second->isDefined = true;
+		// Populate the number of arguments for this function.
+		// TODO: Figure out if we have to track same function name with different num of args separately...
+		symbolTableIterator->second->numArguments = paramsNode->children.size();
+		// Exchange pointers for association of this node with this symbol table entry.
+		symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);
+		funDeclNode->symbolTableRecord = symbolTableIterator->second;
 	}
+	else {
+		std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << std::endl;
+		std::cerr << "visitFunDeclaration: AST visit encountered Token not in symbol table yet. "
+				<< "This typically indicates a problem with the ParseTreeListener." << std::endl << std::endl;
+	}
+	// Set the parents of this node's children.
+	this->updateParents(funDeclNode);
 	return funDeclNode;
 }
 
@@ -179,6 +173,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParse
 }
 
 /** Define a custom visitor for the params node. */
+// TODO: Maybe consider reorganizing this function. Removing the loop....
 antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::ParamContext * ctx) {
 	AstNode * paramNode = new AstNode(ctx);
 	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.begin();
@@ -186,12 +181,11 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 	for (auto const & child : ctx->children) {
 		// Find the ID or BRACKET nodes that define the parameter. 
 		if (antlrcpp::is<antlr4::tree::TerminalNode *>(child)) {
-			auto curNode = dynamic_cast<antlr4::tree::TerminalNode *>(child);
 			auto nodeType = (dynamic_cast<antlr4::tree::TerminalNode *>(child))->getSymbol()->getType();
 			// Save some info from the parameter ID node.
 			if (nodeType == this->parser->ID) {
 				// Find the associated entry in the symbol table and update its information.
-				symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(curNode->getSymbol()->getText());
+				symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText());
 				if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
 					// All parameter declarations will be integer types. 
 					symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
@@ -226,7 +220,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 				// TODO: Put better error reporting info here...
 				std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
 				std::cerr << "Illegal type used for function parameter: void " 
-						<< dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(1))->getSymbol()->getText() << std::endl << std::endl;
+						<< ctx->ID()->getSymbol()->getText() << std::endl << std::endl;
 			}
 		}
 	}
@@ -379,8 +373,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 	AstNode * varNode = new AstNode(ctx);
 	// Link this node to its corresponding ID entry in the symbol table.
 	// TODO: Make this a conditional lookup, and error if this variable definition is out of scope...
-	varNode->symbolTableRecord = (this->parser->getSymbolTable()->symbolTable.find(
-			dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()->getText()))->second;
+	varNode->symbolTableRecord = (this->parser->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText()))->second;
 	// Check if this is an array, not an integer.
 	if (ctx->children.size() > 1) {
 		// Visit the expression child to get the index into the array.
@@ -422,9 +415,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 	} else {
 		// Check if the one child is simply a number.
 		if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
-			auto numNode = (dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0)));
 			// Find this number in the symbol table.
-			auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(numNode->getText());
+			auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(ctx->NUM()->getText());
 			if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
 				// Store some info about this integer number. 
 				symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
@@ -447,8 +439,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
 	AstNode * callNode = new AstNode(ctx);
 	// Get the function name (ID) and store it in the symbol table if it doesn't already exist.
-	auto functionNameNode = (dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0)));
-	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(functionNameNode->getText());
+	auto symbolTableIterator = this->parser->getSymbolTable()->symbolTable.find(ctx->ID()->getText());
 	if (symbolTableIterator != this->parser->getSymbolTable()->symbolTable.end()) {
 		// Exchange pointers for association of this node with this symbol table entry.
 		callNode->symbolTableRecord = symbolTableIterator->second;

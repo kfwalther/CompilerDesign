@@ -14,7 +14,7 @@
 struct AstVisitor {
 
 	virtual antlrcpp::Any visitProgram(AstNode * ctx) = 0;
-	//virtual antlrcpp::Any visitDeclarationList(AstNode * ctx) = 0;
+	virtual antlrcpp::Any visitDeclarationList(AstNode * ctx) = 0;
 	//virtual antlrcpp::Any visitVarDeclaration(AstNode * ctx) = 0;
 	//virtual antlrcpp::Any visitFunDeclaration(AstNode * ctx) = 0;
 	//virtual antlrcpp::Any visitTypeSpecifier(AstNode * ctx) = 0;
