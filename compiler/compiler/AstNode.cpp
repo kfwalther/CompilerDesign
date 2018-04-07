@@ -71,7 +71,7 @@ bool AstNode::hasToken() const {
 std::string const AstNode::getString() const {
 	if (this->hasToken()) {
 		if (this->symbolTableRecord != nullptr) {
-			return this->symbolTableRecord->token->getText();
+			return this->symbolTableRecord->text;
 		} else {
 			return std::move("TokenText");
 		}

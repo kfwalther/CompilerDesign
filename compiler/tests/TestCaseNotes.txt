@@ -1,0 +1,13 @@
+Test Case Notes
+
+Descriptions
+
+1. This test case has an illegal variable type declaration.
+2. This test case returns an undeclared variable from function.
+3. This test case has invalid function argument types.
+4. This test case has a mismatching number of function arguments.
+5. This test case has a program with no declarations and should fail the grammar parsing.
+6. This test case illegally has another function declaration after main
+7. FAILS: This test case illegally has a function call as a parameter to another function.
+8. 
+

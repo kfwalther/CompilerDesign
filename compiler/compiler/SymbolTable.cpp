@@ -13,6 +13,7 @@ SymbolRecord::SymbolRecord() {
 
 SymbolRecord::SymbolRecord(antlr4::Token * const & inputToken) {
 	this->token = inputToken;
+	this->text = inputToken->getText();
 	return;
 }
 
@@ -32,12 +33,12 @@ SymbolTable::SymbolTable() {
 /** Insert the new SymbolTableRecord into the symbol table, if it does not already exist. */
 bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbol) {
 	/** Check if the symbol already exists in the table. */
-	if (this->symbolTable.count(newSymbol->token->getText()) == 0) {
-		this->symbolTable[newSymbol->token->getText()] = newSymbol;
+	if (this->symbolTable.count(newSymbol->text) == 0) {
+		this->symbolTable[newSymbol->text] = newSymbol;
 		return true;
 	}
 	else {
-		//std::cout << "WARNING: Value " << newSymbol->token->getText() << " already in map..." << std::endl;
+		//std::cout << "WARNING: Value " << newSymbol->text << " already in map..." << std::endl;
 		return false;
 	}
 }

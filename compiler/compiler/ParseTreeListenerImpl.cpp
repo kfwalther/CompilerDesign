@@ -15,13 +15,16 @@ void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 	typedef std::vector<antlr4::tree::TerminalNode *> TerminalNodePtrVectorType;
 	TerminalNodePtrVectorType numTokenNodes = ctx->getTokens(this->parser->NUM);
 	TerminalNodePtrVectorType idTokenNodes = ctx->getTokens(this->parser->ID);
-	// Concatenate these vectors.
-	numTokenNodes.insert(numTokenNodes.end(), idTokenNodes.begin(), idTokenNodes.end());
 	// If there were any tokens in the matched rules of type NUM or ID, add them to the symbol table.
 	if (numTokenNodes.size() > 0) {
-		for (auto const & node : numTokenNodes) {
-			this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(node->getSymbol()));
-		}
+		std::shared_ptr<SymbolRecord> numSymbolRecord = std::make_shared<SymbolRecord>(numTokenNodes.front()->getSymbol());
+		// Initialize the NUM tokens in the symbol table.
+		numSymbolRecord->isDeclared = true;
+		numSymbolRecord->isDefined = true;
+		this->parser->getSymbolTable()->insertSymbol(numSymbolRecord);
+	}
+	if (idTokenNodes.size() > 0) {
+		this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(idTokenNodes.front()->getSymbol()));
 	}
 }
 

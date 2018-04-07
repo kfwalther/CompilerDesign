@@ -59,7 +59,7 @@ void AstVisitorImpl::visitChildren(AstNode * ctx) {
 /** Define a custom visitor for the AST root node. */
 void AstVisitorImpl::visitProgram(AstNode * ctx) {
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
-	if (ctx->children.back()->symbolTableRecord->token->getText() != "main") {
+	if (ctx->children.back()->symbolTableRecord->text != "main") {
 		// TODO: Does this case need a new error code?
 		std::cerr << "ERROR: Main is not the last declaration!" << std::endl << std::endl;
 	}

@@ -32,6 +32,8 @@ struct SymbolRecord {
 	CMINUS_NATIVE_TYPES type = CMINUS_NATIVE_TYPES::UNKNOWN;
 	/** Define how much memory in bytes this entity will require. Assume 32-bit integers. */
 	size_t storageSize = 0;
+	/** Duplicate the text name of this symbol for convenience. */
+	std::string text;
 	/** If this is a variable, define the value it takes on (assume zero-initialized memory). */
 	int value;
 

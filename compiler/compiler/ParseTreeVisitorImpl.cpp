@@ -29,7 +29,7 @@ bool ParseTreeVisitorImpl::validateFunctionParameterTypes(AstNode * const & call
 		// TODO: Improve this error message a bit. Describe line in input where error exists.
 		std::cerr << ErrorHandler::ErrorCodes::NO_MATCHING_SIGNATURE << std::endl;
 		std::cerr << "Arguments provided for function call do not match formal parameters in function definition: "
-				<< callNode->symbolTableRecord->token->getText() << std::endl << std::endl;
+				<< callNode->symbolTableRecord->text << std::endl << std::endl;
 		return false;
 	}
 }
@@ -40,20 +40,26 @@ int input(void) { ... }
 void output(int x) { ... }
 */
 void ParseTreeVisitorImpl::populateLanguageSpecificFunctionInfo() {
-	// Update the input() function.
-	this->parser->getSymbolTable()->symbolTable["input"]->type = CMINUS_NATIVE_TYPES::INT;
-	this->parser->getSymbolTable()->symbolTable["input"]->returnType = CMINUS_NATIVE_TYPES::INT;
-	this->parser->getSymbolTable()->symbolTable["input"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
-	this->parser->getSymbolTable()->symbolTable["input"]->isDeclared = true;
-	this->parser->getSymbolTable()->symbolTable["input"]->isDefined = true;
-	this->parser->getSymbolTable()->symbolTable["input"]->numArguments = 0;
-	// Update the output() function.
-	this->parser->getSymbolTable()->symbolTable["output"]->type = CMINUS_NATIVE_TYPES::VOID;
-	this->parser->getSymbolTable()->symbolTable["output"]->returnType = CMINUS_NATIVE_TYPES::VOID;
-	this->parser->getSymbolTable()->symbolTable["output"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
-	this->parser->getSymbolTable()->symbolTable["output"]->isDeclared = true;
-	this->parser->getSymbolTable()->symbolTable["output"]->isDefined = true;
-	this->parser->getSymbolTable()->symbolTable["output"]->numArguments = 1;
+	// Check if this input file used the input() function in the first place.
+	if (this->parser->getSymbolTable()->symbolTable.count("input")) {
+		// Update the input() function.
+		this->parser->getSymbolTable()->symbolTable["input"]->type = CMINUS_NATIVE_TYPES::INT;
+		this->parser->getSymbolTable()->symbolTable["input"]->returnType = CMINUS_NATIVE_TYPES::INT;
+		this->parser->getSymbolTable()->symbolTable["input"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		this->parser->getSymbolTable()->symbolTable["input"]->isDeclared = true;
+		this->parser->getSymbolTable()->symbolTable["input"]->isDefined = true;
+		this->parser->getSymbolTable()->symbolTable["input"]->numArguments = 0;
+	}
+	// Check if this input file used the output() function in the first place.
+	if (this->parser->getSymbolTable()->symbolTable.count("output")) {
+		// Update the output() function.
+		this->parser->getSymbolTable()->symbolTable["output"]->type = CMINUS_NATIVE_TYPES::VOID;
+		this->parser->getSymbolTable()->symbolTable["output"]->returnType = CMINUS_NATIVE_TYPES::VOID;
+		this->parser->getSymbolTable()->symbolTable["output"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		this->parser->getSymbolTable()->symbolTable["output"]->isDeclared = true;
+		this->parser->getSymbolTable()->symbolTable["output"]->isDefined = true;
+		this->parser->getSymbolTable()->symbolTable["output"]->numArguments = 1;
+	}
 }
 
 
@@ -110,7 +116,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 						// VOID is illegal for variable declarations. 
 						// TODO: Improve this error message a bit. Describe line in input where error exists.
 						std::cerr << ErrorHandler::ErrorCodes::INVALID_TYPE << std::endl;
-						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->token->getText() << std::endl << std::endl;
+						std::cerr << "Illegal type used for variable declaration: " << symbolTableIterator->second->text << std::endl << std::endl;
 					}
 				}
 				else {
@@ -380,7 +386,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 			// Cannot assign a value to undefined variable.
 			// TODO: Use token info to print the line in the file where this error occurred.
 			std::cerr << ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER << std::endl;
-			std::cerr << "Undeclared identifier being assigned to : " << expressionNode->children.at(0)->getString() << std::endl << std::endl;
+			std::cerr << "Undeclared identifier being assigned to : " << expressionNode->children.at(0)->symbolTableRecord->text << std::endl << std::endl;
 		}
 	}
 	else {
@@ -471,6 +477,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::Ca
 	// Get the arguments for the function call and save them as children.
 	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
 	callNode->children = argumentsVector;
+	// TODO: Check here to ensure none of the arguments are another function call. Do this in AST walk.
 	// Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration.
 	this->validateFunctionParameterTypes(callNode);
 	// Set the parents of this node's children.

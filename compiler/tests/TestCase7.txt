@@ -1,9 +1,19 @@
 /** 
  * @author: Walther
- * @brief: This test case ...
+ * @brief: This test case illegally has a function call as a parameter to another function.
  */
+
+int foo(int var) {
+	var = 5;
+	return var;
+}
  
+int foo2(void) {
+	return 10;
+}
+
 void main(void) {
 	int x;
 	x = 5;
+	x = foo(foo2());
 }
