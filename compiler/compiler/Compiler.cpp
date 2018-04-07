@@ -85,7 +85,7 @@ void Compiler::performSemanticAnalysis() {
 	// TODO: Should we make a SemanticAnalyzer class to track higher level stuff here (stack/heap usage)?
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
 	AstVisitorImpl * astVisitor = new AstVisitorImpl();
-	this->ast = astVisitor->visitProgram(this->ast);
+	astVisitor->visitProgram(this->ast);
 	// Print the contents of the symbol table, if debugging is enabled. 
 	if (this->debuggingOn) {
 		this->parser->getSymbolTable()->printSymbolTable();

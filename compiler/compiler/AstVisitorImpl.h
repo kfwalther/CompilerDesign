@@ -15,37 +15,37 @@ struct AstVisitorImpl : public AstVisitor {
 	AstVisitorImpl();
 	
 	/** Define a function to visit a specific node. */
-	antlrcpp::Any visit(AstNode * ctx);
+	void visit(AstNode * ctx);
 	/** Define a function to visit all children in this node. */
-	antlrcpp::Any visitChildren(AstNode * ctx);
+	void visitChildren(AstNode * ctx);
 
 
-	antlrcpp::Any visitProgram(AstNode * ctx);
-	antlrcpp::Any visitDeclarationList(AstNode * ctx);
-	// antlrcpp::Any visitVarDeclaration(AstNode * ctx) = 0;
-	// antlrcpp::Any visitFunDeclaration(AstNode * ctx) = 0;
-	// antlrcpp::Any visitTypeSpecifier(AstNode * ctx) = 0;
-	// antlrcpp::Any visitParams(AstNode * ctx) = 0;
-	// antlrcpp::Any visitParamList(AstNode * ctx) = 0;
-	// antlrcpp::Any visitParam(AstNode * ctx) = 0;
-	// antlrcpp::Any visitCompoundStmt(AstNode * ctx) = 0;
-	// antlrcpp::Any visitLocalDeclaration(AstNode * ctx) = 0;
-	// antlrcpp::Any visitStatementList(AstNode * ctx) = 0;
+	void visitProgram(AstNode * ctx);
+	//void visitDeclarationList(AstNode * ctx);
+	// void visitVarDeclaration(AstNode * ctx);
+	void visitFunDeclaration(AstNode * ctx);
+	// void visitTypeSpecifier(AstNode * ctx);
+	// void visitParams(AstNode * ctx);
+	// void visitParamList(AstNode * ctx);
+	// void visitParam(AstNode * ctx);
+	// void visitCompoundStmt(AstNode * ctx);
+	// void visitLocalDeclaration(AstNode * ctx);
+	// void visitStatementList(AstNode * ctx);
 
-	// antlrcpp::Any visitExpressionStmt(AstNode * ctx) = 0;
-	// antlrcpp::Any visitSelectionStmt(AstNode * ctx) = 0;
-	// antlrcpp::Any visitIterationStmt(AstNode * ctx) = 0;
-	// antlrcpp::Any visitReturnStmt(AstNode * ctx) = 0;
+	// void visitExpressionStmt(AstNode * ctx);
+	// void visitSelectionStmt(AstNode * ctx);
+	// void visitIterationStmt(AstNode * ctx);
+	// void visitReturnStmt(AstNode * ctx);
 
-	// antlrcpp::Any visitExpression(AstNode * ctx) = 0;
-	// antlrcpp::Any visitVar(AstNode * ctx) = 0;
-	// antlrcpp::Any visitSimpleExpression(AstNode * ctx) = 0;
-	// antlrcpp::Any visitAdditiveExpression(AstNode * ctx) = 0;
-	// antlrcpp::Any visitTerm(AstNode * ctx) = 0;
-	// antlrcpp::Any visitFactor(AstNode * ctx) = 0;
-	// antlrcpp::Any visitCall(AstNode * ctx) = 0;
-	// antlrcpp::Any visitArgs(AstNode * ctx) = 0;
-	// antlrcpp::Any visitArgList(AstNode * ctx) = 0;
+	// void visitExpression(AstNode * ctx);
+	// void visitVar(AstNode * ctx);
+	// void visitSimpleExpression(AstNode * ctx);
+	// void visitAdditiveExpression(AstNode * ctx);
+	// void visitTerm(AstNode * ctx);
+	// void visitFactor(AstNode * ctx);
+	// void visitCall(AstNode * ctx);
+	// void visitArgs(AstNode * ctx);
+	// void visitArgList(AstNode * ctx);
 
 private:
 	AntlrGrammarGenerated::TParser * parser;

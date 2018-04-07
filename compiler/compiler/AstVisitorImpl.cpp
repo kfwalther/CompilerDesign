@@ -13,61 +13,64 @@ AstVisitorImpl::AstVisitorImpl() {
 }
 
 /** Define a function to visit a specific node. */
-antlrcpp::Any AstVisitorImpl::visit(AstNode * ctx) {
+void AstVisitorImpl::visit(AstNode * ctx) {
 	switch (ctx->ruleType) {
-	case CMINUS_RULE_TYPE::RuleProgram: return this->visitProgram(ctx); 
-	case CMINUS_RULE_TYPE::RuleDeclarationList: return this->visitDeclarationList(ctx); 
-		//case CMINUS_RULE_TYPE::RuleDeclaration: return this->visitProgram(ctx);  
-		//case CMINUS_RULE_TYPE::RuleVarDeclaration: return this->visitProgram(ctx);  
-		//case CMINUS_RULE_TYPE::RuleTypeSpecifier: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleFunDeclaration: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleParams: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleParamList: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleParam: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleCompoundStmt: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleLocalDeclaration: return this->visitProgram(ctx);  
-		//case CMINUS_RULE_TYPE::RuleStatementList: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleStatement: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleExpressionStmt: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleSelectionStmt: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleIterationStmt: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleReturnStmt: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleExpression: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleVar: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleSimpleExpression: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleRelop: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleAdditiveExpression: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleAddop: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleTerm: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleMulop: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleFactor: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleCall: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleArgs: return this->visitProgram(ctx); 
-		//case CMINUS_RULE_TYPE::RuleArgList: return this->visitProgram(ctx); 
+		case CMINUS_RULE_TYPE::RuleProgram: this->visitProgram(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleDeclarationList: this->visitDeclarationList(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleDeclaration: this->visitDeclaration(ctx); return; 
+		//case CMINUS_RULE_TYPE::RuleVarDeclaration: this->visitVarDeclaration(ctx); return; 
+		//case CMINUS_RULE_TYPE::RuleTypeSpecifier: this->visitTypeSpecifier(ctx); return;
+		case CMINUS_RULE_TYPE::RuleFunDeclaration: this->visitFunDeclaration(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleParams: this->visitParams(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleParamList: this->visitParamList(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleParam: this->visitParam(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleCompoundStmt: this->visitCompoundStmt(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleLocalDeclaration: this->visitLocalDeclaration(ctx); return; 
+		//case CMINUS_RULE_TYPE::RuleStatementList: this->visitStatementList(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleStatement: this->visitStatement(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleExpressionStmt: this->visitExpressionStmt(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleSelectionStmt: this->visitSelectionStmt(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleIterationStmt: this->visitIterationStmt(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleReturnStmt: this->visitReturnStmt(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleExpression: this->visitExpression(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleVar: this->visitVar(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleSimpleExpression: this->visitSimpleExpression(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleRelop: this->visitRelop(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleAdditiveExpression: this->visitAdditiveExpression(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleAddop: this->visitAddop(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleTerm: this->visitTerm(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleMulop: this->visitMulop(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleFactor: this->visitFactor(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleCall: this->visitCall(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleArgs: this->visitArgs(ctx); return;
+		//case CMINUS_RULE_TYPE::RuleArgList: this->visitArgList(ctx); return;
 	}
 }
 
 /** Define a function to visit all children in this node. */
-antlrcpp::Any AstVisitorImpl::visitChildren(AstNode * ctx) {
+void AstVisitorImpl::visitChildren(AstNode * ctx) {
 	for (auto & child : ctx->children) {
-		return this->visit(child);
+		// TODO: Decide how to do this...
+		this->visit(child);
 	}
+	return;
 }
 
 /** Define a custom visitor for the AST root node. */
-antlrcpp::Any AstVisitorImpl::visitProgram(AstNode * ctx) {
-	//this->visitChildren(ctx);
+void AstVisitorImpl::visitProgram(AstNode * ctx) {
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
 	if (ctx->children.back()->symbolTableRecord->token->getText() != "main") {
 		// TODO: Does this case need a new error code?
 		std::cerr << "ERROR: Main is not the last declaration!" << std::endl << std::endl;
 	}
-	return ctx;
+	this->visitChildren(ctx);
+	return;
 }
 
 /** Define a custom visitor for the AST root node. */
-antlrcpp::Any AstVisitorImpl::visitDeclarationList(AstNode * ctx) {
-	return ctx;
+void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
+	std::cout << "in visitFunDeclaration" << std::endl;
+	return;
 }
 
 
