@@ -5,9 +5,9 @@
  */
 
 #include "AstVisitorImpl.h"
+#include "ErrorHandler.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
-// TODO: Finish filling out these visitors.
 AstVisitorImpl::AstVisitorImpl() {
 	return;
 }
@@ -53,9 +53,11 @@ void AstVisitorImpl::visitChildren(AstNode * ctx) {
 /** Define a custom visitor for the AST root node. */
 void AstVisitorImpl::visitProgram(AstNode * ctx) {
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
+	// Check to ensure the main() function is the last declaration in the program. (Rule enforced on pg. 493 of textbook.)
 	if (ctx->children.back()->symbolTableRecord->text != "main") {
-		// TODO: Does this case need a new error code?
-		std::cerr << "ERROR: Main is not the last declaration!" << std::endl << std::endl;
+		std::cerr << ErrorHandler::ErrorCodes::INVALID_SYNTAX << std::endl;
+		std::cerr << "Main is not the last declaration in the program! " <<
+			"Consider restructuring your program to have the main function as the last declaration." << std::endl << std::endl;		
 	}
 	this->visitChildren(ctx);
 	return;

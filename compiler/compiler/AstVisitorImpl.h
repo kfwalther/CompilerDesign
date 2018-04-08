@@ -19,7 +19,6 @@ struct AstVisitorImpl : public AstVisitor {
 	/** Define a function to visit all children in this node. */
 	void visitChildren(AstNode * ctx);
 
-
 	void visitProgram(AstNode * ctx);
 	void visitDeclarationList(AstNode * ctx);
 	void visitVarDeclaration(AstNode * ctx);
