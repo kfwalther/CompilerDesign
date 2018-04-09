@@ -1,0 +1,20 @@
+/** 
+ * @author: Walther
+ * @brief: This test case uses an undeclared variable 'a' in a mult-op expression.
+ */
+ 
+int foo(void) {
+	int y;
+	int b;
+	int c;
+	b = 5;
+	c = 15;
+	y = 5 + a * b + (c == c);
+	return y;
+}
+
+void main(void) {
+	int x;
+	x = 6;
+	x = foo();
+}

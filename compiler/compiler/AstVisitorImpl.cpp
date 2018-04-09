@@ -25,6 +25,26 @@ void AstVisitorImpl::verifyMathOperandTypes(AstNode * ctx) {
 	}
 }
 
+/** Define a helper function to verify the operands are declared and assigned. */
+void AstVisitorImpl::verifyOperandUsability(AstNode * ctx) {
+	// Check to ensure that any variable operands (type Var) have been declared and assigned.
+	if ((ctx->children.front()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.front()->symbolTableRecord->canBeUsed())) {
+		// Print if left operand is undeclared or unassigned.
+		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
+				ctx->children.front()->symbolTableRecord->token->getLine(), ("Left operand " 
+					+ ctx->children.front()->symbolTableRecord->token->getText() + " of " 
+					+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
+	}
+	if ((ctx->children.back()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.back()->symbolTableRecord->canBeUsed())) {
+		// Print if right operand is undeclared or unassigned.
+		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
+			ctx->children.back()->symbolTableRecord->token->getLine(), ("Right operand "
+				+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
+				+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
+	}
+	// TODO: Add warning printouts here to check for variables that are unassigned.
+}
+
 /** Define a function to visit a specific node. */
 void AstVisitorImpl::visit(AstNode * ctx) {
 	switch (ctx->ruleType) {
@@ -151,6 +171,8 @@ void AstVisitorImpl::visitVar(AstNode * ctx) {
 
 void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// Ensure the operands have been declared.
+	this->verifyOperandUsability(ctx);
 	// Ensure the operands for the relative operation are INT types.
 	this->verifyMathOperandTypes(ctx);
 }
@@ -158,12 +180,16 @@ void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {
 // TODO: Add checks to these to ensure operands can be used (have been declared and assigned).
 void AstVisitorImpl::visitAdditiveExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// Ensure the operands have been declared.
+	this->verifyOperandUsability(ctx);
 	// Ensure the operands for the addition/subtraction operation are INT types.
 	this->verifyMathOperandTypes(ctx);
 }
 
 void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// Ensure the operands have been declared.
+	this->verifyOperandUsability(ctx);
 	// Ensure the operands for the mult/division operation are INT types.
 	this->verifyMathOperandTypes(ctx);
 }

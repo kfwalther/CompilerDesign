@@ -22,6 +22,8 @@ struct AstVisitorImpl : public AstVisitor {
 
 	/** Define a helper function to verify the operand types for various mathematical operations. */
 	void verifyMathOperandTypes(AstNode * ctx);
+	/** Define a helper function to verify the operands are declared and assigned. */
+	void verifyOperandUsability(AstNode * ctx);
 
 	void visitProgram(AstNode * ctx);
 	void visitDeclarationList(AstNode * ctx);

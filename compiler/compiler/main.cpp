@@ -31,9 +31,10 @@ void compileInputFile(std::string const & inputFile, std::ifstream & inputStream
 
 }
 
+/** This is the main entry point to the program. */
 int main(int numArguments, char const * const arguments[]) {
 	/** Specify the input file to read. */
-	std::string inputFile("TestCase9.txt");
+	std::string inputFile("TestCase10.txt");
 	std::string inputFilePathLaptop("C:/Users/walther/CompilerDesign/compiler/tests/" + inputFile);
 	std::string inputFilePathDesktop("D:/workspace/CompilerDesign/compiler/tests/" + inputFile);
 	std::ifstream inputStreamLaptop(inputFilePathLaptop);
@@ -48,6 +49,5 @@ int main(int numArguments, char const * const arguments[]) {
 		std::cerr << ("ERROR: Problem opening the provided input file with std::ifstream: " + inputFile) << std::endl;
 		return EXIT_FAILURE;
 	}
-
 	return EXIT_SUCCESS;
 }
