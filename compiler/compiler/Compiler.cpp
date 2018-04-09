@@ -27,6 +27,9 @@ TParser * const Compiler::getParser() const {
 ErrorHandler * const Compiler::getErrorHandler() const {
 	return this->errorHandler;
 }
+SemanticAnalyzer * const Compiler::getSemanticAnalyzer() {
+	return this->semanticAnalyzer;
+}
 
 /** Define a function to generate a list of tokens from the input file. */
 void Compiler::tokenizeInputFile() {
@@ -86,7 +89,7 @@ void Compiler::generateAst() {
 
 /** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */
 void Compiler::performSemanticAnalysis() {
-	// TODO: Should we make a SemanticAnalyzer class to track higher level stuff here (stack/heap usage)?
+	this->semanticAnalyzer = new SemanticAnalyzer();
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
 	AstVisitorImpl * astVisitor = new AstVisitorImpl(this);
 	astVisitor->visitProgram(this->ast);

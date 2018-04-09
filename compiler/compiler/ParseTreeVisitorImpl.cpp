@@ -130,6 +130,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 			}
 		}
 	}
+	// Update the storage location of this variable, based on the storage size.
+	// TODO: Functionalize this.
+	varDeclNode->symbolTableRecord->memoryLocation = this->compiler->getSemanticAnalyzer()->curHeapMemoryAddress;
+	this->compiler->getSemanticAnalyzer()->curHeapMemoryAddress += varDeclNode->symbolTableRecord->storageSize;
 	return varDeclNode;
 }
 

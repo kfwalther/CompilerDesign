@@ -51,7 +51,7 @@ std::ostream & operator<<(std::ostream & os, ErrorHandler::ErrorCodes const erro
 }
 
 /** Define a function to print out an error message, given some context of the error. */
-void ErrorHandler::printError(ErrorHandler::ErrorCodes const & errorCode, size_t const & errorLine, std::string const & errorMessage) {
+void ErrorHandler::printError(ErrorHandler::ErrorCodes const & errorCode, std::size_t const & errorLine, std::string const & errorMessage) {
 	// Get the line in the file where the error occurred.
 	std::string errorLocation = this->inputFile + "(" + std::to_string(errorLine) + "): ";
 	std::cerr << errorLocation << errorCode << std::endl << errorLocation << errorMessage << std::endl << std::endl;

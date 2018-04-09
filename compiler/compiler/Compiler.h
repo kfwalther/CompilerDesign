@@ -13,6 +13,7 @@
 #include "TLexer.h"
 #include "TParser.h"
 #include "ErrorHandler.h"
+#include "SemanticAnalyzer.h"
 
 struct Compiler {
 
@@ -35,6 +36,7 @@ struct Compiler {
 	/** Define getters and setters for the compiler-related objects in this class. */
 	AntlrGrammarGenerated::TParser * const getParser() const;
 	ErrorHandler * const getErrorHandler() const;
+	SemanticAnalyzer * const getSemanticAnalyzer();
 
 	/** Define a debugging flag to turn on trace printing. */
 	bool debuggingOn = false;
@@ -51,6 +53,8 @@ private:
 	AstNode * ast;
 	/** Define the ErrorHandler object to manage the information for error messages. */
 	ErrorHandler * errorHandler;
+	/** Define the SemanticAnalyzer object to keep track of the usage of variable in memory. */
+	SemanticAnalyzer * semanticAnalyzer;
 };
 
 

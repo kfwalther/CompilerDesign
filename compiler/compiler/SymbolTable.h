@@ -31,7 +31,9 @@ struct SymbolRecord {
 	/** Define the type of this symbol table record (INT or VOID). */
 	CMINUS_NATIVE_TYPES type = CMINUS_NATIVE_TYPES::UNKNOWN;
 	/** Define how much memory in bytes this entity will require. Assume 32-bit integers. */
-	size_t storageSize = 0;
+	std::size_t storageSize = 0;
+	/** Define the location in memory where this is stored. */
+	std::size_t memoryLocation;
 	/** Duplicate the text name of this symbol for convenience. */
 	std::string text;
 	/** If this is a variable, define the value it takes on (assume zero-initialized memory). */
@@ -41,7 +43,7 @@ struct SymbolRecord {
 	//TODO: Do we need return type, it seems redundant with type above...
 	CMINUS_NATIVE_TYPES returnType = CMINUS_NATIVE_TYPES::UNKNOWN;
 	/** Define number of arguments if this is a function. */
-	size_t numArguments;
+	std::size_t numArguments;
 	/** TODO: Consider vector for function arguments (type, name, value, storage location, or link to other record). 
 		Removes the need for numArguments attribute above. */
 	// std::vector< std::tuple< CMINUS_NATIVE_TYPES, std::string, int, unsignedInt > >

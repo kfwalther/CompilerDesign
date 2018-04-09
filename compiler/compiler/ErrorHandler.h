@@ -36,7 +36,7 @@ struct ErrorHandler {
 	std::string inputFile;
 
 	/** Define a function to print out an error message, given some context of the error. */
-	void printError(ErrorHandler::ErrorCodes const & errorCode, size_t const & errorLine, std::string const & errorMessage);
+	void printError(ErrorHandler::ErrorCodes const & errorCode, std::size_t const & errorLine, std::string const & errorMessage);
 
 	/** Define an operator overload for streaming the error code to a string. */
 	friend std::ostream & operator<<(std::ostream & os, ErrorHandler::ErrorCodes const errorCode);

@@ -87,7 +87,7 @@ bool AstNode::hasToken() const {
 
 /** Define a function to return the string representation of this node. */
 std::string const AstNode::getString() const {
-	std::string returnString = ParseTreeRuleNames[static_cast<size_t>(this->ruleType)];
+	std::string returnString = ParseTreeRuleNames[static_cast<std::size_t>(this->ruleType)];
 	if (this->symbolTableRecord != nullptr) {
 		returnString += (" " + this->symbolTableRecord->text);
 	}
@@ -108,8 +108,8 @@ std::string AstNode::printTreeString() {
 	treeString = "(" + temp + ' ';
 
 	// Implement the recursive walk as iteration to avoid trouble with deep nesting.
-	std::stack<size_t> nodeStack;
-	size_t childIndex = 0;
+	std::stack<std::size_t> nodeStack;
+	std::size_t childIndex = 0;
 	AstNodePtrType curNode = this;
 	// Loop through all of this node's children. 
 	while (childIndex < curNode->children.size()) {

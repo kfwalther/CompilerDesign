@@ -33,14 +33,14 @@ void AstVisitorImpl::verifyOperandUsability(AstNode * ctx) {
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
 				ctx->children.front()->symbolTableRecord->token->getLine(), ("Left operand " 
 						+ ctx->children.front()->symbolTableRecord->token->getText() + " of " 
-						+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
+						+ ParseTreeRuleNames[static_cast<std::size_t>(ctx->ruleType)] + " is undeclared."));
 	}
 	if ((ctx->children.back()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.back()->symbolTableRecord->canBeUsed())) {
 		// Print if right operand is undeclared.
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
 				ctx->children.back()->symbolTableRecord->token->getLine(), ("Right operand "
 						+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
-						+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
+						+ ParseTreeRuleNames[static_cast<std::size_t>(ctx->ruleType)] + " is undeclared."));
 	}
 	// Indicate that both of these operands are being used.
 	ctx->children.front()->symbolTableRecord->isUsed = true;
