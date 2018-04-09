@@ -51,6 +51,8 @@ struct AstNode {
 	
 	CMINUS_RULE_TYPE ruleType;
 	CMINUS_TOKEN_TYPE tokenType;
+	/** Define the effective type this node will be evaluated as. */
+	CMINUS_NATIVE_TYPES evaluatedType;
 };
 
 

@@ -347,15 +347,18 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 	if (ctx->children.size() == 3) {
 		// Visit the expression node and save return expression as child.
 		AstNode * expressionNode = this->visit(ctx->children.at(1));
-		if (expressionNode->symbolTableRecord->canBeUsed()) {
-			expressionNode->symbolTableRecord->isUsed = true;
-			// TODO: Check if the return type matches the function signature. This is easier to do via AST walk.
-		} else {
-			// Illegal to use before declared or assigned!
-			// TODO: Are we allowed to return an unassigned value? Maybe we can...
-			// TODO: Move this error to AST walk when we have more info...
-			//this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER, 
-			//		ctx->RETURN_KEYWORD()->getSymbol()->getLine(), ("Undeclared or unassigned expression returned from function!"));
+		// Check if return value is a single variable, and if it has been assigned yet.
+		if (expressionNode->symbolTableRecord != nullptr) {
+			if (expressionNode->symbolTableRecord->canBeUsed()) {
+				expressionNode->symbolTableRecord->isUsed = true;
+			}
+			else {
+				// Illegal to use before declared or assigned!
+				// TODO: Are we allowed to return an unassigned value? Maybe we can...
+				// TODO: Move this error to AST walk when we have more info...
+				//this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER, 
+				//		ctx->RETURN_KEYWORD()->getSymbol()->getLine(), ("Undeclared or unassigned expression returned from function!"));
+			}
 		}
 		returnNode->children.push_back(expressionNode);
 		// Set the parents of this node's children.

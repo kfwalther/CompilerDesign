@@ -20,6 +20,9 @@ struct AstVisitorImpl : public AstVisitor {
 	/** Define a function to visit all children in this node. */
 	void visitChildren(AstNode * ctx);
 
+	/** Define a helper function to verify the operand types for various mathematical operations. */
+	void verifyMathOperandTypes(AstNode * ctx);
+
 	void visitProgram(AstNode * ctx);
 	void visitDeclarationList(AstNode * ctx);
 	void visitVarDeclaration(AstNode * ctx);

@@ -3,9 +3,9 @@
  * @brief: This test case has a mismatching number of function arguments.
  */
 
-int foo(int var, int var2) {
-	var2 = 5;
-	return var2;
+int foo(int myVal, int myVal2) {
+	myVal2 = 5;
+	return myVal2;
 }
  
 void main(void) {

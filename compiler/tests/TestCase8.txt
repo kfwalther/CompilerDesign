@@ -1,0 +1,14 @@
+/** 
+ * @author: Walther
+ * @brief: This test case has a mismatching return type. Expecting no return value, but returning INT.
+ */
+ 
+void foo(void) {
+	return 5;
+}
+
+void main(void) {
+	int x;
+	x = 5 + 6 + 15;
+	foo();
+}

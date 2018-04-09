@@ -54,10 +54,19 @@ void AstNode::initialize(antlr4::tree::ParseTree * inputNode) {
 		// Define certain nodes as R-Values or L-Values.
 		if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {
 			this->isLValue = true;
-		} else if ((this->ruleType == CMINUS_RULE_TYPE::RuleExpression) || (this->ruleType == CMINUS_RULE_TYPE::RuleSimpleExpression) ||
-				(this->ruleType == CMINUS_RULE_TYPE::RuleAdditiveExpression) || (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) ||
-				(this->ruleType == CMINUS_RULE_TYPE::RuleFactor) || (this->ruleType == CMINUS_RULE_TYPE::RuleCall)) {
+		}
+		else if ((this->ruleType == CMINUS_RULE_TYPE::RuleExpression) || (this->ruleType == CMINUS_RULE_TYPE::RuleSimpleExpression) ||
+			(this->ruleType == CMINUS_RULE_TYPE::RuleAdditiveExpression) || (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) ||
+			(this->ruleType == CMINUS_RULE_TYPE::RuleFactor) || (this->ruleType == CMINUS_RULE_TYPE::RuleCall)) {
 			this->isRValue = true;
+		}
+		// Define certain nodes as type INT upon creation.
+		if ((this->ruleType == CMINUS_RULE_TYPE::RuleVarDeclaration) || (this->ruleType == CMINUS_RULE_TYPE::RuleParam) ||
+			(this->ruleType == CMINUS_RULE_TYPE::RuleVar) || (this->ruleType == CMINUS_RULE_TYPE::RuleFactor)) {
+			this->evaluatedType = CMINUS_NATIVE_TYPES::INT;
+		}
+		else {
+			this->evaluatedType = CMINUS_NATIVE_TYPES::UNKNOWN;
 		}
 	}
 }

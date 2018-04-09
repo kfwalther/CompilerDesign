@@ -9,5 +9,6 @@ Descriptions
 5. This test case has a program with no declarations and should fail the grammar parsing.
 6. This test case illegally has another function declaration after main
 7. FAILS: This test case illegally has a function call as a parameter to another function.
-8. 
+8. This test case has a mismatching return type. Expecting no return value, but returning INT.
+9. 
 

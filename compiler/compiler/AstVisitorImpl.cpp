@@ -12,6 +12,19 @@ AstVisitorImpl::AstVisitorImpl(Compiler * const & compiler) : compiler(compiler)
 	return;
 }
 
+/** Define a helper function to verify the operand types for various mathematical operations. */
+void AstVisitorImpl::verifyMathOperandTypes(AstNode * ctx) {
+	// Ensure the operands for the mathematical operation are INT types.
+	if ((ctx->children.front()->evaluatedType == CMINUS_NATIVE_TYPES::INT)
+			&& (ctx->children.back()->evaluatedType == CMINUS_NATIVE_TYPES::INT)) {
+		ctx->evaluatedType = CMINUS_NATIVE_TYPES::INT;
+	} else {
+		// If either operand is not an INT type, print an error.
+		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::TYPE_MISMATCH,
+				ctx->symbolTableRecord->token->getLine(), ("Illegal type used in mathematical operation."));
+	}
+}
+
 /** Define a function to visit a specific node. */
 void AstVisitorImpl::visit(AstNode * ctx) {
 	switch (ctx->ruleType) {
@@ -47,7 +60,6 @@ void AstVisitorImpl::visitChildren(AstNode * ctx) {
 	for (auto & child : ctx->children) {
 		this->visit(child);
 	}
-	return;
 }
 
 /** Define a custom visitor for the AST root node. */
@@ -55,107 +67,117 @@ void AstVisitorImpl::visitProgram(AstNode * ctx) {
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
 	// Check to ensure the main() function is the last declaration in the program. (Rule enforced on pg. 493 of textbook.)
 	if (ctx->children.back()->symbolTableRecord->text != "main") {
-		std::string errorLocation = this->compiler->getErrorHandler()->inputFile + "(" 
-				+ std::to_string(ctx->children.back()->symbolTableRecord->token->getLine()) + "): ";
-		std::cerr << errorLocation << ErrorHandler::ErrorCodes::INVALID_SYNTAX << std::endl;
-		std::cerr << errorLocation << "Main is not the last declaration in the program! " <<
-			"Consider restructuring your program to have the main function as the last declaration." << std::endl << std::endl;		
+		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_SYNTAX,
+				ctx->children.back()->symbolTableRecord->token->getLine(), ("Main is not the last declaration in the program! \
+						Consider restructuring your program to have the main function as the last declaration."));
 	}
 	this->visitChildren(ctx);
-	return;
 }
 
 void AstVisitorImpl::visitDeclarationList(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitVarDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitTypeSpecifier(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitParams(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitParamList(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitParam(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitCompoundStmt(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitLocalDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitStatementList(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitExpressionStmt(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitSelectionStmt(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitIterationStmt(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
+
 void AstVisitorImpl::visitReturnStmt(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
+	// Check if there was a return value.
+	if (!ctx->children.empty()) {
+		// If we return a value, it must be an INT type.
+		if (ctx->parent->parent->parent->symbolTableRecord->returnType != CMINUS_NATIVE_TYPES::INT) {
+			// Print an error indicating we are returning a value, but return type in function declaration is VOID.
+			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::NO_RETURN_VAL,
+					ctx->children.front()->symbolTableRecord->token->getLine(), ("Declaration of function " 
+							+ ctx->parent->parent->parent->symbolTableRecord->text + " specified VOID return type, but the function returns a value."));
+		} 
+		if (ctx->children.front()->evaluatedType != CMINUS_NATIVE_TYPES::INT) {
+			// Print an error indicating invalid return type.
+			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_TYPE,
+					ctx->children.front()->symbolTableRecord->token->getLine(), ("Return value of function "
+							+ ctx->parent->parent->parent->symbolTableRecord->text + " is type VOID or UNKNOWN, expected INT."));
+		}
+	}
+	else {
+		// TODO: Check for other case here.
+	}
 }
+
 void AstVisitorImpl::visitExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitVar(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
+
 void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
+	// Ensure the operands for the relative operation are INT types.
+	this->verifyMathOperandTypes(ctx);
 }
+
+// TODO: Add checks to these to ensure operands can be used (have been declared and assigned).
 void AstVisitorImpl::visitAdditiveExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
+	// Ensure the operands for the addition/subtraction operation are INT types.
+	this->verifyMathOperandTypes(ctx);
 }
+
 void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
+	// Ensure the operands for the mult/division operation are INT types.
+	this->verifyMathOperandTypes(ctx);
 }
+
 void AstVisitorImpl::visitFactor(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
+
 void AstVisitorImpl::visitCall(AstNode * ctx) {
+	// Look up the function name, and get its return type.
+	ctx->evaluatedType = ctx->symbolTableRecord->returnType;
 	this->visitChildren(ctx);
-	return;
 }
+
 void AstVisitorImpl::visitArgs(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 void AstVisitorImpl::visitArgList(AstNode * ctx) {
 	this->visitChildren(ctx);
-	return;
 }
 
 
