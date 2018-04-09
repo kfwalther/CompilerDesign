@@ -25,18 +25,18 @@ void AstVisitorImpl::verifyMathOperandTypes(AstNode * ctx) {
 	}
 }
 
-/** Define a helper function to verify the operands are declared and assigned. */
+/** Define a helper function to verify the operands are declared. */
 void AstVisitorImpl::verifyOperandUsability(AstNode * ctx) {
-	// Check to ensure that any variable operands (type Var) have been declared and assigned.
+	// Check to ensure that any variable operands (type Var) have been declared.
 	if ((ctx->children.front()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.front()->symbolTableRecord->canBeUsed())) {
-		// Print if left operand is undeclared or unassigned.
+		// Print if left operand is undeclared.
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
 				ctx->children.front()->symbolTableRecord->token->getLine(), ("Left operand " 
 						+ ctx->children.front()->symbolTableRecord->token->getText() + " of " 
 						+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
 	}
 	if ((ctx->children.back()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.back()->symbolTableRecord->canBeUsed())) {
-		// Print if right operand is undeclared or unassigned.
+		// Print if right operand is undeclared.
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
 				ctx->children.back()->symbolTableRecord->token->getLine(), ("Right operand "
 						+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
@@ -185,9 +185,21 @@ void AstVisitorImpl::visitReturnStmt(AstNode * ctx) {
 
 void AstVisitorImpl::visitExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// If this is an assignment ('='), ensure an r-value is being assigned to an l-value.
+	if (ctx->children.size() == 2) {
+		if (!ctx->children.front()->isLValue || !ctx->children.back()->isRValue) {
+			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::LVAL_MISUSE,
+				ctx->children.back()->symbolTableRecord->token->getLine(), ("The L-value "
+					+ ctx->children.back()->symbolTableRecord->text + " cannot be assigned to a variable."));
+		}
+	}
 }
 void AstVisitorImpl::visitVar(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// If this variable has been assigned a value, then it is also an r-value.
+	if (ctx->symbolTableRecord->isAssigned) {
+		ctx->isRValue = true;
+	}
 }
 
 void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {

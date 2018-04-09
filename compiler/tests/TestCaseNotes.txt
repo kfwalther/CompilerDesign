@@ -12,5 +12,6 @@ Descriptions
 8. This test case has a mismatching return type. Expecting no return value, but returning INT.
 9. This test case expects a return value for function foo, but none is provided.
 10. This test case uses an undeclared variable 'a' in a mult-op expression.
-11. 
+11. This test case tries to use a variable 'z' as an r-value before it is assigned (not yet an r-value).
+12. 
 

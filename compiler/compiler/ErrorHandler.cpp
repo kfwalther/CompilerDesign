@@ -44,6 +44,8 @@ std::ostream & operator<<(std::ostream & os, ErrorHandler::ErrorCodes const erro
 				return os << static_cast<unsigned int>(errorCode) << ": No return value expected for function: ";
 		case ErrorHandler::ErrorCodes::NO_MATCHING_SIGNATURE:
 				return os << static_cast<unsigned int>(errorCode) << ": No matching function signature found for function: ";
+		case ErrorHandler::ErrorCodes::LVAL_MISUSE:
+			return os << static_cast<unsigned int>(errorCode) << ": Pure L-value cannot be used as R-value in assignment: ";
 	};
 	return os;
 }

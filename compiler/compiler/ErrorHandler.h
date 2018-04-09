@@ -28,7 +28,8 @@ struct ErrorHandler {
 		TOO_MANY_ARGS,
 		MISSING_RETURN_VAL,
 		NO_RETURN_VAL,
-		NO_MATCHING_SIGNATURE
+		NO_MATCHING_SIGNATURE,
+		LVAL_MISUSE
 	};
 	
 	/** Define the input file we will be compiling. */

@@ -300,8 +300,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitStatementList(AntlrGrammarGenerated::TP
 antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::TParser::ExpressionStmtContext * ctx) {
 	// Check if this is an empty expression.
 	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
-		// Return an AstNode representing an empty expression statement.
-		// TODO: Prune this out in the AST walk later.
+		// Return an AstNode representing an empty expression statement. This gets pruned out of the tree in AST walk.
 		return new AstNode(ctx);
 	}
 	// Otherwise, visit the expression and save its information.
@@ -366,7 +365,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 		expressionNode->children.push_back(this->visit(ctx->children.at(0)));
 		// Visit the expression node.
 		expressionNode->children.push_back(this->visit(ctx->children.at(2)));
-		// TODO: Perform another check here to ensure r-value type matches l-value type. Do in AST walk.
 		// Ensure the variable is declared and defined before we assign to it!
 		if (expressionNode->children.at(0)->symbolTableRecord->isDeclared && expressionNode->children.at(0)->symbolTableRecord->isDefined) {
 			// Designate the variable as "assigned" in the symbol table.

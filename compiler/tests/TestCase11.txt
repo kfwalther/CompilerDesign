@@ -1,0 +1,17 @@
+/** 
+ * @author: Walther
+ * @brief: This test case tries to use a variable 'z' as an r-value before it is assigned (not yet an r-value).
+ */
+ 
+int foo(void) {
+	int z;
+	int y;
+	y = z;
+	return y;
+}
+
+void main(void) {
+	int x;
+	x = 6;
+	x = foo();
+}
