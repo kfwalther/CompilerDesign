@@ -159,7 +159,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 		symbolTableIterator->second->isDeclared = true;
 		symbolTableIterator->second->isDefined = true;
 		// Populate the number of arguments for this function.
-		// TODO: Figure out if we have to track same function name with different num of args separately...
 		symbolTableIterator->second->numArguments = paramsNode->children.size();
 		// Exchange pointers for association of this node with this symbol table entry.
 		symbolTableIterator->second->astNode = std::make_shared<AstNode>(funDeclNode);

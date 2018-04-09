@@ -125,6 +125,12 @@ void AstVisitorImpl::visitLocalDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
 }
 void AstVisitorImpl::visitStatementList(AstNode * ctx) {
+	// If any children are empty ExpressionStatements, remove them.
+	ctx->children.erase(std::remove_if(ctx->children.begin(), ctx->children.end(),
+			[](AstNode * const & curStatementNode) { 
+				return (curStatementNode->ruleType == CMINUS_RULE_TYPE::RuleExpressionStmt); 
+			}
+		), ctx->children.end());
 	this->visitChildren(ctx);
 }
 void AstVisitorImpl::visitExpressionStmt(AstNode * ctx) {
