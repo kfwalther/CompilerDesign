@@ -364,6 +364,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 		// Set the parents of this node's children.
 		this->updateParents(returnNode);
 	}
+	// Save the return keyword for reference later.
+	else {
+		returnNode->token = ctx->RETURN_KEYWORD()->getSymbol();
+	}
 	return returnNode;
 }
 

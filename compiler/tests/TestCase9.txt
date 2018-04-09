@@ -1,0 +1,16 @@
+/** 
+ * @author: Walther
+ * @brief: This test case expects a return value for function foo, but none is provided.
+ */
+ 
+int foo(void) {
+	int y;
+	y = 5;
+	return;
+}
+
+void main(void) {
+	int x;
+	x = 5 + 6 + 15;
+	x = foo();
+}

@@ -13,7 +13,7 @@ void compileInputFile(std::string const & inputFile, std::ifstream & inputStream
 	try {
 		// Create the Compiler class to manage the objects used during compilation.
 		std::unique_ptr<Compiler> cMinusCompiler = std::make_unique<Compiler>(inputFile, inputStream);
-		cMinusCompiler->debuggingOn = true;
+		//cMinusCompiler->debuggingOn = true;
 		// Generate a list of tokens from the input file. 
 		cMinusCompiler->tokenizeInputFile();
 		// Parse the tokens to populate the symbol table and generate the parse tree.

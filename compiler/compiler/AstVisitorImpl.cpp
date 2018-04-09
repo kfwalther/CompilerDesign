@@ -131,9 +131,14 @@ void AstVisitorImpl::visitReturnStmt(AstNode * ctx) {
 					ctx->children.front()->symbolTableRecord->token->getLine(), ("Return value of function "
 							+ ctx->parent->parent->parent->symbolTableRecord->text + " is type VOID or UNKNOWN, expected INT."));
 		}
-	}
-	else {
-		// TODO: Check for other case here.
+	} else {
+		// Check for the case in which we expected a return value, but did not have one.
+		if (ctx->parent->parent->parent->symbolTableRecord->returnType == CMINUS_NATIVE_TYPES::INT) {
+			// Print an error indicating a missing return type.
+			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::MISSING_RETURN_VAL,
+					ctx->token->getLine(), ("Return value of type INT expected for function "
+							+ ctx->parent->parent->parent->symbolTableRecord->text + "."));
+		}
 	}
 }
 

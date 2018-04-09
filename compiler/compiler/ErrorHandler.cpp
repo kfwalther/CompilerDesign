@@ -38,10 +38,8 @@ std::ostream & operator<<(std::ostream & os, ErrorHandler::ErrorCodes const erro
 				return os << static_cast<unsigned int>(errorCode) << ": Too few arguments for function: ";
 		case ErrorHandler::ErrorCodes::TOO_MANY_ARGS: 
 				return os << static_cast<unsigned int>(errorCode) << ": Too many arguments for function: ";
-		// TODO: Check for these cases in the AST walk, using the function declaration and the return statement node.
 		case ErrorHandler::ErrorCodes::MISSING_RETURN_VAL: 
 				return os << static_cast<unsigned int>(errorCode) << ": Return value expected for function: ";
-		// TODO: Check for these cases in the AST walk, using the function declaration and the return statement node.
 		case ErrorHandler::ErrorCodes::NO_RETURN_VAL:
 				return os << static_cast<unsigned int>(errorCode) << ": No return value expected for function: ";
 		case ErrorHandler::ErrorCodes::NO_MATCHING_SIGNATURE:
