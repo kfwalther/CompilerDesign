@@ -32,16 +32,19 @@ void AstVisitorImpl::verifyOperandUsability(AstNode * ctx) {
 		// Print if left operand is undeclared or unassigned.
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
 				ctx->children.front()->symbolTableRecord->token->getLine(), ("Left operand " 
-					+ ctx->children.front()->symbolTableRecord->token->getText() + " of " 
-					+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
+						+ ctx->children.front()->symbolTableRecord->token->getText() + " of " 
+						+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
 	}
 	if ((ctx->children.back()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.back()->symbolTableRecord->canBeUsed())) {
 		// Print if right operand is undeclared or unassigned.
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
-			ctx->children.back()->symbolTableRecord->token->getLine(), ("Right operand "
-				+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
-				+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
+				ctx->children.back()->symbolTableRecord->token->getLine(), ("Right operand "
+						+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
+						+ ParseTreeRuleNames[static_cast<size_t>(ctx->ruleType)] + " is undeclared."));
 	}
+	// Indicate that both of these operands are being used.
+	ctx->children.front()->symbolTableRecord->isUsed = true;
+	ctx->children.back()->symbolTableRecord->isUsed = true;
 	// TODO: Add warning printouts here to check for variables that are unassigned.
 }
 
@@ -138,6 +141,18 @@ void AstVisitorImpl::visitReturnStmt(AstNode * ctx) {
 	this->visitChildren(ctx);
 	// Check if there was a return value.
 	if (!ctx->children.empty()) {
+		// Check if return value is a single variable, and if it has been declared yet.
+		if (ctx->children.front()->symbolTableRecord != nullptr) {
+			if (ctx->children.front()->symbolTableRecord->canBeUsed()) {
+				// Indicate that this variable is being used.
+				ctx->children.front()->symbolTableRecord->isUsed = true;
+			} else {
+				// Illegal to use before declared! Print error.
+				this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER, 
+						ctx->children.front()->symbolTableRecord->token->getLine(), ("Undeclared variable "
+								+ ctx->children.front()->symbolTableRecord->text + " returned from function!"));
+			}
+		}
 		// If we return a value, it must be an INT type.
 		if (ctx->parent->parent->parent->symbolTableRecord->returnType != CMINUS_NATIVE_TYPES::INT) {
 			// Print an error indicating we are returning a value, but return type in function declaration is VOID.
@@ -177,7 +192,6 @@ void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {
 	this->verifyMathOperandTypes(ctx);
 }
 
-// TODO: Add checks to these to ensure operands can be used (have been declared and assigned).
 void AstVisitorImpl::visitAdditiveExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
 	// Ensure the operands have been declared.
