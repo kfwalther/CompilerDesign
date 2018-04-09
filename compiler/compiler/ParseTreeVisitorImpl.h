@@ -8,14 +8,14 @@
  */
 
 #include "TParserBaseVisitor.h"
+#include "Compiler.h"
 
  /** Define the ParseTreeVisitorImpl class, which implements the abstract methods defined in TParserBaseVisitor. */
 struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a constructor. */
-	ParseTreeVisitorImpl(AntlrGrammarGenerated::TParser * const parser);
+	ParseTreeVisitorImpl(Compiler * const compiler);
 
 	/** Define a helper function to support parse tree traversal of list nodes. */
-	//TODO: These are templated, move the whole function into header!
 	template<class EntityType, class EntityListType>
 	AstNode::AstNodePtrVectorType populateChildrenFromList(EntityListType * ctx) {
 		// Declare a vector of AstNodes to return.
@@ -97,7 +97,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 
 
 private:
-	AntlrGrammarGenerated::TParser * parser;
+	Compiler * compiler;
 };
 
 

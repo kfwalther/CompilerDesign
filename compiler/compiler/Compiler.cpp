@@ -8,20 +8,24 @@
 #include "ParseTreeListenerImpl.h"
 #include "ParseTreeVisitorImpl.h"
 #include "AstVisitorImpl.h"
-#include "ErrorHandler.h"
 
 using namespace AntlrGrammarGenerated;
 using namespace antlr4;
 
 /** Define a default constructor. */
-Compiler::Compiler(std::ifstream & inputFileStream) : inputFileStream(inputFileStream)
+Compiler::Compiler(std::string const & inputFile, std::ifstream & inputFileStream) : inputFileStream(inputFileStream)
 {
+	// Create the error handler for this compiler.
+	this->errorHandler = new ErrorHandler(inputFile);
 	return;
 };
 
 /** Define getters and setters for the compiler-related objects in this class. */
 TParser * const Compiler::getParser() const {
 	return this->parser;
+}
+ErrorHandler * const Compiler::getErrorHandler() const {
+	return this->errorHandler;
 }
 
 /** Define a function to generate a list of tokens from the input file. */
@@ -63,7 +67,7 @@ void Compiler::checkForSyntaxErrors() {
 	if (this->parser->getNumberOfSyntaxErrors()) {
 		std::stringstream errorStr;
 		errorStr << ErrorHandler::ErrorCodes::INVALID_SYNTAX << std::endl;
-		errorStr << "Problem occurred matching input file syntax to expected C-Minus language grammar rules. "
+		errorStr << "Problem occurred matching input file (" + this->errorHandler->inputFile + ") syntax to expected C-Minus language grammar rules. "
 				<< "Please consult the previous errors to correct the syntax issue in your program." << std::endl << std::endl;
 		// If syntax errors occurred, exit the compiler program as further semantic analysis may crash.
 		throw std::invalid_argument(errorStr.str());
@@ -74,8 +78,8 @@ void Compiler::checkForSyntaxErrors() {
 void Compiler::generateAst() {
 	std::cout << "Generating AST from the parse tree..." << std::endl;
 	/** Create the AST from the parse tree. */
-	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(parser);
-	this->ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(parseTree));
+	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(this);
+	this->ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(this->parseTree));
 	std::cout << "Printing the AST..." << std::endl;
 	std::cout << this->ast->printTreeString() << std::endl << std::endl;
 }
@@ -84,7 +88,7 @@ void Compiler::generateAst() {
 void Compiler::performSemanticAnalysis() {
 	// TODO: Should we make a SemanticAnalyzer class to track higher level stuff here (stack/heap usage)?
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
-	AstVisitorImpl * astVisitor = new AstVisitorImpl();
+	AstVisitorImpl * astVisitor = new AstVisitorImpl(this);
 	astVisitor->visitProgram(this->ast);
 	// Print the contents of the symbol table, if debugging is enabled. 
 	if (this->debuggingOn) {

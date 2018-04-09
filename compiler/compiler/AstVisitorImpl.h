@@ -8,11 +8,12 @@
  */
 
 #include "AstVisitor.h"
+#include "Compiler.h"
 
- /** Define the AstVisitorImpl class, which implements the abstract methods defined in AstVisitor. */
+/** Define the AstVisitorImpl class, which implements the abstract methods defined in AstVisitor. */
 struct AstVisitorImpl : public AstVisitor {
 	/** Define a constructor. */
-	AstVisitorImpl();
+	AstVisitorImpl(Compiler * const & compiler);
 	
 	/** Define a function to visit a specific node. */
 	void visit(AstNode * ctx);
@@ -47,7 +48,7 @@ struct AstVisitorImpl : public AstVisitor {
 	void visitArgList(AstNode * ctx);
 
 private:
-	AntlrGrammarGenerated::TParser * parser;
+	Compiler * compiler;
 };
 
 

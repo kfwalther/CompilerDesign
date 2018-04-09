@@ -13,7 +13,7 @@ struct ErrorHandler {
 	/** Alias some commonly used types for convenience. */
 
 	/** Define the constructors. */
-	ErrorHandler();
+	ErrorHandler(std::string const & inputFile);
 	~ErrorHandler();
 	
 	/** Define the C-Minus language native types. */
@@ -31,6 +31,12 @@ struct ErrorHandler {
 		NO_MATCHING_SIGNATURE
 	};
 	
+	/** Define the input file we will be compiling. */
+	std::string inputFile;
+
+	/** Define a function to print out an error message, given some context of the error. */
+	void printError(ErrorHandler::ErrorCodes const & errorCode, size_t const & errorLine, std::string const & errorMessage);
+
 	/** Define an operator overload for streaming the error code to a string. */
 	friend std::ostream & operator<<(std::ostream & os, ErrorHandler::ErrorCodes const errorCode);
 };

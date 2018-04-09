@@ -12,13 +12,14 @@
 #include "antlr4-runtime.h"
 #include "TLexer.h"
 #include "TParser.h"
+#include "ErrorHandler.h"
 
 struct Compiler {
 
 	/** Alias some commonly used types for convenience. */
 
 	/** Define the constructors. */
-	Compiler(std::ifstream & inputFileStream);
+	Compiler(std::string const & inputFile, std::ifstream & inputFileStream);
 	
 	/** Define the function to return a list of tokens from the input file. */
 	void tokenizeInputFile();
@@ -33,6 +34,7 @@ struct Compiler {
 
 	/** Define getters and setters for the compiler-related objects in this class. */
 	AntlrGrammarGenerated::TParser * const getParser() const;
+	ErrorHandler * const getErrorHandler() const;
 
 	/** Define a debugging flag to turn on trace printing. */
 	bool debuggingOn = false;
@@ -47,7 +49,8 @@ private:
 	antlr4::tree::ParseTree * parseTree;
 	/** Define the AST object derived from the parse tree, and decorated during semantic analysis. */
 	AstNode * ast;
-
+	/** Define the ErrorHandler object to manage the information for error messages. */
+	ErrorHandler * errorHandler;
 };
 
 
