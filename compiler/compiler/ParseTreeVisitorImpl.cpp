@@ -131,9 +131,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 		}
 	}
 	// Update the storage location of this variable, based on the storage size.
-	// TODO: Functionalize this.
-	varDeclNode->symbolTableRecord->memoryLocation = this->compiler->getSemanticAnalyzer()->curHeapMemoryAddress;
-	this->compiler->getSemanticAnalyzer()->curHeapMemoryAddress += varDeclNode->symbolTableRecord->storageSize;
+	this->compiler->getSemanticAnalyzer()->storeRecordInMemory(varDeclNode->symbolTableRecord);
 	return varDeclNode;
 }
 
@@ -143,9 +141,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 	// Save the function parameters.
 	AstNode * paramsNode = this->visit(ctx->children.at(3));
 	funDeclNode->children.push_back(paramsNode);
-	// Save the function body compound statement.
-	AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
-	funDeclNode->children.push_back(compoundStatementNode);
 	// Find the associated ID entry in the symbol table and update its information.
 	auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText());
 	if (symbolTableIterator != this->compiler->getParser()->getSymbolTable()->symbolTable.end()) {
@@ -174,6 +169,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 				("visitFunDeclaration: AST visit encountered Token not in symbol table yet: " + ctx->ID()->getSymbol()->getText()
 						+ " This typically indicates a problem with the ParseTreeListener."));
 	}
+	// Save the function body compound statement (which may contain recursive calls to this function).
+	AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
+	funDeclNode->children.push_back(compoundStatementNode);
 	// Set the parents of this node's children.
 	this->updateParents(funDeclNode);
 	return funDeclNode;

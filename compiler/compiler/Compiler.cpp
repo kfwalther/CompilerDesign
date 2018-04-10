@@ -79,6 +79,7 @@ void Compiler::checkForSyntaxErrors() {
 
 /** Define the function to generate the AST from the parse tree. */
 void Compiler::generateAst() {
+	this->semanticAnalyzer = new SemanticAnalyzer();
 	std::cout << "Generating AST from the parse tree..." << std::endl;
 	/** Create the AST from the parse tree. */
 	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(this);
@@ -89,7 +90,6 @@ void Compiler::generateAst() {
 
 /** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */
 void Compiler::performSemanticAnalysis() {
-	this->semanticAnalyzer = new SemanticAnalyzer();
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
 	AstVisitorImpl * astVisitor = new AstVisitorImpl(this);
 	astVisitor->visitProgram(this->ast);

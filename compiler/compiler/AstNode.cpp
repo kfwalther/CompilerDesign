@@ -105,7 +105,9 @@ std::string AstNode::printTreeString() {
 
 	// Define the string to build and return. 
 	std::string treeString;
-	treeString = "(" + temp + ' ';
+	std::size_t indentNum = 0;
+	treeString = "(" + temp + '\n';
+	indentNum++;
 
 	// Implement the recursive walk as iteration to avoid trouble with deep nesting.
 	std::stack<std::size_t> nodeStack;
@@ -124,10 +126,12 @@ std::string AstNode::printTreeString() {
 			nodeStack.push(childIndex);
 			curNode = child;
 			childIndex = 0;
-			treeString += "(" + temp + " ";
+			indentNum++;
+			treeString += std::string(indentNum, ' ') + "(" + temp + "\n";
 		}
 		else {
-			treeString += "(" + temp + ")";
+			indentNum++;
+			treeString += std::string(indentNum, ' ') + "(" + temp + ")";
 			while (++childIndex == curNode->children.size()) {
 				// Check if the call stack is empty.
 				if (nodeStack.size() > 0) {
@@ -135,7 +139,8 @@ std::string AstNode::printTreeString() {
 					childIndex = nodeStack.top();
 					nodeStack.pop();
 					curNode = curNode->parent;
-					treeString += ")";
+					indentNum--;
+					treeString += std::string(indentNum, ' ') + ")";
 				}
 				else {
 					break;
@@ -143,6 +148,7 @@ std::string AstNode::printTreeString() {
 			}
 		}
 	}
-	treeString += ")";
+	indentNum--;
+	treeString += std::string(indentNum, ' ') + ")";
 	return treeString;
 }

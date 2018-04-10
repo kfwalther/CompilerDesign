@@ -8,6 +8,7 @@
  */
 
 #include <cstdlib>
+#include "SymbolTable.h"
 
 struct SemanticAnalyzer {
 
@@ -15,6 +16,8 @@ struct SemanticAnalyzer {
 	SemanticAnalyzer();
 	~SemanticAnalyzer();
 	
+	/** Define a function to store a SymbolTable record in memory. */
+	void storeRecordInMemory(SymbolRecord::SymbolRecordPtrType const & symbolRecord);
 	/** Define a pointer to the first open memory space in heap memory. */
 	std::size_t curHeapMemoryAddress = 0;
 	/** Define pointers to the location of the stack in memory. */

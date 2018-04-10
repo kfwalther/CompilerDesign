@@ -27,25 +27,40 @@ void AstVisitorImpl::verifyMathOperandTypes(AstNode * ctx) {
 
 /** Define a helper function to verify the operands are declared. */
 void AstVisitorImpl::verifyOperandUsability(AstNode * ctx) {
-	// Check to ensure that any variable operands (type Var) have been declared.
-	if ((ctx->children.front()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.front()->symbolTableRecord->canBeUsed())) {
-		// Print if left operand is undeclared.
-		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
-				ctx->children.front()->symbolTableRecord->token->getLine(), ("Left operand " 
-						+ ctx->children.front()->symbolTableRecord->token->getText() + " of " 
-						+ ParseTreeRuleNames[static_cast<std::size_t>(ctx->ruleType)] + " is undeclared."));
+	if (ctx->children.front()->symbolTableRecord != NULL) {
+		// Check to ensure that any variable operands (type Var) have been declared.
+		if ((ctx->children.front()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.front()->symbolTableRecord->canBeUsed())) {
+			// Print if left operand is undeclared.
+			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
+				ctx->children.front()->symbolTableRecord->token->getLine(), ("Left operand "
+					+ ctx->children.front()->symbolTableRecord->token->getText() + " of "
+					+ ParseTreeRuleNames[static_cast<std::size_t>(ctx->ruleType)] + " is undeclared."));
+		}
+		// Indicate that the left operand is being used.
+		ctx->children.front()->symbolTableRecord->isUsed = true;
 	}
-	if ((ctx->children.back()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.back()->symbolTableRecord->canBeUsed())) {
-		// Print if right operand is undeclared.
-		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
+	if (ctx->children.back()->symbolTableRecord != NULL) {
+		if ((ctx->children.back()->ruleType == CMINUS_RULE_TYPE::RuleVar) && (!ctx->children.back()->symbolTableRecord->canBeUsed())) {
+			// Print if right operand is undeclared.
+			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
 				ctx->children.back()->symbolTableRecord->token->getLine(), ("Right operand "
-						+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
-						+ ParseTreeRuleNames[static_cast<std::size_t>(ctx->ruleType)] + " is undeclared."));
+					+ ctx->children.back()->symbolTableRecord->token->getText() + " of "
+					+ ParseTreeRuleNames[static_cast<std::size_t>(ctx->ruleType)] + " is undeclared."));
+		}
+		// Indicate that the right operand is being used.
+		ctx->children.back()->symbolTableRecord->isUsed = true;
 	}
-	// Indicate that both of these operands are being used.
-	ctx->children.front()->symbolTableRecord->isUsed = true;
-	ctx->children.back()->symbolTableRecord->isUsed = true;
 	// TODO: Add warning printouts here to check for variables that are unassigned.
+}
+
+/** Define a helper function to get the function declaration which defines the current scope. */
+SymbolRecord::SymbolRecordPtrType const & AstVisitorImpl::getCurrentScopeFunctionDeclaration(AstNode * ctx) {
+	AstNode * curNode = ctx;
+	do {
+		// Go up one level in the tree.
+		curNode = curNode->parent;
+	} while (curNode->ruleType != CMINUS_RULE_TYPE::RuleFunDeclaration);
+	return curNode->symbolTableRecord;
 }
 
 /** Define a function to visit a specific node. */
@@ -160,25 +175,25 @@ void AstVisitorImpl::visitReturnStmt(AstNode * ctx) {
 			}
 		}
 		// If we return a value, it must be an INT type.
-		if (ctx->parent->parent->parent->symbolTableRecord->returnType != CMINUS_NATIVE_TYPES::INT) {
+		if (this->getCurrentScopeFunctionDeclaration(ctx)->returnType != CMINUS_NATIVE_TYPES::INT) {
 			// Print an error indicating we are returning a value, but return type in function declaration is VOID.
 			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::NO_RETURN_VAL,
 					ctx->children.front()->symbolTableRecord->token->getLine(), ("Declaration of function " 
-							+ ctx->parent->parent->parent->symbolTableRecord->text + " specified VOID return type, but the function returns a value."));
+							+ this->getCurrentScopeFunctionDeclaration(ctx)->text + " specified VOID return type, but the function returns a value."));
 		} 
 		if (ctx->children.front()->evaluatedType != CMINUS_NATIVE_TYPES::INT) {
 			// Print an error indicating invalid return type.
 			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_TYPE,
 					ctx->children.front()->symbolTableRecord->token->getLine(), ("Return value of function "
-							+ ctx->parent->parent->parent->symbolTableRecord->text + " is type VOID or UNKNOWN, expected INT."));
+							+ this->getCurrentScopeFunctionDeclaration(ctx)->text + " is type VOID or UNKNOWN, expected INT."));
 		}
 	} else {
 		// Check for the case in which we expected a return value, but did not have one.
-		if (ctx->parent->parent->parent->symbolTableRecord->returnType == CMINUS_NATIVE_TYPES::INT) {
+		if (this->getCurrentScopeFunctionDeclaration(ctx)->returnType == CMINUS_NATIVE_TYPES::INT) {
 			// Print an error indicating a missing return type.
 			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::MISSING_RETURN_VAL,
 					ctx->token->getLine(), ("Return value of type INT expected for function "
-							+ ctx->parent->parent->parent->symbolTableRecord->text + "."));
+							+ this->getCurrentScopeFunctionDeclaration(ctx)->text + "."));
 		}
 	}
 }

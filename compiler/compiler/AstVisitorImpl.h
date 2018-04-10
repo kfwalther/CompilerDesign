@@ -24,6 +24,8 @@ struct AstVisitorImpl : public AstVisitor {
 	void verifyMathOperandTypes(AstNode * ctx);
 	/** Define a helper function to verify the operands are declared and assigned. */
 	void verifyOperandUsability(AstNode * ctx);
+	/** Define a helper function to get the function declaration which defines the current scope. */
+	SymbolRecord::SymbolRecordPtrType const & getCurrentScopeFunctionDeclaration(AstNode * ctx);
 
 	void visitProgram(AstNode * ctx);
 	void visitDeclarationList(AstNode * ctx);
