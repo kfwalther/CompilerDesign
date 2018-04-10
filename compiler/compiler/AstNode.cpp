@@ -116,7 +116,7 @@ std::string AstNode::printTreeString() {
 	// Loop through all of this node's children. 
 	while (childIndex < curNode->children.size()) {
 		if (childIndex > 0) {
-			treeString += ' ';
+			//treeString += ' ';
 		}
 		AstNodePtrType child = curNode->children[childIndex];
 		temp = child->getString();
@@ -128,10 +128,10 @@ std::string AstNode::printTreeString() {
 			childIndex = 0;
 			indentNum++;
 			treeString += std::string(indentNum, ' ') + "(" + temp + "\n";
+			indentNum++;
 		}
 		else {
-			indentNum++;
-			treeString += std::string(indentNum, ' ') + "(" + temp + ")";
+			treeString += std::string(indentNum, ' ') + "(" + temp + ")" + "\n";
 			while (++childIndex == curNode->children.size()) {
 				// Check if the call stack is empty.
 				if (nodeStack.size() > 0) {
@@ -140,7 +140,8 @@ std::string AstNode::printTreeString() {
 					nodeStack.pop();
 					curNode = curNode->parent;
 					indentNum--;
-					treeString += std::string(indentNum, ' ') + ")";
+					treeString += std::string(indentNum, ' ') + ")" + "\n";
+					indentNum--;
 				}
 				else {
 					break;
