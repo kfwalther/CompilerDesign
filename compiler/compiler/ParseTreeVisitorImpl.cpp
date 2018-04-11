@@ -230,17 +230,13 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 				} else {
 					// Print an error because symbol was not found in symbol table.
 					this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::COMPILER_ERROR, ctx->ID()->getSymbol()->getLine(),
-							("visitFunDeclaration: AST visit encountered Token not in symbol table yet: " + ctx->ID()->getSymbol()->getText()
+							("visitParam: AST visit encountered Token not in symbol table yet: " + ctx->ID()->getSymbol()->getText()
 									+ " This typically indicates a problem with the ParseTreeListener."));
 				}
 			}
 			// If we see the brackets, we know this is an array parameter.
 			else if (nodeType == this->compiler->getParser()->LEFT_BRACKET) {
 				symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::ARRAY;
-				/* TODO: Need more context to update storage size of array parameter, need to lookup function
-					declaration and get original array param name passed. */
-				// TODO: Functionize this.
-				//symbolTableIterator->second->storageSize = 4;
 			}
 		}
 		// Visit the typeSpecifier node to verify this is an INT type. All function parameters should be INT!
@@ -375,7 +371,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 			// Cannot assign a value to undefined variable.
 			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER, 
 					expressionNode->children.at(0)->symbolTableRecord->token->getLine(), 
-					("Undeclared identifier being assigned to : " + expressionNode->children.at(0)->symbolTableRecord->text));
+					("Undeclared identifier being assigned to: " + expressionNode->children.at(0)->symbolTableRecord->text));
 		}
 	}
 	else {
@@ -401,8 +397,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 		varNode->children.push_back(expressionNode);
 		// Set the parents of this node's children.
 		this->updateParents(varNode);
-		// TODO: This type is actually INT b/c it's an unknown index into array. How do we handle this?
-	}
+	} 
 	// Variables are the only C-Minus entity that can be L-Values.
 	return varNode;
 }
@@ -467,7 +462,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::Ca
 	// Get the arguments for the function call and save them as children.
 	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
 	callNode->children = argumentsVector;
-	// TODO: Check here to ensure none of the arguments are another function call. Do this in AST walk.
 	// Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration.
 	this->validateFunctionParameterTypes(callNode);
 	// Set the parents of this node's children.

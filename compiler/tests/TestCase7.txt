@@ -1,19 +1,15 @@
 /** 
  * @author: Walther
- * @brief: This test case illegally has a function call as a parameter to another function.
+ * @brief: This test case tries to assign a value to an undeclared variable.
  */
 
-int foo(int myVal) {
+void foo(void) {
 	myVal = 5;
-	return myVal;
-}
- 
-int foo2(void) {
-	return 10;
+	return;
 }
 
 void main(void) {
 	int x;
 	x = 5;
-	x = foo(foo2());
+	foo();
 }

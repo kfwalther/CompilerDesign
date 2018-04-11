@@ -38,7 +38,6 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	}
 
 	/** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
-	// TODO: May not want to collapse here to preserve order of expressions?
 	template<class EntityType>
 	AstNode * visitAndCollapseExpressionNodes(EntityType * ctx) {
 		AstNode * curExpNode = new AstNode(ctx);

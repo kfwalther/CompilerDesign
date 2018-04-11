@@ -131,6 +131,7 @@ void AstVisitorImpl::visitParamList(AstNode * ctx) {
 	this->visitChildren(ctx);
 }
 void AstVisitorImpl::visitParam(AstNode * ctx) {
+	// TODO: For array parameters, their storage size may vary depending on the call. This needs to updated in activation records.
 	this->visitChildren(ctx);
 }
 void AstVisitorImpl::visitCompoundStmt(AstNode * ctx) {
@@ -204,16 +205,30 @@ void AstVisitorImpl::visitExpression(AstNode * ctx) {
 	if (ctx->children.size() == 2) {
 		if (!ctx->children.front()->isLValue || !ctx->children.back()->isRValue) {
 			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::LVAL_MISUSE,
-				ctx->children.back()->symbolTableRecord->token->getLine(), ("The L-value "
-					+ ctx->children.back()->symbolTableRecord->text + " cannot be assigned to a variable."));
+					ctx->children.back()->symbolTableRecord->token->getLine(), ("The L-value "
+							+ ctx->children.back()->symbolTableRecord->text + " cannot be assigned to a variable."));
 		}
 	}
 }
+
 void AstVisitorImpl::visitVar(AstNode * ctx) {
 	this->visitChildren(ctx);
 	// If this variable has been assigned a value, then it is also an r-value.
 	if (ctx->symbolTableRecord->isAssigned) {
 		ctx->isRValue = true;
+	}
+	// If this is an array-indexed variable, check that it has a matching array variable declaration.
+	if (!ctx->children.empty()) {
+		// TODO: Re-write this symbol table lookup for scoped symbol table.
+		if (this->compiler->getParser()->getSymbolTable()->symbolTable.count(ctx->symbolTableRecord->text)) {
+			auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->symbolTableRecord->text);
+			if (symbolTableIterator->second->kind != SYMBOL_RECORD_KIND::ARRAY) {
+				// Print an error.
+				this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_SYNTAX,
+						ctx->symbolTableRecord->token->getLine(), ("The use of subscripts with variable "
+								+ ctx->symbolTableRecord->text + " requires the variable be an array type."));
+			}
+		}
 	}
 }
 
