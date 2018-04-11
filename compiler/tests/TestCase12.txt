@@ -1,0 +1,10 @@
+/** 
+ * @author: Walther
+ * @brief: This test case tries to use array index on variable of non-array type.
+ */
+
+void main(void) {
+	int x;
+	x = 5;
+	x[3] = 10;
+}
