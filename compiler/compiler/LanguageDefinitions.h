@@ -48,6 +48,11 @@ enum class CMINUS_NATIVE_TYPES {
 	VOID = 2
 };
 
+/** Define the static list of strings corresponding to the C-Minus native type enumerations. */
+static const std::vector<std::string> CMinusNativeTypeNames = {
+	"UNKNOWN", "INT", "VOID"
+};
+
 /** Define the types of entries we can have in the symbol table. */
 enum class SYMBOL_RECORD_KIND {
 	UNKNOWN = 0,
@@ -55,6 +60,11 @@ enum class SYMBOL_RECORD_KIND {
 	ARRAY = 2,
 	FUNCTION = 3,
 	NUMBER = 4
+};
+
+/** Define the static list of strings corresponding to the symbol table entry kind enumerations. */
+static const std::vector<std::string> SymbolRecordKindNames = {
+	"UNKNOWN", "VARIABLE", "ARRAY", "FUNCTION", "NUMBER"
 };
 
 #endif  /* LANGUAGEDEFINITIONS_H */

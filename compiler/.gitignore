@@ -3,7 +3,7 @@ VS15W64/
 antlr4/jar/
 antlr4/runtime/src/
 compiler/generated/
-
+compiler/tests/output/
 
 *.filters
 *.vcxproj

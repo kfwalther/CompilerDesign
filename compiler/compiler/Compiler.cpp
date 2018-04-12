@@ -49,7 +49,7 @@ void Compiler::tokenizeInputFile() {
 
 /** Define the function to parse the token stream. */
 void Compiler::parseTokens() {
-	std::cout << "Parsing tokens to generate parse tree and symbol table..." << std::endl;
+	std::cout << std::endl << "Parsing tokens to generate parse tree and symbol table..." << std::endl;
 	// Create the parser object.
 	this->parser = new TParser(this->tokenStream);
 	// Initialize the symbol table associated with this parser.
@@ -61,8 +61,8 @@ void Compiler::parseTokens() {
 	this->parseTree = this->parser->program();
 	// Check for any syntax errors during parse, in which BNF rules were not matched by input. 
 	this->checkForSyntaxErrors();
-	std::cout << "Printing the parse tree..." << std::endl;
-	std::cout << this->parseTree->toStringTree(this->parser) << std::endl << std::endl;
+	std::cout << std::endl << "Printing the parse tree..." << std::endl;
+	std::cout << std::endl << this->parseTree->toStringTree(this->parser) << std::endl << std::endl;
 }
 
 /** Define a function to account for syntax errors (incorrect grammar) in the input. */
@@ -84,8 +84,8 @@ void Compiler::generateAst() {
 	/** Create the AST from the parse tree. */
 	ParseTreeVisitorImpl * parseTreeVisitor = new ParseTreeVisitorImpl(this);
 	this->ast = parseTreeVisitor->visitProgram(dynamic_cast<AntlrGrammarGenerated::TParser::ProgramContext *>(this->parseTree));
-	std::cout << "Printing the AST..." << std::endl;
-	std::cout << this->ast->printTreeString() << std::endl << std::endl;
+	std::cout << std::endl << "Printing the AST..." << std::endl;
+	std::cout << std::endl << this->ast->printTreeString() << std::endl << std::endl;
 }
 
 /** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */

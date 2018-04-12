@@ -89,7 +89,9 @@ bool AstNode::hasToken() const {
 std::string const AstNode::getString() const {
 	std::string returnString = ParseTreeRuleNames[static_cast<std::size_t>(this->ruleType)];
 	if (this->symbolTableRecord != nullptr) {
-		returnString += (" " + this->symbolTableRecord->text);
+		returnString += (" " + this->symbolTableRecord->text) + ": " 
+				+ SymbolRecordKindNames[static_cast<unsigned int>(this->symbolTableRecord->kind)] + " "
+				+ CMinusNativeTypeNames[static_cast<unsigned int>(this->symbolTableRecord->type)];
 	}
 	return returnString;
 }

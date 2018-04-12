@@ -46,12 +46,12 @@ bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymb
 
 /** Print out the contents of the symbol table. */
 void SymbolTable::printSymbolTable() const {
-	std::cout << "SYMBOL TABLE PRINTOUT" << std::endl;
+	std::cout << std::endl << "SYMBOL TABLE PRINTOUT" << std::endl << std::endl;
 	for (auto const & entry : this->symbolTable) {
-		std::cout << entry.first << ", " << entry.second->token->toString() << std::endl;
-		std::cout << "Type: " << static_cast<unsigned int>(entry.second->type) 
-				<< ", Kind: " << static_cast<unsigned int>(entry.second->kind) << std::endl;
-		std::cout << "StorageSize: " << entry.second->storageSize << std::endl;
+		std::cout << entry.first << ", " << entry.second->token->toString() << std::endl
+				<< "Type: " << CMinusNativeTypeNames[static_cast<unsigned int>(entry.second->type)]
+				<< ", Kind: " << SymbolRecordKindNames[static_cast<unsigned int>(entry.second->kind)] << std::endl
+				<< "StorageSize: " << entry.second->storageSize << " bytes" << std::endl << std::endl;
 	}
 
 }
