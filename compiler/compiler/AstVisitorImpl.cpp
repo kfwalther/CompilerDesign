@@ -232,6 +232,7 @@ void AstVisitorImpl::visitVar(AstNode * ctx) {
 	}
 }
 
+// TODO: Evaluate the values at each of these nodes, if possible. Can we do this with separate SemanticAnalysis call and walk?
 void AstVisitorImpl::visitSimpleExpression(AstNode * ctx) {
 	this->visitChildren(ctx);
 	// Ensure the operands have been declared.

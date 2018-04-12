@@ -13,5 +13,6 @@ Descriptions
 9. This test case expects a return value for function foo, but none is provided.
 10. This test case uses an undeclared variable 'a' in a mult-op expression.
 11. This test case tries to use a variable 'z' as an r-value before it is assigned (not yet an r-value).
-12. 
+12. This test case tries to use array index on variable of non-array type.
+
 

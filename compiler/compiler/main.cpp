@@ -33,13 +33,23 @@ void compileInputFile(std::string const & inputFile, std::ifstream & inputStream
 
 /** This is the main entry point to the program. */
 int main(int numArguments, char const * const arguments[]) {
-	/** Specify the input file to read. */
+	// See if we got any input arguments (input file).
+	std::string inputFileCommandLine = "";
+	if (numArguments > 1) {
+		inputFileCommandLine = arguments[1];
+	}
+	// Specify the default input file to read, if none was provided via command line.
 	std::string inputFile("TestCase12.txt");
 	std::string inputFilePathLaptop("C:/Users/walther/CompilerDesign/compiler/tests/" + inputFile);
 	std::string inputFilePathDesktop("D:/workspace/CompilerDesign/compiler/tests/" + inputFile);
+	std::ifstream inputStreamCommandLine(inputFileCommandLine);
 	std::ifstream inputStreamLaptop(inputFilePathLaptop);
 	std::ifstream inputStreamDesktop(inputFilePathDesktop);
-	if (inputStreamLaptop.is_open()) {
+	// Check which method was used to specify the input file, and process the file.
+	if (inputStreamCommandLine.is_open()) {
+		compileInputFile(inputFileCommandLine, inputStreamCommandLine);
+		inputFile = inputFileCommandLine;
+	} else if (inputStreamLaptop.is_open()) {
 		compileInputFile(inputFile, inputStreamLaptop);
 	} else if (inputStreamDesktop.is_open()) {
 		compileInputFile(inputFile, inputStreamDesktop);
