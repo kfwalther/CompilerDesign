@@ -4,9 +4,6 @@ This Compiler project/program utilizes ANTLR 4 C++ tools to compile a C- (C-Minu
 program file. C-Minus is a subset of the C language.
 
 
-
-
-
 Using CMake to generate the build environment for the project, we place all of the compiler
 specific build environment files into the folder 'VS15W64'. It is named this way because Visual
 Studio 15 (2017) was used to build the code. After running CMake, the generated Visual Studio solution
@@ -36,6 +33,9 @@ code is located in the 'compiler/compiler' directory, and the relevant classes f
  - SemanticAnalyzer
  - SymbolTable
  
+All of the source code in the 'compiler/compiler' directory is heavily commented to document the 
+design decisions and thought-processes that took place during implementation.
+
 Once the project is compiled, the executable will be placed in the 'VS15W64/compiler/Debug' folder. A
 Windows batch script is provided in the top-level directory to call the executable and run 
 the program with all test input files. This code was built and tested on Windows 7 and Windows 10.
