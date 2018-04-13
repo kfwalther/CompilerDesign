@@ -18,7 +18,7 @@ SymbolRecord::SymbolRecord(antlr4::Token * const & inputToken) {
 }
 
 /** Set the scope for this symbol record. */
-void setScope(Scope * const & scope) {
+void SymbolRecord::setScope(ScopePtrType const & scope) {
 	this->scope = scope;
 }
 

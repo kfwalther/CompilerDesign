@@ -23,14 +23,14 @@ struct SymbolRecord {
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
 	typedef antlr4::Token * TokenPtrType;
 	typedef std::shared_ptr<AstNode> AstNodeSmartPtrType;
-	typedef Scope::ScopePtrType ScopePtrType;
+	typedef std::shared_ptr<Scope> ScopePtrType;
 
 	/** Define constructors. */
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
 	
 	/** Set the scope for this symbol record. */
-	void setScope(Scope * const & scope);
+	void setScope(ScopePtrType const & scope);
 	/** Define the kind of this symbol table record. */
 	SYMBOL_RECORD_KIND kind = SYMBOL_RECORD_KIND::UNKNOWN;
 	/** Define the type of this symbol table record (INT or VOID). */

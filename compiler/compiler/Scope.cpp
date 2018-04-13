@@ -16,9 +16,9 @@ Scope::Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, Scope *
 };
 
 /** Define a symbol in the current scope. */
-void Scope::newSymbol(SymbolRecord * const & newSymbolRecord) {
-	newSymbolRecord->setScope(this);
-	this->scopedSymbolTable[newSymbolRecord->text] = newSymbolRecord;
+void Scope::newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord) {
+	newSymbolRecord->setScope(shared_from_this());
+	this->scopedSymbolTable->symbolTable[newSymbolRecord->text] = newSymbolRecord;
 }
 
 /**

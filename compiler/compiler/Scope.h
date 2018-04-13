@@ -8,7 +8,7 @@
  */
 
 #include <memory>
-//#include "SymbolTable.h"
+#include "SymbolTable.h"
 #include "LanguageDefinitions.h"
 
 /** Forward declarations. */
@@ -18,7 +18,7 @@ struct SymbolRecord;
 /** Define an object to keep track of a single scope. */
 /** Implementation inspired by the following scoped symbol table post:
 	https://stackoverflow.com/questions/15588452/build-symbol-table-from-grammar */
-struct Scope {
+struct Scope : public std::enable_shared_from_this<Scope> {
 	/** Alias the types used with this class. */
 	typedef std::shared_ptr<Scope> ScopePtrType;
 	typedef SymbolTable::SymbolTablePtrType SymbolTablePtrType;
@@ -27,7 +27,7 @@ struct Scope {
 	Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, Scope * const & enclosingScope);
 
 	/** Define a function to add a symbol to this scope. */
-	void newSymbol(SymbolRecord * const & newSymbolRecord);
+	void newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord);
 
 	/** Define a unique ID to distinguish this scope. */
 	unsigned int uniqueId;
