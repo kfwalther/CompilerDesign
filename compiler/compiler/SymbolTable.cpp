@@ -17,6 +17,11 @@ SymbolRecord::SymbolRecord(antlr4::Token * const & inputToken) {
 	return;
 }
 
+/** Set the scope for this symbol record. */
+void setScope(Scope * const & scope) {
+	this->scope = scope;
+}
+
 /** Define a method to quickly determine if the entry can be used (when it's declared/defined). */
 bool SymbolRecord::canBeUsed() {
 	// We can still use an unassigned variable, so only check if declared/defined.

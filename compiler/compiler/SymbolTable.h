@@ -11,9 +11,11 @@
 #include <map>
 #include "Token.h"
 #include "LanguageDefinitions.h"
+//#include "Scope.h"
 
 /** Forward declarations. */
 struct AstNode;
+struct Scope;
 
 /** Define an object to store a single entry in the symbol table. */
 struct SymbolRecord {
@@ -21,11 +23,14 @@ struct SymbolRecord {
 	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
 	typedef antlr4::Token * TokenPtrType;
 	typedef std::shared_ptr<AstNode> AstNodeSmartPtrType;
+	typedef Scope::ScopePtrType ScopePtrType;
 
 	/** Define constructors. */
 	SymbolRecord();
 	SymbolRecord(antlr4::Token * const & inputToken);
 	
+	/** Set the scope for this symbol record. */
+	void setScope(Scope * const & scope);
 	/** Define the kind of this symbol table record. */
 	SYMBOL_RECORD_KIND kind = SYMBOL_RECORD_KIND::UNKNOWN;
 	/** Define the type of this symbol table record (INT or VOID). */
@@ -52,6 +57,8 @@ struct SymbolRecord {
 	/** Pointer to one of its corresponding AST nodes. */
 	AstNodeSmartPtrType astNode;
 	TokenPtrType token;
+	/** Pointer to the scope this symbol record belongs to. */
+	ScopePtrType scope;
 
 	/** Define attributes to track how each token is used in the program. */
 	bool isDeclared = false;

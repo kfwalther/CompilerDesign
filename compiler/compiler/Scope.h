@@ -8,10 +8,12 @@
  */
 
 #include <memory>
-#include "SymbolTable.h"
+//#include "SymbolTable.h"
 #include "LanguageDefinitions.h"
 
 /** Forward declarations. */
+struct SymbolTable;
+struct SymbolRecord;
 
 /** Define an object to keep track of a single scope. */
 /** Implementation inspired by the following scoped symbol table post:
