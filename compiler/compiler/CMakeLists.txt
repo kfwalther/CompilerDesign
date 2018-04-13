@@ -60,6 +60,7 @@ set(ANTLR4_GRAMMAR_LOCAL_HDRS
 	${PROJECT_SOURCE_DIR}/compiler/LanguageDefinitions.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.h
+	${PROJECT_SOURCE_DIR}/compiler/Scope.h
 	${PROJECT_SOURCE_DIR}/compiler/SymbolTable.h
 	${PROJECT_SOURCE_DIR}/compiler/SemanticAnalyzer.h
 )
@@ -71,6 +72,7 @@ set(ANTLR4_GRAMMAR_LOCAL_SRCS
 	${PROJECT_SOURCE_DIR}/compiler/ErrorHandler.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.cpp
+	${PROJECT_SOURCE_DIR}/compiler/Scope.cpp
 	${PROJECT_SOURCE_DIR}/compiler/SymbolTable.cpp
 	${PROJECT_SOURCE_DIR}/compiler/SemanticAnalyzer.cpp
 )

@@ -67,4 +67,11 @@ static const std::vector<std::string> SymbolRecordKindNames = {
 	"UNKNOWN", "VARIABLE", "ARRAY", "FUNCTION", "NUMBER"
 };
 
+/** Define the scope types we can have in C-Minus. */
+enum class CMINUS_SCOPE_TYPE {
+	GLOBAL = 0,
+	LOCAL = 1
+};
+
+
 #endif  /* LANGUAGEDEFINITIONS_H */
