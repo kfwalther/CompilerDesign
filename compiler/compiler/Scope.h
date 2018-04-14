@@ -28,7 +28,8 @@ struct Scope : public std::enable_shared_from_this<Scope> {
 
 	/** Define a function to add a symbol to this scope. */
 	void newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord);
-
+	/** Define a function to lookup up a symbol in the current scope, then in the enclosing scopes. */
+	SymbolRecord::SymbolRecordPtrType const & findSymbol(std::string const & name);
 	/** Define a unique ID to distinguish this scope. */
 	unsigned int uniqueId;
 

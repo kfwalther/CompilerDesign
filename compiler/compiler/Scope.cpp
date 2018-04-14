@@ -5,6 +5,7 @@
  */
 
 #include "Scope.h"
+#include <optional>
 
 /** Define a default constructor. */
 Scope::Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, Scope * const & enclosingScope) :
@@ -21,19 +22,18 @@ void Scope::newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord)
 	this->scopedSymbolTable->symbolTable[newSymbolRecord->text] = newSymbolRecord;
 }
 
-/**
-* Look up the symbol name in this scope and, if not found,
-* progressively search the enclosing scopes.
-* Return null if not found in any applicable scope.
-*/
-//private Symbol resolve(String name) {
-//	Symbol symbol = symbolMap.get(name);
-//	if (symbol != null) return symbol;
-//	if (enclosingScope != null) return enclosingScope.resolve(name);
-//	return null; // not found
-//}
-//
-//
+/** Define a function to lookup up a symbol in the current scope, then in the enclosing scopes. */
+SymbolRecord::SymbolRecordPtrType const & Scope::findSymbol(std::string const & symbolName) {
+	auto matchingSymbolIterator = this->scopedSymbolTable->symbolTable.find(symbolName);
+	if (matchingSymbolIterator != this->scopedSymbolTable->symbolTable.end()) {
+		return matchingSymbolIterator->second;
+	} else if (this->enclosingScope != NULL) {
+		return this->enclosingScope->findSymbol(symbolName);
+	}
+	return NULL; 
+}
+
+
 //std::string const toString() {
 //	return this->scopedSymbolTable.toString();
 //}
