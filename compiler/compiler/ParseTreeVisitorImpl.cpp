@@ -5,6 +5,8 @@
 
 #include "ParseTreeVisitorImpl.h"
 #include "ErrorHandler.h"
+#include "SymbolTable.h"
+#include "Scope.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeVisitorImpl::ParseTreeVisitorImpl(Compiler * const compiler) : compiler(compiler) {
@@ -38,24 +40,24 @@ void output(int x) { ... }
 */
 void ParseTreeVisitorImpl::populateLanguageSpecificFunctionInfo() {
 	// Check if this input file used the input() function in the first place.
-	if (this->compiler->getParser()->getSymbolTable()->symbolTable.count("input")) {
+	if (this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.count("input")) {
 		// Update the input() function.
-		this->compiler->getParser()->getSymbolTable()->symbolTable["input"]->type = CMINUS_NATIVE_TYPES::INT;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["input"]->returnType = CMINUS_NATIVE_TYPES::INT;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["input"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["input"]->isDeclared = true;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["input"]->isDefined = true;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["input"]->numArguments = 0;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["input"]->type = CMINUS_NATIVE_TYPES::INT;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["input"]->returnType = CMINUS_NATIVE_TYPES::INT;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["input"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["input"]->isDeclared = true;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["input"]->isDefined = true;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["input"]->numArguments = 0;
 	}
 	// Check if this input file used the output() function in the first place.
-	if (this->compiler->getParser()->getSymbolTable()->symbolTable.count("output")) {
+	if (this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.count("output")) {
 		// Update the output() function.
-		this->compiler->getParser()->getSymbolTable()->symbolTable["output"]->type = CMINUS_NATIVE_TYPES::VOID;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["output"]->returnType = CMINUS_NATIVE_TYPES::VOID;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["output"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["output"]->isDeclared = true;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["output"]->isDefined = true;
-		this->compiler->getParser()->getSymbolTable()->symbolTable["output"]->numArguments = 1;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["output"]->type = CMINUS_NATIVE_TYPES::VOID;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["output"]->returnType = CMINUS_NATIVE_TYPES::VOID;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["output"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["output"]->isDeclared = true;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["output"]->isDefined = true;
+		this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable["output"]->numArguments = 1;
 	}
 }
 
@@ -83,7 +85,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitDeclarationList(AntlrGrammarGenerated::
 /** Define a custom visitor for the VarDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx) {
 	AstNode * varDeclNode = new AstNode(ctx);
-	auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.begin();
+	auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.begin();
 	// Loop through all children and save AST node. 
 	for (auto const & child : ctx->children) {
 		// Find the ID/NUM nodes that declare the variable. 
@@ -93,8 +95,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 			// Update symbol table info if we have the ID.
 			if (nodeType == this->compiler->getParser()->ID) {
 				// Find the associated entry in the symbol table and update its information.
-				symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(curNode->getSymbol()->getText());
-				if (symbolTableIterator != this->compiler->getParser()->getSymbolTable()->symbolTable.end()) {
+				symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.find(curNode->getSymbol()->getText());
+				if (symbolTableIterator != this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.end()) {
 					// Assume we have just a single integer declaration here, can update for array afterward.
 					symbolTableIterator->second->storageSize = sizeof(int);
 					symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::VARIABLE;
@@ -142,8 +144,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 	AstNode * paramsNode = this->visit(ctx->children.at(3));
 	funDeclNode->children.push_back(paramsNode);
 	// Find the associated ID entry in the symbol table and update its information.
-	auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText());
-	if (symbolTableIterator != this->compiler->getParser()->getSymbolTable()->symbolTable.end()) {
+	auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.find(ctx->ID()->getSymbol()->getText());
+	if (symbolTableIterator != this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.end()) {
 		// Visit the type specifier node to get the function's return type.
 		std::string functionReturnType = this->visit(ctx->children.at(0));
 		if (functionReturnType == "int") {
@@ -205,7 +207,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParse
 // TODO: Maybe consider reorganizing this function. Removing the loop....
 antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::ParamContext * ctx) {
 	AstNode * paramNode = new AstNode(ctx);
-	auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.begin();
+	auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.begin();
 	// Loop through all children and populate this AST node. 
 	for (auto const & child : ctx->children) {
 		// Find the ID or BRACKET nodes that define the parameter. 
@@ -214,8 +216,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 			// Save some info from the parameter ID node.
 			if (nodeType == this->compiler->getParser()->ID) {
 				// Find the associated entry in the symbol table and update its information.
-				symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText());
-				if (symbolTableIterator != this->compiler->getParser()->getSymbolTable()->symbolTable.end()) {
+				symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.find(ctx->ID()->getSymbol()->getText());
+				if (symbolTableIterator != this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.end()) {
 					// All parameter declarations will be integer types. 
 					symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
 					// Assume we have a simple integer parameter, can update later if it is actually an array parameter.
@@ -388,7 +390,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::Var
 	AstNode * varNode = new AstNode(ctx);
 	// Link this node to its corresponding ID entry in the symbol table.
 	// TODO: Make this a conditional lookup, and error if this variable definition is out of scope...
-	varNode->symbolTableRecord = (this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->ID()->getSymbol()->getText()))->second;
+	varNode->symbolTableRecord = (this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.find(ctx->ID()->getSymbol()->getText()))->second;
 	// Check if this is an array, not an integer.
 	if (ctx->children.size() > 1) {
 		// Visit the expression child to get the index into the array.
@@ -431,8 +433,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 		// Check if the one child is simply a number.
 		if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
 			// Find this number in the symbol table.
-			auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->NUM()->getText());
-			if (symbolTableIterator != this->compiler->getParser()->getSymbolTable()->symbolTable.end()) {
+			auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.find(ctx->NUM()->getText());
+			if (symbolTableIterator != this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.end()) {
 				// Store some info about this integer number. 
 				symbolTableIterator->second->type = CMINUS_NATIVE_TYPES::INT;
 				symbolTableIterator->second->kind = SYMBOL_RECORD_KIND::NUMBER;
@@ -454,8 +456,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
 	AstNode * callNode = new AstNode(ctx);
 	// Get the function name (ID) and store it in the symbol table if it doesn't already exist.
-	auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->ID()->getText());
-	if (symbolTableIterator != this->compiler->getParser()->getSymbolTable()->symbolTable.end()) {
+	auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.find(ctx->ID()->getText());
+	if (symbolTableIterator != this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable.end()) {
 		// Exchange pointers for association of this node with this symbol table entry.
 		callNode->symbolTableRecord = symbolTableIterator->second;
 	}

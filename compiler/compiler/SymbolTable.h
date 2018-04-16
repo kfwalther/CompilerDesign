@@ -3,6 +3,8 @@
 
 /**
  * @author: Kevin Walther
+ * @date: 2018
+ * @class: SymbolTable
  */
 
 #include <string>
@@ -11,7 +13,6 @@
 #include <map>
 #include "Token.h"
 #include "LanguageDefinitions.h"
-//#include "Scope.h"
 
 /** Forward declarations. */
 struct AstNode;
@@ -83,7 +84,6 @@ struct SymbolTable {
 	void printSymbolTable() const;
 	/** Define the map data structure to hold all of the symbol table entries. */
 	SymbolTableType symbolTable;
-
 };
 
 

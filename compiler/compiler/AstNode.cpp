@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "AstNode.h"
+#include "SymbolTable.h"
 #include "tree/Trees.h"
 #include "TParser.h"
 

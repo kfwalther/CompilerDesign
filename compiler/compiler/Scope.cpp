@@ -5,10 +5,9 @@
  */
 
 #include "Scope.h"
-#include <optional>
 
 /** Define a default constructor. */
-Scope::Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, Scope * const & enclosingScope) :
+Scope::Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, ScopePtrType const & enclosingScope) :
 		type(scopeType),
 		uniqueId(id),
 		enclosingScope(enclosingScope)
@@ -23,14 +22,14 @@ void Scope::newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord)
 }
 
 /** Define a function to lookup up a symbol in the current scope, then in the enclosing scopes. */
-SymbolRecord::SymbolRecordPtrType const & Scope::findSymbol(std::string const & symbolName) {
+Scope::OptionalSymbolRecordPtrType const & Scope::findSymbol(std::string const & symbolName) {
 	auto matchingSymbolIterator = this->scopedSymbolTable->symbolTable.find(symbolName);
 	if (matchingSymbolIterator != this->scopedSymbolTable->symbolTable.end()) {
-		return matchingSymbolIterator->second;
+		return std::optional<SymbolRecordPtrType>{matchingSymbolIterator->second};
 	} else if (this->enclosingScope != NULL) {
 		return this->enclosingScope->findSymbol(symbolName);
 	}
-	return NULL; 
+	return std::nullopt; 
 }
 
 

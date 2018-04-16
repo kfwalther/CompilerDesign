@@ -7,6 +7,7 @@
  * @class: Scope
  */
 
+#include <optional>
 #include <memory>
 #include "SymbolTable.h"
 #include "LanguageDefinitions.h"
@@ -21,15 +22,17 @@ struct SymbolRecord;
 struct Scope : public std::enable_shared_from_this<Scope> {
 	/** Alias the types used with this class. */
 	typedef std::shared_ptr<Scope> ScopePtrType;
+	typedef SymbolRecord::SymbolRecordPtrType SymbolRecordPtrType;
+	typedef std::optional<SymbolRecordPtrType> OptionalSymbolRecordPtrType;
 	typedef SymbolTable::SymbolTablePtrType SymbolTablePtrType;
 
 	/** Define constructors. */
-	Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, Scope * const & enclosingScope);
+	Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, ScopePtrType const & enclosingScope);
 
 	/** Define a function to add a symbol to this scope. */
 	void newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord);
 	/** Define a function to lookup up a symbol in the current scope, then in the enclosing scopes. */
-	SymbolRecord::SymbolRecordPtrType const & findSymbol(std::string const & name);
+	OptionalSymbolRecordPtrType const & findSymbol(std::string const & name);
 	/** Define a unique ID to distinguish this scope. */
 	unsigned int uniqueId;
 

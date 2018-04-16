@@ -39,7 +39,7 @@ int main(int numArguments, char const * const arguments[]) {
 		inputFileCommandLine = arguments[1];
 	}
 	// Specify the default input file to read, if none was provided via command line.
-	std::string inputFile("TestCase12.txt");
+	std::string inputFile("C-Input-1.txt");
 	std::string inputFilePathLaptop("C:/Users/walther/CompilerDesign/compiler/tests/" + inputFile);
 	std::string inputFilePathDesktop("D:/workspace/CompilerDesign/compiler/tests/" + inputFile);
 	std::ifstream inputStreamCommandLine(inputFileCommandLine);

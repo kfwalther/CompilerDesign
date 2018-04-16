@@ -4,6 +4,7 @@
  */
 
 #include "ParseTreeListenerImpl.h"
+#include "SymbolTableManager.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeListenerImpl::ParseTreeListenerImpl(AntlrGrammarGenerated::TParser * const parser) : parser(parser) {
@@ -21,10 +22,11 @@ void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 		// Initialize the NUM tokens in the symbol table.
 		numSymbolRecord->isDeclared = true;
 		numSymbolRecord->isDefined = true;
-		this->parser->getSymbolTable()->insertSymbol(numSymbolRecord);
+		this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(numSymbolRecord);
 	}
 	if (idTokenNodes.size() > 0) {
-		this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(idTokenNodes.front()->getSymbol()));
+		this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+				std::make_shared<SymbolRecord>(idTokenNodes.front()->getSymbol()));
 	}
 }
 

@@ -58,5 +58,4 @@ void SymbolTable::printSymbolTable() const {
 				<< ", Kind: " << SymbolRecordKindNames[static_cast<unsigned int>(entry.second->kind)] << std::endl
 				<< "StorageSize: " << entry.second->storageSize << " bytes" << std::endl << std::endl;
 	}
-
 }

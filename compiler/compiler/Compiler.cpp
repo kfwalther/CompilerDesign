@@ -53,7 +53,8 @@ void Compiler::parseTokens() {
 	// Create the parser object.
 	this->parser = new TParser(this->tokenStream);
 	// Initialize the symbol table associated with this parser.
-	this->parser->initializeSymbolTable();
+	this->parser->compiler = shared_from_this();
+	this->symbolTableManager = std::make_shared<SymbolTableManager>();
 	// Define a customized parse tree listener to perform actions during the parse.
 	ParseTreeListenerImpl * parseTreeListener = new ParseTreeListenerImpl(this->parser);
 	this->parser->addParseListener(parseTreeListener);

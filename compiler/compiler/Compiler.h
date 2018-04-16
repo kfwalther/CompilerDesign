@@ -14,10 +14,12 @@
 #include "TParser.h"
 #include "ErrorHandler.h"
 #include "SemanticAnalyzer.h"
+#include "SymbolTableManager.h"
 
-struct Compiler {
+struct Compiler : public std::enable_shared_from_this<Compiler> {
 
 	/** Alias some commonly used types for convenience. */
+	typedef std::shared_ptr<SymbolTableManager> SymbolTableManagerPtrType;
 
 	/** Define the constructors. */
 	Compiler(std::string const & inputFile, std::ifstream & inputFileStream);
@@ -37,6 +39,7 @@ struct Compiler {
 	AntlrGrammarGenerated::TParser * const getParser() const;
 	ErrorHandler * const getErrorHandler() const;
 	SemanticAnalyzer * const getSemanticAnalyzer();
+	SymbolTableManagerPtrType const getSymbolTableManager() { return this->symbolTableManager; }
 
 	/** Define a debugging flag to turn on trace printing. */
 	bool debuggingOn = false;
@@ -47,6 +50,8 @@ private:
 	antlr4::CommonTokenStream * tokenStream;
 	/** Define the parser object to handle all of the parsing operations. */
 	AntlrGrammarGenerated::TParser * parser;
+	/** Define the symbol table manager to keep track of scoped symbols. */
+	SymbolTableManagerPtrType symbolTableManager;
 	/** Define the ParseTree object generated during the parse. */
 	antlr4::tree::ParseTree * parseTree;
 	/** Define the AST object derived from the parse tree, and decorated during semantic analysis. */

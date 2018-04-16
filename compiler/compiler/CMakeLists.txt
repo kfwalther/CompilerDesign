@@ -1,7 +1,11 @@
 # -*- mode:cmake -*-
 if(NOT UNIX)
-  message(WARNING "Unsupported operating system")
+	message(WARNING "Unsupported operating system")
 endif()
+
+# Set the C++ standard to C++17.
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(ANTLR4_GRAMMAR_GENERATED_SRCS
    ${PROJECT_SOURCE_DIR}/compiler/generated/TLexer.cpp 
@@ -22,22 +26,22 @@ set(ANTLR4_GRAMMAR_GENERATED_HDRS
 )
 set(ANTLR4_GRAMMAR_GENERATED_CODE ${ANTLR4_GRAMMAR_GENERATED_HDRS} ${ANTLR4_GRAMMAR_GENERATED_SRCS})
 
-foreach( src_file ${ANTLR4_GRAMMAR_GENERATED_SRCS} )
-      set_source_files_properties(
-          ${src_file}
-          PROPERTIES
-          GENERATED TRUE
-          )
-endforeach( src_file ${ANTLR4_GRAMMAR_GENERATED_SRCS} )
+foreach(src_file ${ANTLR4_GRAMMAR_GENERATED_SRCS})
+	set_source_files_properties(
+		${src_file}
+		PROPERTIES
+		GENERATED TRUE
+	)
+endforeach(src_file ${ANTLR4_GRAMMAR_GENERATED_SRCS})
 
 add_custom_target(GenerateParser DEPENDS ${ANTLR4_GRAMMAR_GENERATED_SRCS})
 add_custom_command(OUTPUT ${ANTLR4_GRAMMAR_GENERATED_SRCS}
-   COMMAND 
-   ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/compiler/generated/
-   COMMAND
-   "${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o ${PROJECT_SOURCE_DIR}/compiler/generated/ -package AntlrGrammarGenerated ${PROJECT_SOURCE_DIR}/grammar/TLexer.g4 ${PROJECT_SOURCE_DIR}/grammar/TParser.g4
-   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-   DEPENDS ${PROJECT_SOURCE_DIR}/grammar/TLexer.g4 ${PROJECT_SOURCE_DIR}/grammar/TParser.g4
+	COMMAND 
+	${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/compiler/generated/
+	COMMAND
+	"${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o ${PROJECT_SOURCE_DIR}/compiler/generated/ -package AntlrGrammarGenerated ${PROJECT_SOURCE_DIR}/grammar/TLexer.g4 ${PROJECT_SOURCE_DIR}/grammar/TParser.g4
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+	DEPENDS ${PROJECT_SOURCE_DIR}/grammar/TLexer.g4 ${PROJECT_SOURCE_DIR}/grammar/TParser.g4
 )
 
 include_directories(
@@ -62,6 +66,7 @@ set(ANTLR4_GRAMMAR_LOCAL_HDRS
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/Scope.h
 	${PROJECT_SOURCE_DIR}/compiler/SymbolTable.h
+	${PROJECT_SOURCE_DIR}/compiler/SymbolTableManager.h
 	${PROJECT_SOURCE_DIR}/compiler/SemanticAnalyzer.h
 )
 set(ANTLR4_GRAMMAR_LOCAL_SRCS 
@@ -74,6 +79,7 @@ set(ANTLR4_GRAMMAR_LOCAL_SRCS
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/Scope.cpp
 	${PROJECT_SOURCE_DIR}/compiler/SymbolTable.cpp
+	${PROJECT_SOURCE_DIR}/compiler/SymbolTableManager.cpp
 	${PROJECT_SOURCE_DIR}/compiler/SemanticAnalyzer.cpp
 )
 set(ANTLR4_GRAMMAR_LOCAL_CODE ${ANTLR4_GRAMMAR_LOCAL_HDRS} ${ANTLR4_GRAMMAR_LOCAL_SRCS})
@@ -84,11 +90,11 @@ set(ANTLR4_GRAMMAR_ALL_SRCS
 	${ANTLR4_GRAMMAR_GENERATED_SRCS}
 )
 
-if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	set(ADDITIONAL_FLAGS "-Wno-overloaded-virtual")
 else()
 	set(ADDITIONAL_FLAGS "-MP /wd4251")
-endif ()
+endif()
 
 foreach( src_file ${ANTLR4_GRAMMAR_ALL_SRCS} )
 	set_source_files_properties(
