@@ -226,8 +226,8 @@ void AstVisitorImpl::visitVar(AstNode * ctx) {
 	// If this is an array-indexed variable, check that it has a matching array variable declaration.
 	if (!ctx->children.empty()) {
 		// TODO: Re-write this symbol table lookup for scoped symbol table.
-		if (this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->symbolTable.count(ctx->symbolTableRecord->text)) {
-			auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->symbolTable.find(ctx->symbolTableRecord->text);
+		if (this->compiler->getSymbolTableForCurrentContext()->symbolTable.count(ctx->symbolTableRecord->text)) {
+			auto symbolTableIterator = this->compiler->getSymbolTableForCurrentContext()->symbolTable.find(ctx->symbolTableRecord->text);
 			if (symbolTableIterator->second->kind != SYMBOL_RECORD_KIND::ARRAY) {
 				// Print an error.
 				this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_SYNTAX,

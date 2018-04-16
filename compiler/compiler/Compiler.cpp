@@ -36,6 +36,9 @@ ErrorHandler * const Compiler::getErrorHandler() const {
 SemanticAnalyzer * const Compiler::getSemanticAnalyzer() {
 	return this->semanticAnalyzer;
 }
+SymbolTable::SymbolTablePtrType const Compiler::getSymbolTableForCurrentContext() {
+	return this->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable;
+}
 
 /** Define a function to generate a list of tokens from the input file. */
 void Compiler::tokenizeInputFile() {

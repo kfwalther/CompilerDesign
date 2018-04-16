@@ -25,29 +25,29 @@ void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 		// Initialize the NUM tokens in the symbol table.
 		numSymbolRecord->isDeclared = true;
 		numSymbolRecord->isDefined = true;
-		this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(numSymbolRecord);
+		this->parser->compiler->getSymbolTableForCurrentContext()->insertSymbol(numSymbolRecord);
 	}
 	if (idTokenNodes.size() > 0) {
-		this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+		this->parser->compiler->getSymbolTableForCurrentContext()->insertSymbol(
 				std::make_shared<SymbolRecord>(idTokenNodes.front()->getSymbol()));
 	}
 }
 
 /** Add any relative operators to the symbol table. */
 void ParseTreeListenerImpl::exitRelop(AntlrGrammarGenerated::TParser::RelopContext * ctx) {
-	this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+	this->parser->compiler->getSymbolTableForCurrentContext()->insertSymbol(
 			std::make_shared<SymbolRecord>(dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 /** Add any additive operators to the symbol table. */
 void ParseTreeListenerImpl::exitAddop(AntlrGrammarGenerated::TParser::AddopContext * ctx) {
-	this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+	this->parser->compiler->getSymbolTableForCurrentContext()->insertSymbol(
 			std::make_shared<SymbolRecord>(dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 /** Add any multiplicative operators to the symbol table. */
 void ParseTreeListenerImpl::exitMulop(AntlrGrammarGenerated::TParser::MulopContext * ctx) {
-	this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+	this->parser->compiler->getSymbolTableForCurrentContext()->insertSymbol(
 			std::make_shared<SymbolRecord>(dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 

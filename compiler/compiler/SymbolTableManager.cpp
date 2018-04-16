@@ -17,7 +17,9 @@ SymbolTableManager::SymbolTableManager() {
 /** Initialize the stack of scopes containing the symbol tables. */
 void SymbolTableManager::initialize() {
 	// Create the global scope.
-	this->scopeStack.push(std::make_shared<Scope>(CMINUS_SCOPE_TYPE::GLOBAL, this->getNextUniqueId(), nullptr));
+	ScopePtrType globalScope = std::make_shared<Scope>(CMINUS_SCOPE_TYPE::GLOBAL, this->getNextUniqueId(), nullptr);
+	this->scopeStack.push(globalScope);
+	this->scopeVector.push_back(globalScope);
 }
 
 /** Retrieve the next scope unique ID. */
@@ -31,7 +33,8 @@ SymbolTableManager::ScopePtrType SymbolTableManager::newScope() {
 	SymbolTableManager::ScopePtrType scope = std::make_shared<Scope>(
 			CMINUS_SCOPE_TYPE::LOCAL, this->getNextUniqueId(), enclosingScope);
 	this->scopeStack.push(scope);
-	return std::move(scope);
+	this->scopeVector.push_back(scope);
+	return scope;
 }
 
 /** Throw out the current scope. */

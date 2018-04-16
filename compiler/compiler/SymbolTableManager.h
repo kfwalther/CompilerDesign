@@ -39,8 +39,10 @@ struct SymbolTableManager {
 
 	/** Define the stack of scopes that we will populate to keep track of symbol tables. */
 	std::stack<ScopePtrType> scopeStack;
+	std::vector<ScopePtrType> scopeVector;
 	/** Define the unique ID counter for the managed scopes. */
 	unsigned int scopeIdCounter = 0;
+
 };
 
 

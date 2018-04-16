@@ -25,9 +25,9 @@ void compileInputFile(std::string const & inputFile, std::ifstream & inputStream
 	} catch (std::invalid_argument & invArgException) {
 		std::cerr << invArgException.what() << std::endl;
 	}
-	//catch (...) {
-	//	std::cerr << "Unknown exception occurred!" << std::endl;
-	//}
+	catch (...) {
+		std::cerr << "Unknown exception occurred!" << std::endl;
+	}
 
 }
 

@@ -7,8 +7,6 @@
  * @class: Compiler
  */
 
-//#include <fstream>
-
 #include "antlr4-runtime.h"
 #include "ErrorHandler.h"
 
@@ -16,6 +14,7 @@
 namespace AntlrGrammarGenerated {
 	class TParser;
 };
+struct SymbolTable;
 struct SymbolTableManager;
 struct SemanticAnalyzer;
 struct AstNode;
@@ -25,6 +24,7 @@ struct Compiler : public std::enable_shared_from_this<Compiler> {
 
 	/** Alias some commonly used types for convenience. */
 	typedef std::shared_ptr<SymbolTableManager> SymbolTableManagerPtrType;
+	typedef std::shared_ptr<SymbolTable> SymbolTablePtrType;
 
 	/** Define the constructors. */
 	Compiler(std::string const & inputFile, std::ifstream & inputFileStream);
@@ -45,6 +45,7 @@ struct Compiler : public std::enable_shared_from_this<Compiler> {
 	ErrorHandler * const getErrorHandler() const;
 	SemanticAnalyzer * const getSemanticAnalyzer();
 	SymbolTableManagerPtrType const getSymbolTableManager() { return this->symbolTableManager; }
+	SymbolTablePtrType const getSymbolTableForCurrentContext();
 
 	/** Define a debugging flag to turn on trace printing. */
 	bool debuggingOn = false;
