@@ -8,10 +8,16 @@
  */
 
 #include "AstVisitor.h"
-#include "Compiler.h"
+
+ // Forward declarations.
+struct Compiler;
+struct SymbolRecord;
 
 /** Define the AstVisitorImpl class, which implements the abstract methods defined in AstVisitor. */
 struct AstVisitorImpl : public AstVisitor {
+	/** Alias some commonly used types for convenience. */
+	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
+
 	/** Define a constructor. */
 	AstVisitorImpl(Compiler * const & compiler);
 	
@@ -25,7 +31,7 @@ struct AstVisitorImpl : public AstVisitor {
 	/** Define a helper function to verify the operands are declared and assigned. */
 	void verifyOperandUsability(AstNode * ctx);
 	/** Define a helper function to get the function declaration which defines the current scope. */
-	SymbolRecord::SymbolRecordPtrType const & getCurrentScopeFunctionDeclaration(AstNode * ctx);
+	SymbolRecordPtrType const & getCurrentScopeFunctionDeclaration(AstNode * ctx);
 
 	void visitProgram(AstNode * ctx);
 	void visitDeclarationList(AstNode * ctx);

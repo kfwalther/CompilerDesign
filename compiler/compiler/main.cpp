@@ -12,7 +12,7 @@
 void compileInputFile(std::string const & inputFile, std::ifstream & inputStream) {
 	try {
 		// Create the Compiler class to manage the objects used during compilation.
-		std::unique_ptr<Compiler> cMinusCompiler = std::make_unique<Compiler>(inputFile, inputStream);
+		std::shared_ptr<Compiler> cMinusCompiler = std::make_shared<Compiler>(inputFile, inputStream);
 		cMinusCompiler->debuggingOn = true;
 		// Generate a list of tokens from the input file. 
 		cMinusCompiler->tokenizeInputFile();
@@ -25,9 +25,9 @@ void compileInputFile(std::string const & inputFile, std::ifstream & inputStream
 	} catch (std::invalid_argument & invArgException) {
 		std::cerr << invArgException.what() << std::endl;
 	}
-	catch (...) {
-		std::cerr << "Unknown exception occurred!" << std::endl;
-	}
+	//catch (...) {
+	//	std::cerr << "Unknown exception occurred!" << std::endl;
+	//}
 
 }
 

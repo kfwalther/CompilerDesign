@@ -6,6 +6,12 @@
 
 #include "AstVisitorImpl.h"
 #include "ErrorHandler.h"
+#include "LanguageDefinitions.h"
+#include "AstNode.h"
+#include "SymbolTable.h"
+#include "SymbolTableManager.h"
+#include "Scope.h"
+#include "Compiler.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 AstVisitorImpl::AstVisitorImpl(Compiler * const & compiler) : compiler(compiler) {
@@ -220,8 +226,8 @@ void AstVisitorImpl::visitVar(AstNode * ctx) {
 	// If this is an array-indexed variable, check that it has a matching array variable declaration.
 	if (!ctx->children.empty()) {
 		// TODO: Re-write this symbol table lookup for scoped symbol table.
-		if (this->compiler->getParser()->getSymbolTable()->symbolTable.count(ctx->symbolTableRecord->text)) {
-			auto symbolTableIterator = this->compiler->getParser()->getSymbolTable()->symbolTable.find(ctx->symbolTableRecord->text);
+		if (this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->symbolTable.count(ctx->symbolTableRecord->text)) {
+			auto symbolTableIterator = this->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->symbolTable.find(ctx->symbolTableRecord->text);
 			if (symbolTableIterator->second->kind != SYMBOL_RECORD_KIND::ARRAY) {
 				// Print an error.
 				this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_SYNTAX,

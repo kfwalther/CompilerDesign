@@ -10,11 +10,16 @@
 //#include <fstream>
 
 #include "antlr4-runtime.h"
-#include "TLexer.h"
-#include "TParser.h"
 #include "ErrorHandler.h"
-#include "SemanticAnalyzer.h"
-#include "SymbolTableManager.h"
+
+// Forward declarations.
+namespace AntlrGrammarGenerated {
+	class TParser;
+};
+struct SymbolTableManager;
+struct SemanticAnalyzer;
+struct AstNode;
+
 
 struct Compiler : public std::enable_shared_from_this<Compiler> {
 

@@ -15,8 +15,6 @@ options {
 // Follows directly after the standard #includes in h + cpp files.
 @parser::postinclude {
 /* parser postinclude section */
-//#include "Compiler.h"
-
 // Forward declarations
 struct Compiler;
 

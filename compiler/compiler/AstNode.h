@@ -11,9 +11,10 @@
 #include "CPPUtils.h"
 #include "LanguageDefinitions.h"
 
-
 /** Forward declarations. */
 struct SymbolRecord;
+struct SymbolTable;
+
 
 struct AstNode {
 

@@ -11,6 +11,7 @@
 #include "tree/Trees.h"
 #include "TParser.h"
 
+
 /** Define a default constructor. */
 AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
 {

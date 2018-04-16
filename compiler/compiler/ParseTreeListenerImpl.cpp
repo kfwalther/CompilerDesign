@@ -4,7 +4,10 @@
  */
 
 #include "ParseTreeListenerImpl.h"
+#include "Compiler.h"
+#include "SymbolTable.h"
 #include "SymbolTableManager.h"
+#include "Scope.h"
 
 /** Define the default constructor for the Parse Tree Listener. */
 ParseTreeListenerImpl::ParseTreeListenerImpl(AntlrGrammarGenerated::TParser * const parser) : parser(parser) {
@@ -32,20 +35,20 @@ void ParseTreeListenerImpl::exitEveryRule(antlr4::ParserRuleContext * ctx) {
 
 /** Add any relative operators to the symbol table. */
 void ParseTreeListenerImpl::exitRelop(AntlrGrammarGenerated::TParser::RelopContext * ctx) {
-	this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(
-			dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
+	this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+			std::make_shared<SymbolRecord>(dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 /** Add any additive operators to the symbol table. */
 void ParseTreeListenerImpl::exitAddop(AntlrGrammarGenerated::TParser::AddopContext * ctx) {
-	this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(
-		dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
+	this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+			std::make_shared<SymbolRecord>(dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 /** Add any multiplicative operators to the symbol table. */
 void ParseTreeListenerImpl::exitMulop(AntlrGrammarGenerated::TParser::MulopContext * ctx) {
-	this->parser->getSymbolTable()->insertSymbol(std::make_shared<SymbolRecord>(
-		dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
+	this->parser->compiler->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable->insertSymbol(
+			std::make_shared<SymbolRecord>(dynamic_cast<antlr4::tree::TerminalNode *>(ctx->children.at(0))->getSymbol()));
 }
 
 

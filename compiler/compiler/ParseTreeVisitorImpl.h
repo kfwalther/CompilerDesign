@@ -8,18 +8,25 @@
  */
 
 #include "TParserBaseVisitor.h"
-#include "Compiler.h"
+
+// Forward declarations.
+struct Compiler;
+struct AstNode;
 
  /** Define the ParseTreeVisitorImpl class, which implements the abstract methods defined in TParserBaseVisitor. */
 struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
+	/** Alias some commonly used types for convenience. */
+	typedef AstNode * AstNodePtrType;
+	typedef std::vector<AstNodePtrType> AstNodePtrVectorType;
+
 	/** Define a constructor. */
 	ParseTreeVisitorImpl(Compiler * const compiler);
 
 	/** Define a helper function to support parse tree traversal of list nodes. */
 	template<class EntityType, class EntityListType>
-	AstNode::AstNodePtrVectorType populateChildrenFromList(EntityListType * ctx) {
+	AstNodePtrVectorType populateChildrenFromList(EntityListType * ctx) {
 		// Declare a vector of AstNodes to return.
-		AstNode::AstNodePtrVectorType entityNodeVector;
+		AstNodePtrVectorType entityNodeVector;
 		// Loop through all children (grammar is: Entity | EntityList Entity).
 		for (auto const & curNode : ctx->children) {
 			// If the current node is just a entity, add it to the entityNodeVector.
@@ -29,7 +36,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 			}
 			// Append the entity nodes from the nested EntityList to entityNodeVector.
 			if (antlrcpp::is<EntityListType *>(curNode)) {
-				AstNode::AstNodePtrVectorType otherEntityNodeVector = this->visit(curNode);
+				AstNodePtrVectorType otherEntityNodeVector = this->visit(curNode);
 				// TODO: Figure out if this is the correct order (prepend or append?).
 				entityNodeVector.insert(entityNodeVector.end(), otherEntityNodeVector.begin(), otherEntityNodeVector.end());
 			}

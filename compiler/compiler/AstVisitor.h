@@ -8,7 +8,9 @@
  */
 
 #include "TParserBaseVisitor.h"
-#include "AstNode.h"
+
+// Forward declarations.
+struct AstNode;
 
  /** Define the AstVisitor, an abstract class. */
 struct AstVisitor {

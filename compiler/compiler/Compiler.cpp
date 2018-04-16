@@ -5,6 +5,12 @@
  */
 
 #include "Compiler.h"
+#include "TLexer.h"
+#include "SemanticAnalyzer.h"
+#include "AstNode.h"
+#include "SymbolTableManager.h"
+#include "Scope.h"
+#include "SymbolTable.h"
 #include "ParseTreeListenerImpl.h"
 #include "ParseTreeVisitorImpl.h"
 #include "AstVisitorImpl.h"
@@ -96,7 +102,7 @@ void Compiler::performSemanticAnalysis() {
 	astVisitor->visitProgram(this->ast);
 	// Print the contents of the symbol table, if debugging is enabled. 
 	if (this->debuggingOn) {
-		this->parser->getSymbolTable()->printSymbolTable();
+		this->symbolTableManager->getCurrentScope()->scopedSymbolTable->printSymbolTable();
 	}
 }
 

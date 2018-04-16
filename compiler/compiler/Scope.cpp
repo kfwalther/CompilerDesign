@@ -12,11 +12,12 @@ Scope::Scope(CMINUS_SCOPE_TYPE const & scopeType, unsigned int const id, ScopePt
 		uniqueId(id),
 		enclosingScope(enclosingScope)
 {
+	this->scopedSymbolTable = std::make_shared<SymbolTable>();
 	return;
 };
 
 /** Define a symbol in the current scope. */
-void Scope::newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord) {
+void Scope::newSymbol(Scope::SymbolRecordPtrType const & newSymbolRecord) {
 	newSymbolRecord->setScope(shared_from_this());
 	this->scopedSymbolTable->symbolTable[newSymbolRecord->text] = newSymbolRecord;
 }
