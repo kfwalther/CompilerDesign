@@ -15,8 +15,10 @@ options {
 // Follows directly after the standard #includes in h + cpp files.
 @parser::postinclude {
 /* parser postinclude section */
-#include "SymbolTable.h"
-#include "AstNode.h"
+//#include "Compiler.h"
+
+// Forward declarations
+struct Compiler;
 
 #ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -24,9 +26,7 @@ options {
 }
 
 // Directly preceeds the parser class declaration in the h file (e.g. for additional types etc.).
-@parser::context {
-/* parser context section */
-}
+@parser::context {/* parser context section */}
 
 // Appears in the public part of the parser in the h file.
 // The function bodies could also appear in the definitions section, but I want to maximize
@@ -35,26 +35,14 @@ options {
 @parser::members {
 /* public parser declarations/members section */
 
-/** Define a SymbolTable object to store all of the tokens we encounter. */
-std::shared_ptr<SymbolTable> symbolTable;
-void initializeSymbolTable() { this->symbolTable = std::make_shared<SymbolTable>(); }
-std::shared_ptr<SymbolTable> const getSymbolTable() { return this->symbolTable; }
-void setSymbolTable(std::shared_ptr<SymbolTable> symbolTable) { this->symbolTable = symbolTable; }
+/** Define a pointer to the Compiler object so we can access the symbol table. */
+typedef std::shared_ptr<Compiler> CompilerPtrType;
+CompilerPtrType compiler;
 
-/** Define an AstNode object to hold the root of the AST as it is constructed. */
-std::shared_ptr<AstNode> abstractSyntaxTree;
-
-bool myAction() { return true; }
-bool doesItBlend() { return true; }
-void cleanUp() {}
-void doInit() {}
-void doAfter() {}
 }
 
 // Appears in the private part of the parser in the h file.
-@parser::declarations {
-/* private parser declarations/members section */
-}
+@parser::declarations {/* private parser declarations/members section */}
 
 // Appears in line with the other class member definitions in the cpp file.
 @parser::definitions {/* parser definitions section */}
@@ -84,7 +72,7 @@ void doAfter() {}
 @parser::basevisitormembers {/* base visitor private declarations/members section */}
 @parser::basevisitordefinitions {/* base visitor definitions section */}
 
-// Actual grammar start.
+// Define the BNF grammar rules for the C-Minus language.
 program				: declarationList ;
 declarationList		: declarationList declaration | declaration ;
 declaration			: varDeclaration | funDeclaration ;

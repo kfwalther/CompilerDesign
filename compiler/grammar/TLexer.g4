@@ -20,14 +20,7 @@ lexer grammar TLexer;
 @lexer::context {/* lexer context section */}
 
 // Appears in the public part of the lexer in the h file.
-@lexer::members {/* public lexer declarations section */
-bool canTestFoo() { return true; }
-bool isItFoo() { return true; }
-bool isItBar() { return true; }
-
-void myFooLexerAction() { /* do something*/ };
-void myBarLexerAction() { /* do something*/ };
-}
+@lexer::members {/* public lexer declarations section */}
 
 // Appears in the private part of the lexer in the h file.
 @lexer::declarations {/* private lexer declarations/members section */}
@@ -38,7 +31,7 @@ void myBarLexerAction() { /* do something*/ };
 channels { CommentsChannel, DirectiveChannel }
 
 tokens {
-	DUMMY
+	
 }
 
 /* Define the types of tokens we expect. We must be careful	with the ordering 
@@ -62,8 +55,10 @@ LETTER: [a-zA-Z];
 // Indicate that after beginning of comment, match anything until the comment terminator is encountered.
 COMMENT: '/*' .*? '*/' -> channel(CommentsChannel);
 
+// Define the whitespace token, and push them to a different channel.
 WS: [ \t\r\n]+ -> channel(99);
 
+// Define the rest of the tokens.
 ASSIGN: '=';
 PLUS: '+';
 MINUS: '-';
