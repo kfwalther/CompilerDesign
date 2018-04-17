@@ -144,6 +144,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 /** Define a custom visitor for the FunDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx) {
 	AstNode * funDeclNode = new AstNode(ctx);	
+	// Push new function scope into the SymbolTableManager.
+	this->compiler->getSymbolTableManager()->newScope();
 	// Save the function parameters.
 	AstNode * paramsNode = this->visit(ctx->children.at(3));
 	funDeclNode->children.push_back(paramsNode);
