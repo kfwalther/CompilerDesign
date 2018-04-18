@@ -223,19 +223,6 @@ void AstVisitorImpl::visitVar(AstNode * ctx) {
 	if (ctx->symbolTableRecord->isAssigned) {
 		ctx->isRValue = true;
 	}
-	// If this is an array-indexed variable, check that it has a matching array variable declaration.
-	if (!ctx->children.empty()) {
-		// TODO: Re-write this symbol table lookup for scoped symbol table.
-		if (this->compiler->getSymbolTableForCurrentContext()->symbolTable.count(ctx->symbolTableRecord->text)) {
-			auto symbolTableIterator = this->compiler->getSymbolTableForCurrentContext()->symbolTable.find(ctx->symbolTableRecord->text);
-			if (symbolTableIterator->second->kind != SYMBOL_RECORD_KIND::ARRAY) {
-				// Print an error.
-				this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::INVALID_SYNTAX,
-						ctx->symbolTableRecord->token->getLine(), ("The use of subscripts with variable "
-								+ ctx->symbolTableRecord->text + " requires the variable be an array type."));
-			}
-		}
-	}
 }
 
 // TODO: Evaluate the values at each of these nodes, if possible. Can we do this with separate SemanticAnalysis call and walk?

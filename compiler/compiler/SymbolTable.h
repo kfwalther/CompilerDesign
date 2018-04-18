@@ -81,6 +81,9 @@ struct SymbolTable {
 
 	/** Define a function to insert a new token into the symbol table, if it doesn't already exist. */
 	bool insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbol);
+	/** Define functions to create a new SymbolRecord, initialize it, and insert it into the symbol table. */
+	void emplaceSymbol(antlr4::Token * const & inputToken);
+	void emplaceSymbol(antlr4::Token * const & inputToken, AstNode * const & correspondingAstNode);
 	void printSymbolTable() const;
 	/** Define the map data structure to hold all of the symbol table entries. */
 	SymbolTableType symbolTable;

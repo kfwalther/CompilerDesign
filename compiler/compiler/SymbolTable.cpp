@@ -5,7 +5,7 @@
  */
 
 #include "SymbolTable.h"
-
+#include "AstNode.h"
 
 SymbolRecord::SymbolRecord() {
 	return;
@@ -44,9 +44,43 @@ bool SymbolTable::insertSymbol(SymbolRecord::SymbolRecordPtrType const & newSymb
 		return true;
 	}
 	else {
-		//std::cout << "WARNING: Value " << newSymbol->text << " already in map..." << std::endl;
+		std::cout << "WARNING: Value " << newSymbol->text << " already in map..." << std::endl;
 		return false;
 	}
+}
+
+/** Define a function to create a new SymbolRecord, initialize it, and insert it into the symbol table. */
+void SymbolTable::emplaceSymbol(antlr4::Token * const & inputToken) {
+	// NOTE: Currently only using this function to initialize NUM tokens, because they are consistent.
+	// Save the information for the NUM token.
+	std::shared_ptr<SymbolRecord> numSymbolRecord = std::make_shared<SymbolRecord>(inputToken);
+	// Store some info about this integer number. 
+	numSymbolRecord->type = CMINUS_NATIVE_TYPES::INT;
+	numSymbolRecord->kind = SYMBOL_RECORD_KIND::NUMBER;
+	// Initialize the NUM entry in the symbol table.
+	numSymbolRecord->isDeclared = true;
+	numSymbolRecord->isDefined = true;
+	// Insert the new symbol record into the symbol table.
+	this->insertSymbol(numSymbolRecord);
+}
+
+
+/** Define a function to create a new SymbolRecord, initialize it, and insert it into the symbol table. */
+void SymbolTable::emplaceSymbol(antlr4::Token * const & inputToken, AstNode * const & correspondingAstNode) {
+	// NOTE: Currently only using this function to initialize NUM tokens, because they are consistent.
+	// Save the information for the NUM token.
+	std::shared_ptr<SymbolRecord> numSymbolRecord = std::make_shared<SymbolRecord>(inputToken);
+	// Store some info about this integer number. 
+	numSymbolRecord->type = CMINUS_NATIVE_TYPES::INT;
+	numSymbolRecord->kind = SYMBOL_RECORD_KIND::NUMBER;
+	// Initialize the NUM entry in the symbol table.
+	numSymbolRecord->isDeclared = true;
+	numSymbolRecord->isDefined = true;
+	// Exchange pointers for association of an AST node with this symbol table entry.
+	numSymbolRecord->astNode = std::make_shared<AstNode>(correspondingAstNode);
+	//correspondingAstNode->symbolTableRecord = numSymbolRecord;
+	// Insert the new symbol record into the symbol table.
+	this->insertSymbol(numSymbolRecord);
 }
 
 /** Print out the contents of the symbol table. */

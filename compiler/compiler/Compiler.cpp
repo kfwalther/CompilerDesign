@@ -104,6 +104,7 @@ void Compiler::performSemanticAnalysis() {
 	AstVisitorImpl * astVisitor = new AstVisitorImpl(this);
 	astVisitor->visitProgram(this->ast);
 	// Print the contents of the symbol table, if debugging is enabled. 
+	// TODO: Loop thru all scopes list, and print symbol table for each.
 	if (this->debuggingOn) {
 		this->symbolTableManager->getCurrentScope()->scopedSymbolTable->printSymbolTable();
 	}

@@ -16,7 +16,7 @@ struct ParseTreeListenerImpl : public AntlrGrammarGenerated::TParserBaseListener
 	void exitMulop(AntlrGrammarGenerated::TParser::MulopContext * ctx);
 
 	/** Call this method every time a rule is exited. */
-	void exitEveryRule(antlr4::ParserRuleContext * ctx);
+	//void exitEveryRule(antlr4::ParserRuleContext * ctx);
 
 private:
 	AntlrGrammarGenerated::TParser * parser;
