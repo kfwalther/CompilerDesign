@@ -106,7 +106,10 @@ void Compiler::performSemanticAnalysis() {
 	// Print the contents of the symbol table, if debugging is enabled. 
 	// TODO: Loop thru all scopes list, and print symbol table for each.
 	if (this->debuggingOn) {
-		this->symbolTableManager->getCurrentScope()->scopedSymbolTable->printSymbolTable();
+		for (auto const & curScope : this->symbolTableManager->scopeVector) {
+			curScope->print();
+			curScope->scopedSymbolTable->printSymbolTable();
+		}
 	}
 }
 

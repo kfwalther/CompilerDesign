@@ -29,9 +29,11 @@ struct Scope : public std::enable_shared_from_this<Scope> {
 	void newSymbol(SymbolRecord::SymbolRecordPtrType const & newSymbolRecord);
 	/** Define a function to lookup up a symbol in the current scope, then in the enclosing scopes. */
 	SymbolRecordPtrType const & findSymbol(std::string const & name);
+	/** Define a function to print the scope information. */
+	void print();
+
 	/** Define a unique ID to distinguish this scope. */
 	unsigned int uniqueId;
-
 	/** Define the type of this scope. */
 	CMINUS_SCOPE_TYPE type;
 	/** Define the scope one-level up from this scope (the parent scope). */

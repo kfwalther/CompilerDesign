@@ -151,6 +151,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 	// Exchange pointers for association of this node with this symbol table entry.
 	idSymbolRecord->astNode = std::make_shared<AstNode>(funDeclNode);
 	funDeclNode->symbolTableRecord = idSymbolRecord;
+	// Add the new ID symbol to the symbol table for the current scope.
+	this->compiler->getSymbolTableForCurrentContext()->insertSymbol(idSymbolRecord);
 	// Save the function body compound statement (which may contain recursive calls to this function).
 	AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
 	funDeclNode->children.push_back(compoundStatementNode);

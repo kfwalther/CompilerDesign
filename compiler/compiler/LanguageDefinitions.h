@@ -23,7 +23,7 @@ enum class CMINUS_RULE_TYPE {
 };
 
 /** Define the static list of rule names for the parse tree. */
-static const std::vector<std::string> ParseTreeRuleNames = {
+const std::vector<std::string> ParseTreeRuleNames = {
 	"program", "declarationList", "declaration", "varDeclaration", "typeSpecifier",
 	"funDeclaration", "params", "paramList", "param", "compoundStmt", "localDeclaration",
 	"statementList", "statement", "expressionStmt", "selectionStmt", "iterationStmt",
@@ -49,7 +49,7 @@ enum class CMINUS_NATIVE_TYPES {
 };
 
 /** Define the static list of strings corresponding to the C-Minus native type enumerations. */
-static const std::vector<std::string> CMinusNativeTypeNames = {
+const std::vector<std::string> CMinusNativeTypeNames = {
 	"UNKNOWN", "INT", "VOID"
 };
 
@@ -63,7 +63,7 @@ enum class SYMBOL_RECORD_KIND {
 };
 
 /** Define the static list of strings corresponding to the symbol table entry kind enumerations. */
-static const std::vector<std::string> SymbolRecordKindNames = {
+const std::vector<std::string> SymbolRecordKindNames = {
 	"UNKNOWN", "VARIABLE", "ARRAY", "FUNCTION", "NUMBER"
 };
 
@@ -73,5 +73,8 @@ enum class CMINUS_SCOPE_TYPE {
 	LOCAL = 1
 };
 
+const std::vector<std::string> ScopeTypeNames = {
+	"GLOBAL", "LOCAL"
+};
 
 #endif  /* LANGUAGEDEFINITIONS_H */

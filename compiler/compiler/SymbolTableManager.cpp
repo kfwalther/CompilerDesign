@@ -30,8 +30,10 @@ unsigned int const SymbolTableManager::getNextUniqueId() {
 /** Create a new local scope and add it to the stack. */
 SymbolTableManager::ScopePtrType SymbolTableManager::newScope() {
 	SymbolTableManager::ScopePtrType enclosingScope = this->scopeStack.top();
+	// Create a new local scope with a unique ID.
 	SymbolTableManager::ScopePtrType scope = std::make_shared<Scope>(
 			CMINUS_SCOPE_TYPE::LOCAL, this->getNextUniqueId(), enclosingScope);
+	// Add it to both scope data structures.
 	this->scopeStack.push(scope);
 	this->scopeVector.push_back(scope);
 	return scope;

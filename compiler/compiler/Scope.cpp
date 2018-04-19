@@ -33,8 +33,10 @@ Scope::SymbolRecordPtrType const & Scope::findSymbol(std::string const & symbolN
 	return nullptr; 
 }
 
+/** Define a function to print the scope information. */
+void Scope::print() {
+	std::cout << std::endl << ScopeTypeNames[static_cast<unsigned int>(this->type)] << " SCOPE: ID "
+			<< this->uniqueId;
+}
 
-//std::string const toString() {
-//	return this->scopedSymbolTable.toString();
-//}
 
