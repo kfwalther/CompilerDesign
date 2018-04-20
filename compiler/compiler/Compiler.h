@@ -41,6 +41,7 @@ struct Compiler : public std::enable_shared_from_this<Compiler> {
 	void performSemanticAnalysis();
 
 	/** Define getters and setters for the compiler-related objects in this class. */
+	antlr4::CommonTokenStream * const getTokenStream() const;
 	AntlrGrammarGenerated::TParser * const getParser() const;
 	ErrorHandler * const getErrorHandler() const;
 	SemanticAnalyzer * const getSemanticAnalyzer();

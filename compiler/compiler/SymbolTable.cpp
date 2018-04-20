@@ -78,6 +78,7 @@ void SymbolTable::emplaceSymbol(antlr4::Token * const & inputToken, AstNode * co
 	numSymbolRecord->isDefined = true;
 	// Exchange pointers for association of an AST node with this symbol table entry.
 	numSymbolRecord->astNode = std::make_shared<AstNode>(correspondingAstNode);
+	//TODO: Fix this!
 	//correspondingAstNode->symbolTableRecord = numSymbolRecord;
 	// Insert the new symbol record into the symbol table.
 	this->insertSymbol(numSymbolRecord);

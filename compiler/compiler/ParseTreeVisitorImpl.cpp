@@ -44,24 +44,42 @@ void output(int x) { ... }
 */
 void ParseTreeVisitorImpl::populateLanguageSpecificFunctionInfo() {
 	// Check if this input file used the input() function in the first place.
-	if (this->compiler->getSymbolTableForCurrentContext()->symbolTable.count("input")) {
+	antlr4::Token * inputToken = NULL;
+	for (auto const & curToken : this->compiler->getTokenStream()->getTokens()) {
+		if (curToken->getText() == "input") {
+			inputToken = curToken; break;
+		}
+	}
+	if (inputToken != NULL) {
 		// Update the input() function.
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["input"]->type = CMINUS_NATIVE_TYPES::INT;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["input"]->returnType = CMINUS_NATIVE_TYPES::INT;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["input"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["input"]->isDeclared = true;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["input"]->isDefined = true;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["input"]->numArguments = 0;
+		std::shared_ptr<SymbolRecord> inputFunctionSymbolRecord = std::make_shared<SymbolRecord>(inputToken);
+		inputFunctionSymbolRecord->text = "input";
+		inputFunctionSymbolRecord->type = CMINUS_NATIVE_TYPES::INT;
+		inputFunctionSymbolRecord->returnType = CMINUS_NATIVE_TYPES::INT;
+		inputFunctionSymbolRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		inputFunctionSymbolRecord->isDeclared = true;
+		inputFunctionSymbolRecord->isDefined = true;
+		inputFunctionSymbolRecord->numArguments = 0;
+		this->compiler->getSymbolTableForCurrentContext()->insertSymbol(inputFunctionSymbolRecord);
 	}
 	// Check if this input file used the output() function in the first place.
-	if (this->compiler->getSymbolTableForCurrentContext()->symbolTable.count("output")) {
+	antlr4::Token * outputToken = NULL;
+	for (auto const & curToken : this->compiler->getTokenStream()->getTokens()) {
+		if (curToken->getText() == "output") {
+			outputToken = curToken; break;
+		}
+	}
+	if (outputToken != NULL) {
 		// Update the output() function.
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["output"]->type = CMINUS_NATIVE_TYPES::VOID;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["output"]->returnType = CMINUS_NATIVE_TYPES::VOID;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["output"]->kind = SYMBOL_RECORD_KIND::FUNCTION;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["output"]->isDeclared = true;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["output"]->isDefined = true;
-		this->compiler->getSymbolTableForCurrentContext()->symbolTable["output"]->numArguments = 1;
+		std::shared_ptr<SymbolRecord> outputFunctionSymbolRecord = std::make_shared<SymbolRecord>(outputToken);
+		outputFunctionSymbolRecord->text = "output";
+		outputFunctionSymbolRecord->type = CMINUS_NATIVE_TYPES::VOID;
+		outputFunctionSymbolRecord->returnType = CMINUS_NATIVE_TYPES::VOID;
+		outputFunctionSymbolRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
+		outputFunctionSymbolRecord->isDeclared = true;
+		outputFunctionSymbolRecord->isDefined = true;
+		outputFunctionSymbolRecord->numArguments = 1;
+		this->compiler->getSymbolTableForCurrentContext()->insertSymbol(outputFunctionSymbolRecord);
 	}
 }
 
@@ -432,10 +450,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
 	AstNode * callNode = new AstNode(ctx);
 	// Get the function name (ID) and ensure it is defined in this scope.
-	auto matchingSymbol = this->compiler->getSymbolTableManager()->getCurrentScope()->findSymbol(ctx->ID()->getText());
-	if (matchingSymbol) {
+	if (this->compiler->getSymbolTableManager()->getCurrentScope()->findSymbol(ctx->ID()->getText())) {
 		// Exchange pointers for association of this node with this symbol table entry.
-		callNode->symbolTableRecord = matchingSymbol;
+		callNode->symbolTableRecord = this->compiler->getSymbolTableManager()->getCurrentScope()->findSymbol(ctx->ID()->getText());
 	} else {
 		// Otherwise, this function is not yet declared.
 		this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
@@ -445,6 +462,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::Ca
 	AstNode::AstNodePtrVectorType argumentsVector = this->visit(ctx->children.at(2));
 	callNode->children = argumentsVector;
 	// Check if the actual parameters (arguments) here match type composition of formal parameters in function declaration.
+	// TODO: This will fail if argument to function call is another function call....
 	this->validateFunctionParameterTypes(callNode);
 	// Set the parents of this node's children.
 	this->updateParents(callNode);

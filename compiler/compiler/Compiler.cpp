@@ -27,6 +27,9 @@ Compiler::Compiler(std::string const & inputFile, std::ifstream & inputFileStrea
 };
 
 /** Define getters and setters for the compiler-related objects in this class. */
+CommonTokenStream * const Compiler::getTokenStream() const {
+	return this->tokenStream;
+}
 TParser * const Compiler::getParser() const {
 	return this->parser;
 }
@@ -46,11 +49,11 @@ void Compiler::tokenizeInputFile() {
 	this->tokenStream = new CommonTokenStream(
 			new TLexer(
 					new ANTLRInputStream(this->inputFileStream)));
-	tokenStream->fill();
+	this->tokenStream->fill();
 	// Print out the token if debugging is enabled.
 	if (this->debuggingOn) {
 		std::cout << "*****TOKENS*****" << std::endl;
-		for (auto token : tokenStream->getTokens()) {
+		for (auto token : this->tokenStream->getTokens()) {
 			std::cout << token->toString() << std::endl;
 		}
 	}
