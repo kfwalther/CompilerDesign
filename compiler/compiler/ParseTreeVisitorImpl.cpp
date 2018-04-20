@@ -44,42 +44,34 @@ void output(int x) { ... }
 */
 void ParseTreeVisitorImpl::populateLanguageSpecificFunctionInfo() {
 	// Check if this input file used the input() function in the first place.
-	antlr4::Token * inputToken = NULL;
 	for (auto const & curToken : this->compiler->getTokenStream()->getTokens()) {
 		if (curToken->getText() == "input") {
-			inputToken = curToken; break;
+			// Update the input() function.
+			std::shared_ptr<SymbolRecord> inputFunctionSymbolRecord = std::make_shared<SymbolRecord>(curToken);
+			inputFunctionSymbolRecord->text = "input";
+			inputFunctionSymbolRecord->type = CMINUS_NATIVE_TYPES::INT;
+			inputFunctionSymbolRecord->returnType = CMINUS_NATIVE_TYPES::INT;
+			inputFunctionSymbolRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
+			inputFunctionSymbolRecord->isDeclared = true;
+			inputFunctionSymbolRecord->isDefined = true;
+			inputFunctionSymbolRecord->numArguments = 0;
+			this->compiler->getSymbolTableForCurrentContext()->insertSymbol(inputFunctionSymbolRecord);
 		}
-	}
-	if (inputToken != NULL) {
-		// Update the input() function.
-		std::shared_ptr<SymbolRecord> inputFunctionSymbolRecord = std::make_shared<SymbolRecord>(inputToken);
-		inputFunctionSymbolRecord->text = "input";
-		inputFunctionSymbolRecord->type = CMINUS_NATIVE_TYPES::INT;
-		inputFunctionSymbolRecord->returnType = CMINUS_NATIVE_TYPES::INT;
-		inputFunctionSymbolRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
-		inputFunctionSymbolRecord->isDeclared = true;
-		inputFunctionSymbolRecord->isDefined = true;
-		inputFunctionSymbolRecord->numArguments = 0;
-		this->compiler->getSymbolTableForCurrentContext()->insertSymbol(inputFunctionSymbolRecord);
 	}
 	// Check if this input file used the output() function in the first place.
-	antlr4::Token * outputToken = NULL;
 	for (auto const & curToken : this->compiler->getTokenStream()->getTokens()) {
 		if (curToken->getText() == "output") {
-			outputToken = curToken; break;
+			// Update the output() function.
+			std::shared_ptr<SymbolRecord> outputFunctionSymbolRecord = std::make_shared<SymbolRecord>(curToken);
+			outputFunctionSymbolRecord->text = "output";
+			outputFunctionSymbolRecord->type = CMINUS_NATIVE_TYPES::VOID;
+			outputFunctionSymbolRecord->returnType = CMINUS_NATIVE_TYPES::VOID;
+			outputFunctionSymbolRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
+			outputFunctionSymbolRecord->isDeclared = true;
+			outputFunctionSymbolRecord->isDefined = true;
+			outputFunctionSymbolRecord->numArguments = 1;
+			this->compiler->getSymbolTableForCurrentContext()->insertSymbol(outputFunctionSymbolRecord);
 		}
-	}
-	if (outputToken != NULL) {
-		// Update the output() function.
-		std::shared_ptr<SymbolRecord> outputFunctionSymbolRecord = std::make_shared<SymbolRecord>(outputToken);
-		outputFunctionSymbolRecord->text = "output";
-		outputFunctionSymbolRecord->type = CMINUS_NATIVE_TYPES::VOID;
-		outputFunctionSymbolRecord->returnType = CMINUS_NATIVE_TYPES::VOID;
-		outputFunctionSymbolRecord->kind = SYMBOL_RECORD_KIND::FUNCTION;
-		outputFunctionSymbolRecord->isDeclared = true;
-		outputFunctionSymbolRecord->isDefined = true;
-		outputFunctionSymbolRecord->numArguments = 1;
-		this->compiler->getSymbolTableForCurrentContext()->insertSymbol(outputFunctionSymbolRecord);
 	}
 }
 
@@ -146,7 +138,9 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 /** Define a custom visitor for the FunDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx) {
 	AstNode * funDeclNode = new AstNode(ctx);
-	// Save the function parameters (in the current scope).
+	// Push a new function scope into the SymbolTableManager, for function params and subsequent declarations.
+	this->compiler->getSymbolTableManager()->newScope();
+	// Save the function parameters (in nested scope).
 	AstNode * paramsNode = this->visit(ctx->children.at(3));
 	funDeclNode->children.push_back(paramsNode);
 	// Create a new symbol table record for the function ID information.
@@ -169,8 +163,8 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::T
 	// Exchange pointers for association of this node with this symbol table entry.
 	idSymbolRecord->astNode = std::make_shared<AstNode>(funDeclNode);
 	funDeclNode->symbolTableRecord = idSymbolRecord;
-	// Add the new ID symbol to the symbol table for the current scope.
-	this->compiler->getSymbolTableForCurrentContext()->insertSymbol(idSymbolRecord);
+	// Add the new ID symbol to the symbol table for the enclosing scope (function declaration is one scope above its params).
+	this->compiler->getSymbolTableManager()->getCurrentScope()->enclosingScope->scopedSymbolTable->insertSymbol(idSymbolRecord);
 	// Save the function body compound statement (which may contain recursive calls to this function).
 	AstNode * compoundStatementNode = this->visit(ctx->children.at(5));
 	funDeclNode->children.push_back(compoundStatementNode);
@@ -239,8 +233,6 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 
 /** Define a custom visitor for the compound statement. */
 antlrcpp::Any ParseTreeVisitorImpl::visitCompoundStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx) {
-	// Push a new function scope into the SymbolTableManager, for declarations in this compound statement.
-	this->compiler->getSymbolTableManager()->newScope();
 	AstNode * compoundStatementNode = new AstNode(ctx);
 	// Build a local declarations node, whose children are variable declarations.
 	AstNode * localDeclsNode = new AstNode(ctx->children.at(1)); 
