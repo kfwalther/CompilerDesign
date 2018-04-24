@@ -1,0 +1,9 @@
+/** 
+ * @author: Walther
+ * @brief: This test case is valid code but used to test simple LLVM generation.
+ */
+
+void main(void) {
+	int x;
+	x = 5 * 4;
+}

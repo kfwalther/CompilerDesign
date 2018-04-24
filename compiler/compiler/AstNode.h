@@ -14,7 +14,9 @@
 /** Forward declarations. */
 struct SymbolRecord;
 struct SymbolTable;
-
+namespace llvm {
+	class Value;
+}
 
 struct AstNode {
 
@@ -35,6 +37,8 @@ struct AstNode {
 
 	/** Initialize some of the data members. */
 	void initialize(antlr4::tree::ParseTree * inputNode);
+	/** Generate the LLVM code for this node. */
+	llvm::Value * generateLLVM();
 
 	bool hasToken() const;
 	std::string const getString() const;
@@ -56,6 +60,8 @@ struct AstNode {
 	CMINUS_NATIVE_TYPES evaluatedType;
 	/** Define the effective value this node will be evaluated as. */
 	int evaluatedValue;
+	/** Define the LLVM value this node will have. */
+	//llvm::Value * llvmValue;
 };
 
 

@@ -248,6 +248,8 @@ void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	this->verifyOperandUsability(ctx);
 	// Ensure the operands for the mult/division operation are INT types.
 	this->verifyMathOperandTypes(ctx);
+	// TODO: Save these LLVM instructions in struct.
+	auto temp = ctx->generateLLVM();
 }
 
 void AstVisitorImpl::visitFactor(AstNode * ctx) {

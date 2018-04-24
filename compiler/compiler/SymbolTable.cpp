@@ -76,10 +76,10 @@ void SymbolTable::emplaceSymbol(antlr4::Token * const & inputToken, AstNode * co
 	// Initialize the NUM entry in the symbol table.
 	numSymbolRecord->isDeclared = true;
 	numSymbolRecord->isDefined = true;
+	numSymbolRecord->value = std::atoi(inputToken->getText().c_str());
 	// Exchange pointers for association of an AST node with this symbol table entry.
 	numSymbolRecord->astNode = std::make_shared<AstNode>(correspondingAstNode);
-	//TODO: Fix this!
-	//correspondingAstNode->symbolTableRecord = numSymbolRecord;
+	correspondingAstNode->symbolTableRecord = numSymbolRecord;
 	// Insert the new symbol record into the symbol table.
 	this->insertSymbol(numSymbolRecord);
 }

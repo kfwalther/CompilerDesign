@@ -7,6 +7,23 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Find the LLVM package built locally on this machine.
+if(NOT DEFINED LLVM_DIR)
+	set(LLVM_DIR "" "Directory containing LLVMConfig.cmake configuration file.")
+	message(FATAL_ERROR "Provide the path to the LLVMConfig.cmake configuration file, typically generated during a local build of the LLVM C++ code. Populate the LLVM_DIR variable with this path.")
+else(NOT DEFINED LLVM_DIR)
+	if(NOT EXISTS "${LLVM_DIR}/LLVMConfig.cmake")
+		message(FATAL_ERROR "The path provided in LLVM_DIR does not contain the file LLVMConfig.cmake. Please provide a valid path for LLVM_DIR which contains this file.")
+	endif(NOT EXISTS "${LLVM_DIR}/LLVMConfig.cmake")
+endif(NOT DEFINED LLVM_DIR)
+find_package(LLVM REQUIRED CONFIG)
+# Find some LLVM-specific libraries.
+llvm_map_components_to_libnames(llvm_libs support core irreader codegen)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "LLVM Libs: ${llvm_libs}")
+#set(LLVM_LIBRARIES ${llvm_libs} CACHE "LLVM Libraries on local machine.")
+
 set(ANTLR4_GRAMMAR_GENERATED_SRCS
    ${PROJECT_SOURCE_DIR}/compiler/generated/TLexer.cpp 
    ${PROJECT_SOURCE_DIR}/compiler/generated/TParser.cpp
@@ -53,6 +70,7 @@ include_directories(
 	${PROJECT_SOURCE_DIR}/antlr4/runtime/src/support
 	${PROJECT_SOURCE_DIR}/compiler/generated
 	${PROJECT_SOURCE_DIR}/compiler
+	${LLVM_INCLUDE_DIRS}
 )
 
 set(ANTLR4_GRAMMAR_LOCAL_HDRS 
@@ -62,6 +80,7 @@ set(ANTLR4_GRAMMAR_LOCAL_HDRS
 	${PROJECT_SOURCE_DIR}/compiler/Compiler.h
 	${PROJECT_SOURCE_DIR}/compiler/ErrorHandler.h
 	${PROJECT_SOURCE_DIR}/compiler/LanguageDefinitions.h
+	${PROJECT_SOURCE_DIR}/compiler/LLVMHandler.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.h
 	${PROJECT_SOURCE_DIR}/compiler/Scope.h
@@ -75,6 +94,7 @@ set(ANTLR4_GRAMMAR_LOCAL_SRCS
 	${PROJECT_SOURCE_DIR}/compiler/AstVisitorImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/Compiler.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ErrorHandler.cpp
+	${PROJECT_SOURCE_DIR}/compiler/LLVMHandler.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeListenerImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/ParseTreeVisitorImpl.cpp
 	${PROJECT_SOURCE_DIR}/compiler/Scope.cpp
@@ -136,7 +156,7 @@ endif()
 add_dependencies(ANTLR4GrammarTest GenerateParser)
 
 # NOTE: Cant change this to shared, program wont run. Can't use this with Visitors either...
-target_link_libraries(ANTLR4GrammarTest antlr4_shared)
+target_link_libraries(ANTLR4GrammarTest antlr4_shared ${llvm_libs})
 
 # Copy the dependent libraries to the executable directory after the build completes.
 add_custom_command(TARGET ANTLR4GrammarTest POST_BUILD

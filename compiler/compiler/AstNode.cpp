@@ -11,6 +11,14 @@
 #include "tree/Trees.h"
 #include "TParser.h"
 
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/ADT/APInt.h>
+
+static llvm::LLVMContext TheContext;
+static llvm::IRBuilder<> Builder(TheContext);
+//static std::unique_ptr<Module> TheModule;
+//static std::map<std::string, Value *> NamedValues;
 
 /** Define a default constructor. */
 AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
@@ -84,6 +92,36 @@ bool AstNode::hasToken() const {
 	}
 	else {
 		return false;
+	}
+}
+
+/** Define a function to generate LLVM code for this AST node. */
+llvm::Value * AstNode::generateLLVM() {
+/*	if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
+
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {
+
+	}
+	else*/ if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
+		auto lhs = this->children.at(0)->generateLLVM();
+		auto rhs = this->children.at(1)->generateLLVM();
+		if (this->token->getText() == "+") {
+			return Builder.CreateAdd(lhs, rhs, "addtmp");
+		}
+		else if (this->token->getText() == "-") {
+			return Builder.CreateSub(lhs, rhs, "subtmp");
+		}
+		else if (this->token->getText() == "*") {
+			return Builder.CreateMul(lhs, rhs, "multmp");
+		}
+		else if (this->token->getText() == "/") {
+			return Builder.CreateFDiv(lhs, rhs, "divtmp");
+		}
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleFactor) {
+		std::cout << this->symbolTableRecord->value << std::endl;
+		return llvm::ConstantInt::get(TheContext, llvm::APInt(32, this->symbolTableRecord->value, true));
 	}
 }
 
