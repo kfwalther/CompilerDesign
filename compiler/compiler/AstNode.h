@@ -14,6 +14,7 @@
 /** Forward declarations. */
 struct SymbolRecord;
 struct SymbolTable;
+struct Compiler;
 namespace llvm {
 	class Value;
 }
@@ -29,8 +30,8 @@ struct AstNode {
 
 	/** Define the constructors. */
 	AstNode(CMINUS_RULE_TYPE const ruleType);
-	AstNode(antlr4::tree::ParseTree * inputNode);
-	AstNode(antlr4::tree::ParseTree * inputNode, AstNodePtrType const & parentNode);
+	AstNode(antlr4::tree::ParseTree * inputNode, Compiler * const & compiler);
+	AstNode(antlr4::tree::ParseTree * inputNode, AstNodePtrType const & parentNode, Compiler * const & compiler);
 	/** Define a copy constructor. */
 	AstNode(AstNode * const & otherAstNode);
 	~AstNode();
@@ -50,6 +51,8 @@ struct AstNode {
 	TokenPtrType token;
 	/** Store a pointer to the symbol table record this corresponds to. */
 	SymbolRecordPtrType symbolTableRecord;
+	/** Define pointer to the Compiler. */
+	Compiler * compiler;
 	/** Define booleans to indicate when this node is a variable, and is an L-value or R-value. */
 	bool isLValue = false;
 	bool isRValue = false;

@@ -10,16 +10,10 @@
 #include "SymbolTable.h"
 #include "tree/Trees.h"
 #include "TParser.h"
+#include "Compiler.h"
+#include "LLVMHandler.h"
 
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Module.h>
 #include <llvm/ADT/APInt.h>
-
-static llvm::LLVMContext TheContext;
-static llvm::IRBuilder<> Builder(TheContext);
-static std::unique_ptr<llvm::Module> TheModule;
-//static std::map<std::string, Value *> NamedValues;
 
 /** Define a default constructor. */
 AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
@@ -27,14 +21,15 @@ AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
 	return;
 };
 
-AstNode::AstNode(antlr4::tree::ParseTree * inputNode) : token(NULL)
+AstNode::AstNode(antlr4::tree::ParseTree * inputNode, Compiler * const & compiler) : token(NULL), compiler(compiler)
 {
 	// Initialize some members. 
 	this->initialize(inputNode);
 	return;
 };
 
-AstNode::AstNode(antlr4::tree::ParseTree * inputNode, AstNodePtrType const & parentNode) : token(NULL), parent(parentNode)
+AstNode::AstNode(antlr4::tree::ParseTree * inputNode, 
+		AstNodePtrType const & parentNode, Compiler * const & compiler) : token(NULL), parent(parentNode), compiler(compiler)
 {
 	// Initialize some members
 	this->initialize(inputNode);
@@ -104,25 +99,27 @@ llvm::Value * AstNode::generateLLVM() {
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {
 
 	}
-	else*/ if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
+	else*/ 
+	if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
+
 		auto lhs = this->children.at(0)->generateLLVM();
 		auto rhs = this->children.at(1)->generateLLVM();
 		if (this->token->getText() == "+") {
-			return Builder.CreateAdd(lhs, rhs, "addtmp");
+			return this->compiler->getLLVMHandler()->builder->CreateAdd(lhs, rhs, "addtmp");
 		}
 		else if (this->token->getText() == "-") {
-			return Builder.CreateSub(lhs, rhs, "subtmp");
+			return this->compiler->getLLVMHandler()->builder->CreateSub(lhs, rhs, "subtmp");
 		}
 		else if (this->token->getText() == "*") {
-			return Builder.CreateMul(lhs, rhs, "multmp");
+			return this->compiler->getLLVMHandler()->builder->CreateMul(lhs, rhs, "multmp");
 		}
 		else if (this->token->getText() == "/") {
-			return Builder.CreateFDiv(lhs, rhs, "divtmp");
+			return this->compiler->getLLVMHandler()->builder->CreateFDiv(lhs, rhs, "divtmp");
 		}
 	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleFactor) {
 		std::cout << this->symbolTableRecord->value << std::endl;
-		return llvm::ConstantInt::get(TheContext, llvm::APInt(32, this->symbolTableRecord->value, true));
+		return llvm::ConstantInt::get(*this->compiler->getLLVMHandler()->context, llvm::APInt(32, this->symbolTableRecord->value, true));
 	}
 }
 

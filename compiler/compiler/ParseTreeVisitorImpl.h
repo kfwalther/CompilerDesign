@@ -47,7 +47,7 @@ struct ParseTreeVisitorImpl : public AntlrGrammarGenerated::TParserBaseVisitor {
 	/** Define a helper function to visit and collapse the expression/term nodes of the parse tree into the AST. */
 	template<class EntityType>
 	AstNode * visitAndCollapseExpressionNodes(EntityType * ctx) {
-		AstNode * curExpNode = new AstNode(ctx);
+		AstNode * curExpNode = new AstNode(ctx, this->compiler);
 		// Check if this has a relative/additive/mult operation to process.
 		if (ctx->children.size() > 1) {
 			// Get the specific operator.

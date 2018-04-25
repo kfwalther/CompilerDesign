@@ -81,7 +81,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitProgram(AntlrGrammarGenerated::TParser:
 	/** Before starting AST, populate info about language-specific functions, input() and output(). */
 	this->populateLanguageSpecificFunctionInfo();
 	/** Create the root node of the AST, the ProgramContext rule node. */
-	AstNode * programNode = new AstNode(ctx);
+	AstNode * programNode = new AstNode(ctx, this->compiler);
 	/** Set the vector of Declaration nodes as the children of the Program node. */
 	AstNode::AstNodePtrVectorType declNodeVector = this->visitChildren(ctx);
 	programNode->children = declNodeVector;
@@ -98,7 +98,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitDeclarationList(AntlrGrammarGenerated::
 
 /** Define a custom visitor for the VarDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::TParser::VarDeclarationContext * ctx) {
-	AstNode * varDeclNode = new AstNode(ctx);
+	AstNode * varDeclNode = new AstNode(ctx, this->compiler);
 	// Save the information for the ID.
 	std::shared_ptr<SymbolRecord> idSymbolRecord = std::make_shared<SymbolRecord>(ctx->ID()->getSymbol());
 	// Declaration and definition of variables of primitive types is synonymous.
@@ -137,7 +137,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitVarDeclaration(AntlrGrammarGenerated::T
 
 /** Define a custom visitor for the FunDeclaration visitor. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFunDeclaration(AntlrGrammarGenerated::TParser::FunDeclarationContext * ctx) {
-	AstNode * funDeclNode = new AstNode(ctx);
+	AstNode * funDeclNode = new AstNode(ctx, this->compiler);
 	// Push a new function scope into the SymbolTableManager, for function params and subsequent declarations.
 	this->compiler->getSymbolTableManager()->newScope();
 	// Save the function parameters (in nested scope).
@@ -180,7 +180,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitTypeSpecifier(AntlrGrammarGenerated::TP
 
 /** Define a custom visitor for the params node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitParams(AntlrGrammarGenerated::TParser::ParamsContext * ctx) {
-	AstNode * paramsNode = new AstNode(ctx);
+	AstNode * paramsNode = new AstNode(ctx, this->compiler);
 	// Check if we have any parameters, a terminal node will indicate VOID or no params.
 	if (!antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
 		AstNode::AstNodePtrVectorType childNodes = this->visit(ctx->children.at(0));
@@ -199,7 +199,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParamList(AntlrGrammarGenerated::TParse
 
 /** Define a custom visitor for the params node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::ParamContext * ctx) {
-	AstNode * paramNode = new AstNode(ctx);
+	AstNode * paramNode = new AstNode(ctx, this->compiler);
 	// Save the information for the ID.
 	std::shared_ptr<SymbolRecord> idSymbolRecord = std::make_shared<SymbolRecord>(ctx->ID()->getSymbol());
 	// Declaration and definition of parameters of primitive types is synonymous.
@@ -233,16 +233,16 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 
 /** Define a custom visitor for the compound statement. */
 antlrcpp::Any ParseTreeVisitorImpl::visitCompoundStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx) {
-	AstNode * compoundStatementNode = new AstNode(ctx);
+	AstNode * compoundStatementNode = new AstNode(ctx, this->compiler);
 	// Build a local declarations node, whose children are variable declarations.
-	AstNode * localDeclsNode = new AstNode(ctx->children.at(1)); 
+	AstNode * localDeclsNode = new AstNode(ctx->children.at(1), this->compiler); 
 	AstNode::AstNodePtrVectorType varDeclsVector = this->visit(ctx->children.at(1));
 	localDeclsNode->children = varDeclsVector;
 	// Set the parents of this localDeclsNode's children.
 	this->updateParents(localDeclsNode);
 	compoundStatementNode->children.push_back(localDeclsNode);
 	// Build a statement list node, whose children are function statements.
-	AstNode * statementListNode = new AstNode(ctx->children.at(2));
+	AstNode * statementListNode = new AstNode(ctx->children.at(2), this->compiler);
 	AstNode::AstNodePtrVectorType statementsVector = this->visit(ctx->children.at(2));
 	statementListNode->children = statementsVector;
 	// Set the parents of this statementListNode's children.
@@ -281,7 +281,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::T
 	// Check if this is an empty expression.
 	if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children.at(0))) {
 		// Return an AstNode representing an empty expression statement. This gets pruned out of the tree in AST walk.
-		return new AstNode(ctx);
+		return new AstNode(ctx, this->compiler);
 	}
 	// Otherwise, visit the expression and save its information.
 	else {
@@ -290,7 +290,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpressionStmt(AntlrGrammarGenerated::T
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitSelectionStmt(AntlrGrammarGenerated::TParser::SelectionStmtContext * ctx) {
-	AstNode * selectionStatementNode = new AstNode(ctx);
+	AstNode * selectionStatementNode = new AstNode(ctx, this->compiler);
 	// Check number of children to see if an ELSE is used.
 	if (ctx->children.size() == 5) {
 		// Save expression and statement as children.
@@ -310,7 +310,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitSelectionStmt(AntlrGrammarGenerated::TP
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TParser::IterationStmtContext * ctx) {
-	AstNode * iterationStatementNode = new AstNode(ctx);
+	AstNode * iterationStatementNode = new AstNode(ctx, this->compiler);
 	// Save expression and statement.
 	iterationStatementNode->children.push_back(this->visit(ctx->children.at(2)));
 	iterationStatementNode->children.push_back(this->visit(ctx->children.at(4)));
@@ -320,7 +320,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitIterationStmt(AntlrGrammarGenerated::TP
 }
 
 antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TParser::ReturnStmtContext * ctx) {
-	AstNode * returnNode = new AstNode(ctx);
+	AstNode * returnNode = new AstNode(ctx, this->compiler);
 	// Check if there is any return value.
 	if (ctx->children.size() == 3) {
 		// Visit the expression node and save return expression as child.
@@ -338,7 +338,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitReturnStmt(AntlrGrammarGenerated::TPars
 
 /** Define a custom visitor for the Expression node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TParser::ExpressionContext * ctx) {
-	AstNode * expressionNode = new AstNode(ctx);
+	AstNode * expressionNode = new AstNode(ctx, this->compiler);
 	// Check if this is an assignment expression (3 children).
 	if (ctx->children.size() == 3) {
 		// Visit the var node.
@@ -367,7 +367,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 
 /** Define a custom visitor for the variable node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitVar(AntlrGrammarGenerated::TParser::VarContext * ctx) {
-	AstNode * varNode = new AstNode(ctx);
+	AstNode * varNode = new AstNode(ctx, this->compiler);
 	// Lookup this variable in the current scope's symbol table, then in enclosing scopes.
 	auto matchingSymbol = this->compiler->getSymbolTableManager()->getCurrentScope()->findSymbol(ctx->ID()->getText());
 	if (matchingSymbol) {
@@ -418,7 +418,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitTerm(AntlrGrammarGenerated::TParser::Te
 
 /** Define a custom visitor for the factor node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::FactorContext * ctx) {
-	AstNode * factorNode = new AstNode(ctx);
+	AstNode * factorNode = new AstNode(ctx, this->compiler);
 	// Check for a nested expression (nested in parentheses).
 	if (ctx->children.size() > 1) {
 		// Visit the nested expression node, saving it in place of this node.
@@ -440,7 +440,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitFactor(AntlrGrammarGenerated::TParser::
 
 /** Define a custom visitor for the call node. */
 antlrcpp::Any ParseTreeVisitorImpl::visitCall(AntlrGrammarGenerated::TParser::CallContext * ctx) {
-	AstNode * callNode = new AstNode(ctx);
+	AstNode * callNode = new AstNode(ctx, this->compiler);
 	// Get the function name (ID) and ensure it is defined in this scope.
 	if (this->compiler->getSymbolTableManager()->getCurrentScope()->findSymbol(ctx->ID()->getText())) {
 		// Exchange pointers for association of this node with this symbol table entry.
