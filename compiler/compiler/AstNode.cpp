@@ -92,6 +92,8 @@ bool AstNode::hasToken() const {
 }
 
 /** Define a function to generate LLVM code for this AST node. */
+/** The code in this function was heavily influenced by Kaleidoscope example on LLVM API site: 
+	https://llvm.org/docs/tutorial/index.html */
 llvm::Value * AstNode::generateLLVM() {
 /*	if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
 
@@ -101,7 +103,6 @@ llvm::Value * AstNode::generateLLVM() {
 	}
 	else*/ 
 	if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
-
 		auto lhs = this->children.at(0)->generateLLVM();
 		auto rhs = this->children.at(1)->generateLLVM();
 		if (this->token->getText() == "+") {
@@ -120,6 +121,27 @@ llvm::Value * AstNode::generateLLVM() {
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleFactor) {
 		std::cout << this->symbolTableRecord->value << std::endl;
 		return llvm::ConstantInt::get(*this->compiler->getLLVMHandler()->context, llvm::APInt(32, this->symbolTableRecord->value, true));
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleCall) {
+		// Look up the name in the global module table.
+		llvm::Function * CalleeF = this->compiler->getLLVMHandler()->llvmModule->getFunction(this->symbolTableRecord->text);
+		if (!CalleeF) {
+			std::cerr << "ERROR: LLVM: Unknown function referenced" << std::endl;
+			return nullptr;
+		}
+		// If argument mismatch error.
+		if (CalleeF->arg_size() != this->symbolTableRecord->numArguments) {
+			std::cerr << "ERROR: LLVM: Incorrect # arguments passed" << std::endl;
+			return nullptr;
+		}
+		std::vector<llvm::Value *> ArgsV;
+		for (unsigned i = 0, e = this->symbolTableRecord->numArguments; i != e; ++i) {
+			ArgsV.push_back(this->children.at(i)->generateLLVM());
+			if (!ArgsV.back()) {
+				return nullptr;
+			}
+		}
+		return this->compiler->getLLVMHandler()->builder->CreateCall(CalleeF, ArgsV, "calltmp");
 	}
 }
 

@@ -15,7 +15,6 @@
 #include "LLVMHandler.h"
 
 #include <llvm/IR/Value.h>
-#include <llvm/Support/raw_ostream.h>
 
 /** Define the default constructor for the Parse Tree Listener. */
 AstVisitorImpl::AstVisitorImpl(Compiler * const & compiler) : compiler(compiler) {
@@ -252,12 +251,8 @@ void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	this->verifyOperandUsability(ctx);
 	// Ensure the operands for the mult/division operation are INT types.
 	this->verifyMathOperandTypes(ctx);
-	// TODO: Save these LLVM instructions in struct.
-	std::string temp;
-	llvm::raw_string_ostream rsos(temp);
-	rsos << ctx->generateLLVM();
-	rsos.flush();
-	this->compiler->getLLVMHandler()->llvmList.push_back(temp);
+	// Save the generated LLVM.
+	this->compiler->getLLVMHandler()->saveLLVMInstruction(ctx->generateLLVM());
 }
 
 void AstVisitorImpl::visitFactor(AstNode * ctx) {
@@ -268,6 +263,8 @@ void AstVisitorImpl::visitCall(AstNode * ctx) {
 	// Look up the function name, and get its return type.
 	ctx->evaluatedType = ctx->symbolTableRecord->returnType;
 	this->visitChildren(ctx);
+	// Generate and save LLVM for the call.
+	this->compiler->getLLVMHandler()->saveLLVMInstruction(ctx->generateLLVM());
 }
 
 void AstVisitorImpl::visitArgs(AstNode * ctx) {

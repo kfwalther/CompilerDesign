@@ -26,6 +26,8 @@ struct LLVMHandler {
 	LLVMHandler();
 	~LLVMHandler();
 	
+	/** Define a function to save the LLVM Value as a string in the list. */
+	void saveLLVMInstruction(llvm::Value * llvmValue);
 	/** Define a function to print the generated LLVM strings. */
 	void printAll();
 	/** Define some LLVM-specific constructs to support IR generation. */
