@@ -95,14 +95,63 @@ bool AstNode::hasToken() const {
 /** The code in this function was heavily influenced by Kaleidoscope example on LLVM API site: 
 	https://llvm.org/docs/tutorial/index.html */
 llvm::Value * AstNode::generateLLVM() {
-/*	if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
+	//if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
 
-	}
-	else if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {
+	//}
+	if (this->ruleType == CMINUS_RULE_TYPE::RuleFunDeclaration) {
+		// TODO: START HERE: Clean this up!
+		//Function *PrototypeAST::codegen() {
+		//	// Make the function type:  double(double,double) etc.
+		//	std::vector<Type *> Doubles(Args.size(), Type::getDoubleTy(TheContext));
+		//	FunctionType *FT =
+		//		FunctionType::get(Type::getDoubleTy(TheContext), Doubles, false);
 
+		//	Function *F =
+		//		Function::Create(FT, Function::ExternalLinkage, Name, TheModule.get());
+
+		//	// Set names for all arguments.
+		//	unsigned Idx = 0;
+		//	for (auto &Arg : F->args())
+		//		Arg.setName(Args[Idx++]);
+
+		//	return F;
+		//}
+
+		//Function *FunctionAST::codegen() {
+		//	// First, check for an existing function from a previous 'extern' declaration.
+		//	Function *TheFunction = TheModule->getFunction(Proto->getName());
+
+		//	if (!TheFunction)
+		//		TheFunction = Proto->codegen();
+
+		//	if (!TheFunction)
+		//		return nullptr;
+
+		//	// Create a new basic block to start insertion into.
+		//	BasicBlock *BB = BasicBlock::Create(TheContext, "entry", TheFunction);
+		//	Builder.SetInsertPoint(BB);
+
+		//	// Record the function arguments in the NamedValues map.
+		//	NamedValues.clear();
+		//	for (auto &Arg : TheFunction->args())
+		//		NamedValues[Arg.getName()] = &Arg;
+
+		//	if (Value *RetVal = Body->codegen()) {
+		//		// Finish off the function.
+		//		Builder.CreateRet(RetVal);
+
+		//		// Validate the generated code, checking for consistency.
+		//		verifyFunction(*TheFunction);
+
+		//		return TheFunction;
+		//	}
+
+		//	// Error reading body, remove function.
+		//	TheFunction->eraseFromParent();
+		//	return nullptr;
+		//}
 	}
-	else*/ 
-	if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
 		auto lhs = this->children.at(0)->generateLLVM();
 		auto rhs = this->children.at(1)->generateLLVM();
 		if (this->token->getText() == "+") {

@@ -17,6 +17,9 @@
 /** Forward declarations. */
 struct AstNode;
 struct Scope;
+namespace llvm {
+	class Value;
+}
 
 /** Define an object to store a single entry in the symbol table. */
 struct SymbolRecord {
@@ -44,6 +47,8 @@ struct SymbolRecord {
 	std::string text;
 	/** If this is a variable, define the value it takes on (assume zero-initialized memory). */
 	int value;
+	// TODO: Use this to look up LLVM values in symbol table (see Kaleidoscope example)!
+	llvm::Value * llvmValue;
 
 	/** Define the return type if this is a function. */
 	//TODO: Do we need return type, it seems redundant with type above...

@@ -129,6 +129,8 @@ void AstVisitorImpl::visitVarDeclaration(AstNode * ctx) {
 }
 void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// Generate LLVM for the function declaration.
+	ctx->generateLLVM();
 }
 void AstVisitorImpl::visitTypeSpecifier(AstNode * ctx) {
 	this->visitChildren(ctx);
