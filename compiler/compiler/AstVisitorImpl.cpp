@@ -12,6 +12,10 @@
 #include "SymbolTableManager.h"
 #include "Scope.h"
 #include "Compiler.h"
+#include "LLVMHandler.h"
+
+#include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
 
 /** Define the default constructor for the Parse Tree Listener. */
 AstVisitorImpl::AstVisitorImpl(Compiler * const & compiler) : compiler(compiler) {
@@ -249,7 +253,11 @@ void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	// Ensure the operands for the mult/division operation are INT types.
 	this->verifyMathOperandTypes(ctx);
 	// TODO: Save these LLVM instructions in struct.
-	auto temp = ctx->generateLLVM();
+	std::string temp;
+	llvm::raw_string_ostream rsos(temp);
+	rsos << ctx->generateLLVM();
+	rsos.flush();
+	this->compiler->getLLVMHandler()->llvmList.push_back(temp);
 }
 
 void AstVisitorImpl::visitFactor(AstNode * ctx) {

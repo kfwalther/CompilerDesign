@@ -18,7 +18,7 @@ struct SymbolTable;
 struct SymbolTableManager;
 struct SemanticAnalyzer;
 struct AstNode;
-
+struct LLVMHandler;
 
 struct Compiler : public std::enable_shared_from_this<Compiler> {
 
@@ -47,6 +47,7 @@ struct Compiler : public std::enable_shared_from_this<Compiler> {
 	SemanticAnalyzer * const getSemanticAnalyzer();
 	SymbolTableManagerPtrType const getSymbolTableManager() { return this->symbolTableManager; }
 	SymbolTablePtrType const getSymbolTableForCurrentContext();
+	LLVMHandler * const getLLVMHandler() const;
 
 	/** Define a debugging flag to turn on trace printing. */
 	bool debuggingOn = false;
@@ -67,6 +68,8 @@ private:
 	ErrorHandler * errorHandler;
 	/** Define the SemanticAnalyzer object to keep track of the usage of variable in memory. */
 	SemanticAnalyzer * semanticAnalyzer;
+	/** Define the LLVM Handler to store the generated IR. */
+	LLVMHandler * llvmHandler;
 };
 
 

@@ -13,11 +13,12 @@
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
 #include <llvm/ADT/APInt.h>
 
 static llvm::LLVMContext TheContext;
 static llvm::IRBuilder<> Builder(TheContext);
-//static std::unique_ptr<Module> TheModule;
+static std::unique_ptr<llvm::Module> TheModule;
 //static std::map<std::string, Value *> NamedValues;
 
 /** Define a default constructor. */

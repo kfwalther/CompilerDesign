@@ -14,6 +14,7 @@
 #include "ParseTreeListenerImpl.h"
 #include "ParseTreeVisitorImpl.h"
 #include "AstVisitorImpl.h"
+#include "LLVMHandler.h"
 
 using namespace AntlrGrammarGenerated;
 using namespace antlr4;
@@ -41,6 +42,9 @@ SemanticAnalyzer * const Compiler::getSemanticAnalyzer() {
 }
 SymbolTable::SymbolTablePtrType const Compiler::getSymbolTableForCurrentContext() {
 	return this->getSymbolTableManager()->getCurrentScope()->scopedSymbolTable;
+}
+LLVMHandler * const Compiler::getLLVMHandler() const {
+	return this->llvmHandler;
 }
 
 /** Define a function to generate a list of tokens from the input file. */
@@ -103,17 +107,19 @@ void Compiler::generateAst() {
 
 /** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */
 void Compiler::performSemanticAnalysis() {
+	this->llvmHandler = new LLVMHandler();
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
 	AstVisitorImpl * astVisitor = new AstVisitorImpl(this);
 	astVisitor->visitProgram(this->ast);
-	// Print the contents of the symbol table, if debugging is enabled. 
-	// TODO: Loop thru all scopes list, and print symbol table for each.
+	// Print the contents of each scoped symbol table, if debugging is enabled. 
 	if (this->debuggingOn) {
 		for (auto const & curScope : this->symbolTableManager->scopeVector) {
 			curScope->print();
 			curScope->scopedSymbolTable->printSymbolTable();
 		}
 	}
+	// Print all the generated LLVM IR code.
+	this->llvmHandler->printAll();
 }
 
 

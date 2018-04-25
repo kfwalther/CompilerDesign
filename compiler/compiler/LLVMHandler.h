@@ -19,6 +19,8 @@ struct LLVMHandler {
 	LLVMHandler();
 	~LLVMHandler();
 	
+	/** Define a function to print the generated LLVM strings. */
+	void printAll();
 	/** Define the list of LLVM commands to be generated. */
 	std::list<LLVMInstructionType> llvmList;
 };
