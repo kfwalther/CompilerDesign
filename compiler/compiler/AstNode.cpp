@@ -14,6 +14,7 @@
 #include "LLVMHandler.h"
 
 #include <llvm/ADT/APInt.h>
+#include <llvm/IR/Verifier.h>
 
 /** Define a default constructor. */
 AstNode::AstNode(CMINUS_RULE_TYPE const ruleType) : ruleType(ruleType)
@@ -101,59 +102,70 @@ llvm::Value * AstNode::generateLLVM() {
 	if (this->ruleType == CMINUS_RULE_TYPE::RuleFunDeclaration) {
 		// TODO: START HERE: Clean this up!
 		//Function *PrototypeAST::codegen() {
-		//	// Make the function type:  double(double,double) etc.
-		//	std::vector<Type *> Doubles(Args.size(), Type::getDoubleTy(TheContext));
-		//	FunctionType *FT =
-		//		FunctionType::get(Type::getDoubleTy(TheContext), Doubles, false);
+			// Make the function type.
+			//std::vector<Type *> Doubles(Args.size(), Type::getDoubleTy(TheContext));
+		llvm::Type * returnType;
+		std::vector<llvm::Type *> functionArgs;
+		llvm::FunctionType * llvmFunctionType;
+		// Fill out the LLVM function return type.
+		if (this->symbolTableRecord->returnType == CMINUS_NATIVE_TYPES::INT) {
+			returnType = llvm::Type::getInt32Ty(*this->compiler->getLLVMHandler()->context);
+		}
+		else {
+			returnType = llvm::Type::getVoidTy(*this->compiler->getLLVMHandler()->context);
+		}
+		// Fill out the LLVM function arguments, and generate LLVM function type.
+		if (this->symbolTableRecord->numArguments > 0) {
+			functionArgs = std::vector<llvm::Type *>(
+					this->symbolTableRecord->numArguments, llvm::Type::getInt32Ty(*this->compiler->getLLVMHandler()->context));
+			llvmFunctionType = llvm::FunctionType::get(returnType, functionArgs, false);
+		}
+		else {
+			llvmFunctionType = llvm::FunctionType::get(returnType, false);
+		}
+		// Create the LLVM function.
+		llvm::Function * llvmFunction = llvm::Function::Create(
+				llvmFunctionType, llvm::Function::InternalLinkage, this->symbolTableRecord->text,
+						this->compiler->getLLVMHandler()->llvmModule.get());
 
-		//	Function *F =
-		//		Function::Create(FT, Function::ExternalLinkage, Name, TheModule.get());
+		// Set names for all arguments.
+		unsigned int Idx = 0;
+		for (auto & curArg : llvmFunction->args()) {
+			// Get the params child, and loop through each function parameter.
+			curArg.setName(this->children.at(0)->children.at(Idx)->symbolTableRecord->text);
+		}
 
-		//	// Set names for all arguments.
-		//	unsigned Idx = 0;
-		//	for (auto &Arg : F->args())
-		//		Arg.setName(Args[Idx++]);
+		// Create a new basic block to start insertion into.
+		llvm::BasicBlock * llvmBasicBlock = llvm::BasicBlock::Create(
+				*this->compiler->getLLVMHandler()->context, "EntryBlock", llvmFunction);
+		this->compiler->getLLVMHandler()->builder->SetInsertPoint(llvmBasicBlock);
 
-		//	return F;
+		// Record the function arguments in the NamedValues map.
+		//NamedValues.clear();
+		//for (auto & Arg : TheFunction->args()) {
+		//	NamedValues[Arg.getName()] = &Arg;
 		//}
 
-		//Function *FunctionAST::codegen() {
-		//	// First, check for an existing function from a previous 'extern' declaration.
-		//	Function *TheFunction = TheModule->getFunction(Proto->getName());
+		// Generate the LLVM for the function body, and get the return value.
+		// TODO: CompoundStatement generateLLVM needs to return an LLVM return value.
+		if (llvm::Value * llvmReturnValue = this->children.at(1)->generateLLVM()) {
+			// Finish off the function.
+			this->compiler->getLLVMHandler()->builder->CreateRet(llvmReturnValue);
+			// Validate the generated code, checking for consistency.
+			llvm::verifyFunction(*llvmFunction);
+			return llvmFunction;
+		}
 
-		//	if (!TheFunction)
-		//		TheFunction = Proto->codegen();
-
-		//	if (!TheFunction)
-		//		return nullptr;
-
-		//	// Create a new basic block to start insertion into.
-		//	BasicBlock *BB = BasicBlock::Create(TheContext, "entry", TheFunction);
-		//	Builder.SetInsertPoint(BB);
-
-		//	// Record the function arguments in the NamedValues map.
-		//	NamedValues.clear();
-		//	for (auto &Arg : TheFunction->args())
-		//		NamedValues[Arg.getName()] = &Arg;
-
-		//	if (Value *RetVal = Body->codegen()) {
-		//		// Finish off the function.
-		//		Builder.CreateRet(RetVal);
-
-		//		// Validate the generated code, checking for consistency.
-		//		verifyFunction(*TheFunction);
-
-		//		return TheFunction;
-		//	}
-
-		//	// Error reading body, remove function.
-		//	TheFunction->eraseFromParent();
-		//	return nullptr;
-		//}
+		// Error reading body, remove function.
+		llvmFunction->eraseFromParent();
+		std::cerr << "ERROR: LLVM could not be generated for function body." << std::endl;
+		return nullptr;
 	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
+		// Generate LLVM for the operands.
 		auto lhs = this->children.at(0)->generateLLVM();
 		auto rhs = this->children.at(1)->generateLLVM();
+		// Look up the operator and generate LLVM for it.
 		if (this->token->getText() == "+") {
 			return this->compiler->getLLVMHandler()->builder->CreateAdd(lhs, rhs, "addtmp");
 		}
