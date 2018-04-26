@@ -111,6 +111,8 @@ void AstVisitorImpl::visitChildren(AstNode * ctx) {
 
 /** Define a custom visitor for the AST root node. */
 void AstVisitorImpl::visitProgram(AstNode * ctx) {
+	// Set the scope ID to indicate the current scope (GLOBAL == 0).
+	this->compiler->getSymbolTableManager()->currentScopeId = 0;
 	std::cout << "Walking the AST for semantic analysis!" << std::endl;
 	// Check to ensure the main() function is the last declaration in the program. (Rule enforced on pg. 493 of textbook.)
 	if (ctx->children.back()->symbolTableRecord->text != "main") {
@@ -126,11 +128,16 @@ void AstVisitorImpl::visitDeclarationList(AstNode * ctx) {
 }
 void AstVisitorImpl::visitVarDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
+	// Generate LLVM for the variable declaration.
+	//ctx->generateLLVM();
 }
 void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
+	// Go into the new scope for this function.
+	// TODO: This may need to be updated to search for scope that has this function declaration...
+	this->compiler->getSymbolTableManager()->currentScopeId++;
 	this->visitChildren(ctx);
 	// Generate LLVM for the function declaration.
-	this->compiler->getLLVMHandler()->saveLLVMInstruction(ctx->generateLLVM());
+	ctx->generateLLVM();
 }
 void AstVisitorImpl::visitTypeSpecifier(AstNode * ctx) {
 	this->visitChildren(ctx);
@@ -219,6 +226,8 @@ void AstVisitorImpl::visitExpression(AstNode * ctx) {
 					ctx->children.back()->symbolTableRecord->token->getLine(), ("The L-value "
 							+ ctx->children.back()->symbolTableRecord->text + " cannot be assigned to a variable."));
 		}
+		// Generate LLVM for the assignment expression.
+		//ctx->generateLLVM();
 	}
 }
 
@@ -228,6 +237,7 @@ void AstVisitorImpl::visitVar(AstNode * ctx) {
 	if (ctx->symbolTableRecord->isAssigned) {
 		ctx->isRValue = true;
 	}
+	//ctx->generateLLVM();
 }
 
 // TODO: Evaluate the values at each of these nodes, if possible. Can we do this with separate SemanticAnalysis call and walk?
@@ -254,7 +264,7 @@ void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	// Ensure the operands for the mult/division operation are INT types.
 	this->verifyMathOperandTypes(ctx);
 	// Save the generated LLVM.
-	this->compiler->getLLVMHandler()->saveLLVMInstruction(ctx->generateLLVM());
+	//ctx->generateLLVM();
 }
 
 void AstVisitorImpl::visitFactor(AstNode * ctx) {
@@ -266,7 +276,7 @@ void AstVisitorImpl::visitCall(AstNode * ctx) {
 	ctx->evaluatedType = ctx->symbolTableRecord->returnType;
 	this->visitChildren(ctx);
 	// Generate and save LLVM for the call.
-	this->compiler->getLLVMHandler()->saveLLVMInstruction(ctx->generateLLVM());
+	//ctx->generateLLVM();
 }
 
 void AstVisitorImpl::visitArgs(AstNode * ctx) {

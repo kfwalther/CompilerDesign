@@ -52,6 +52,13 @@ SymbolTableManager::ScopePtrType SymbolTableManager::getCurrentScope() {
 	std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << "Unbalanced scope stack." << std::endl << std::endl;
 	return nullptr;
 }
+SymbolTableManager::ScopePtrType SymbolTableManager::getCurrentScopeFromVector() {
+	if (this->currentScopeId < this->scopeVector.size()) {
+		return this->scopeVector.at(this->currentScopeId);
+	}
+	std::cerr << ErrorHandler::ErrorCodes::COMPILER_ERROR << "Invalid index used for scope vector." << std::endl << std::endl;
+	return nullptr;
+}
 
 //Scope getScope(int genId) {
 //	for (Scope scope : scopeStack) {

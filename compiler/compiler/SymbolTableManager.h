@@ -34,7 +34,7 @@ struct SymbolTableManager {
 	void popScope();
 	/** Get the current scope. */
 	ScopePtrType getCurrentScope();
-	//Scope getScope(int genId);
+	ScopePtrType getCurrentScopeFromVector();
 
 
 	/** Define the stack of scopes that we will populate to keep track of symbol tables. */
@@ -42,7 +42,8 @@ struct SymbolTableManager {
 	std::vector<ScopePtrType> scopeVector;
 	/** Define the unique ID counter for the managed scopes. */
 	unsigned int scopeIdCounter = 0;
-
+	/** Define an ID type to keep track of the current scope as we walk the AST. */
+	size_t currentScopeId = 0;
 };
 
 

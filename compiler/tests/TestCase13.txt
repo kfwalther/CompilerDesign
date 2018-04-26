@@ -5,5 +5,7 @@
 
 void main(void) {
 	int x;
-	x = 5 * 4;
+	int y;
+	x = 5;
+	x = y * 4 + 7;
 }

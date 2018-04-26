@@ -11,6 +11,8 @@
 #include "tree/Trees.h"
 #include "TParser.h"
 #include "Compiler.h"
+#include "SymbolTableManager.h"
+#include "Scope.h"
 #include "LLVMHandler.h"
 
 #include <llvm/ADT/APInt.h>
@@ -96,22 +98,28 @@ bool AstNode::hasToken() const {
 /** The code in this function was heavily influenced by Kaleidoscope example on LLVM API site: 
 	https://llvm.org/docs/tutorial/index.html */
 llvm::Value * AstNode::generateLLVM() {
-	//if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
-
-	//}
-	if (this->ruleType == CMINUS_RULE_TYPE::RuleFunDeclaration) {
-		// TODO: START HERE: Clean this up!
-		//Function *PrototypeAST::codegen() {
-			// Make the function type.
-			//std::vector<Type *> Doubles(Args.size(), Type::getDoubleTy(TheContext));
+	if (this->ruleType == CMINUS_RULE_TYPE::RuleVarDeclaration) {
+		// Get the enclosing LLVM function object.
+		llvm::Function * enclosingFunction = this->compiler->getLLVMHandler()->builder->GetInsertBlock()->getParent();
+		// Create an alloca for the variable in the entry block.
+		llvm::AllocaInst * allocaVar = 
+				this->compiler->getLLVMHandler()->createEntryBlockAlloca(enclosingFunction, this->symbolTableRecord->text);
+		// Initialize this variable to 0 in LLVM.
+		llvm::Value * initVal = llvm::ConstantInt::get(*this->compiler->getLLVMHandler()->context, llvm::APInt(32, 0, true));
+		// Store the initial value into the alloca.
+		this->compiler->getLLVMHandler()->builder->CreateStore(initVal, allocaVar);
+		// Update the new LLVM variable value in the corresponding symbol table entry.
+		this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
+				allocaVar->getName())->llvmValue = allocaVar;
+	} 
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleFunDeclaration) {
 		llvm::Type * returnType;
 		std::vector<llvm::Type *> functionArgs;
 		llvm::FunctionType * llvmFunctionType;
 		// Fill out the LLVM function return type.
 		if (this->symbolTableRecord->returnType == CMINUS_NATIVE_TYPES::INT) {
 			returnType = llvm::Type::getInt32Ty(*this->compiler->getLLVMHandler()->context);
-		}
-		else {
+		} else {
 			returnType = llvm::Type::getVoidTy(*this->compiler->getLLVMHandler()->context);
 		}
 		// Fill out the LLVM function arguments, and generate LLVM function type.
@@ -119,49 +127,81 @@ llvm::Value * AstNode::generateLLVM() {
 			functionArgs = std::vector<llvm::Type *>(
 					this->symbolTableRecord->numArguments, llvm::Type::getInt32Ty(*this->compiler->getLLVMHandler()->context));
 			llvmFunctionType = llvm::FunctionType::get(returnType, functionArgs, false);
-		}
-		else {
+		} else {
 			llvmFunctionType = llvm::FunctionType::get(returnType, false);
 		}
 		// Create the LLVM function.
 		llvm::Function * llvmFunction = llvm::Function::Create(
 				llvmFunctionType, llvm::Function::InternalLinkage, this->symbolTableRecord->text,
 						this->compiler->getLLVMHandler()->llvmModule.get());
-
 		// Set names for all arguments.
 		unsigned int Idx = 0;
 		for (auto & curArg : llvmFunction->args()) {
 			// Get the params child, and loop through each function parameter.
 			curArg.setName(this->children.at(0)->children.at(Idx)->symbolTableRecord->text);
 		}
-
 		// Create a new basic block to start insertion into.
 		llvm::BasicBlock * llvmBasicBlock = llvm::BasicBlock::Create(
 				*this->compiler->getLLVMHandler()->context, "EntryBlock", llvmFunction);
 		this->compiler->getLLVMHandler()->builder->SetInsertPoint(llvmBasicBlock);
-
-		// Record the function arguments in the NamedValues map.
-		//NamedValues.clear();
-		//for (auto & Arg : TheFunction->args()) {
-		//	NamedValues[Arg.getName()] = &Arg;
-		//}
-
+		// Record the function parameter LLVM values in the symbol table.
+		for (auto & curParam : llvmFunction->args()) {
+			// Create an alloca for this variable.
+			llvm::AllocaInst * allocaVar = 
+					this->compiler->getLLVMHandler()->createEntryBlockAlloca(llvmFunction, curParam.getName());
+			// Store the initial value into the alloca.
+			this->compiler->getLLVMHandler()->builder->CreateStore(&curParam, allocaVar);
+			// Update the new LLVM argument value in the corresponding symbol table entry.
+			this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
+					curParam.getName())->llvmValue = allocaVar;
+		}
 		// Generate the LLVM for the function body, and get the return value.
-		// TODO: CompoundStatement generateLLVM needs to return an LLVM return value.
+		// TODO: CompoundStatement generateLLVM needs to return an LLVM value.
 		if (llvm::Value * llvmReturnValue = this->children.at(1)->generateLLVM()) {
 			// Finish off the function.
 			this->compiler->getLLVMHandler()->builder->CreateRet(llvmReturnValue);
 			// Validate the generated code, checking for consistency.
 			llvm::verifyFunction(*llvmFunction);
+			llvmFunction->print(llvm::errs());
 			return llvmFunction;
 		}
-
 		// Error reading body, remove function.
 		llvmFunction->eraseFromParent();
 		std::cerr << "ERROR: LLVM could not be generated for function body." << std::endl;
 		return nullptr;
 	}
-	else if (this->ruleType == CMINUS_RULE_TYPE::RuleTerm) {
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleCompoundStmt) {
+		// Generate LLVM for any local variable declarations in this block.
+		this->children.at(0)->generateLLVM();
+		// Generate LLVM and return for any statememts in this block.
+		return this->children.at(1)->generateLLVM();
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleLocalDeclaration) {
+		// Generate LLVM for each local variable declaration in this block.
+		for (auto & curVarDecl : this->children) {
+			curVarDecl->generateLLVM();
+		}
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleStatementList) {
+		// Generate LLVM for each local variable declaration in this block.
+		// TODO: Is this the best way to return a value, if there are multiple expressions in block?
+		llvm::Value * returnVal;
+		for (auto & curExpression : this->children) {
+			returnVal = curExpression->generateLLVM();
+		}
+		return returnVal;
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
+		// Generate the LLVM for the right-hand-side expression.
+		auto rhsVal = this->children.at(1)->generateLLVM();
+		// Look up the variable name in the symbol table.
+		llvm::Value * llvmVariable = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
+			this->children.at(0)->symbolTableRecord->text)->llvmValue;
+		// Store the LLVM value assigned to this LLVM variable.
+		this->compiler->getLLVMHandler()->builder->CreateStore(rhsVal, llvmVariable);
+		return rhsVal;
+	}
+	else if ((this->ruleType == CMINUS_RULE_TYPE::RuleTerm) || (this->ruleType == CMINUS_RULE_TYPE::RuleAdditiveExpression)) {
 		// Generate LLVM for the operands.
 		auto lhs = this->children.at(0)->generateLLVM();
 		auto rhs = this->children.at(1)->generateLLVM();
@@ -183,6 +223,17 @@ llvm::Value * AstNode::generateLLVM() {
 		std::cout << this->symbolTableRecord->value << std::endl;
 		return llvm::ConstantInt::get(*this->compiler->getLLVMHandler()->context, llvm::APInt(32, this->symbolTableRecord->value, true));
 	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {
+		// Look this variable up in current function scope.
+		llvm::Value * curVariable = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
+				this->symbolTableRecord->text)->llvmValue;
+		if (!curVariable) {
+			std::cerr << "ERROR: LLVM: Unknown variable name." << std::endl;
+			return nullptr;
+		}
+		// Load the value.
+		return this->compiler->getLLVMHandler()->builder->CreateLoad(curVariable, this->symbolTableRecord->text.c_str());
+	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleCall) {
 		// Look up the name in the global module table.
 		llvm::Function * CalleeF = this->compiler->getLLVMHandler()->llvmModule->getFunction(this->symbolTableRecord->text);
@@ -203,6 +254,9 @@ llvm::Value * AstNode::generateLLVM() {
 			}
 		}
 		return this->compiler->getLLVMHandler()->builder->CreateCall(CalleeF, ArgsV, "calltmp");
+	}
+	else {
+		return nullptr;
 	}
 }
 

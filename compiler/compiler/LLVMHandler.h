@@ -26,6 +26,9 @@ struct LLVMHandler {
 	LLVMHandler();
 	~LLVMHandler();
 	
+	/** Define a helper function to create an alloca instruction in the entry block of
+		the function.  This is used for mutable variables etc. */
+	llvm::AllocaInst * createEntryBlockAlloca(llvm::Function * llvmFunction, std::string const & variableName);
 	/** Define a function to save the LLVM Value as a string in the list. */
 	void saveLLVMInstruction(llvm::Value * llvmValue);
 	/** Define a function to print the generated LLVM strings. */

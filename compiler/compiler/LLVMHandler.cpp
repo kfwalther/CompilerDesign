@@ -24,8 +24,17 @@ LLVMHandler::~LLVMHandler() {
 	return;
 }
 
+/** Define a helper function to create an alloca instruction in the entry block of
+	the function.  This is used for mutable variables etc. */
+llvm::AllocaInst * LLVMHandler::createEntryBlockAlloca(
+		llvm::Function * llvmFunction, std::string const & variableName) {
+	llvm::IRBuilder<> tempBlock(&llvmFunction->getEntryBlock(), llvmFunction->getEntryBlock().begin());
+	return tempBlock.CreateAlloca(llvm::Type::getInt32Ty(*this->context), 0, variableName.c_str());
+}
+
 /** Define a function to save the LLVM Value as a string in the list. */
 void LLVMHandler::saveLLVMInstruction(llvm::Value * llvmValue) {
+	//llvmValue->print(llvm::errs());
 	std::string temp;
 	llvm::raw_string_ostream rsos(temp);
 	rsos << llvmValue;
@@ -36,8 +45,9 @@ void LLVMHandler::saveLLVMInstruction(llvm::Value * llvmValue) {
 /** Define a function to print the generated LLVM strings. */
 void LLVMHandler::printAll() {
 	std::cout << std::endl << "LLVM DUMP" << std::endl;
-	for (auto const & curEntry : this->llvmList) {
-		std::cout << curEntry << std::endl;
-	}
+	this->llvmModule->print(llvm::errs(),nullptr);
+	//for (auto const & curEntry : this->llvmList) {
+	//	std::cout << curEntry << std::endl;
+	//}
 }
 

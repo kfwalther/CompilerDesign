@@ -14,6 +14,7 @@ SymbolRecord::SymbolRecord() {
 SymbolRecord::SymbolRecord(antlr4::Token * const & inputToken) {
 	this->token = inputToken;
 	this->text = inputToken->getText();
+	this->llvmValue = nullptr;
 	return;
 }
 
