@@ -138,7 +138,7 @@ llvm::Value * AstNode::generateLLVM() {
 		unsigned int Idx = 0;
 		for (auto & curArg : llvmFunction->args()) {
 			// Get the params child, and loop through each function parameter.
-			curArg.setName(this->children.at(0)->children.at(Idx)->symbolTableRecord->text);
+			curArg.setName(this->children.at(0)->children.at(Idx++)->symbolTableRecord->text);
 		}
 		// Create a new basic block to start insertion into.
 		llvm::BasicBlock * llvmBasicBlock = llvm::BasicBlock::Create(
@@ -191,6 +191,61 @@ llvm::Value * AstNode::generateLLVM() {
 		}
 		return returnVal;
 	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleSelectionStmt) {
+		// Generate LLVM for the conditional expression in the if-statement.
+		llvm::Value * llvmConditionalValue = this->children.at(0)->generateLLVM();
+		if (!llvmConditionalValue) {
+			return nullptr;
+		}
+		LLVMHandler * llvmHandler = this->compiler->getLLVMHandler();
+		// Convert condition to a bool by comparing non-equal to 0.
+		//llvmConditionalValue = llvmHandler->builder->CreateFCmpONE(
+		//	llvmConditionalValue, llvm::ConstantInt::get(*llvmHandler->context, llvm::APInt(32,0,true)));
+		// Get the LLVM function enclosing this block.
+		llvm::Function * llvmEnclosingFunction = llvmHandler->builder->GetInsertBlock()->getParent();
+		// Create blocks for the if-then and if-else cases.  Insert the 'then' block at the end of the function.
+		llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(*llvmHandler->context, "then", llvmEnclosingFunction);
+		llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(*llvmHandler->context, "else");
+		llvm::BasicBlock * mergeBlock = llvm::BasicBlock::Create(*llvmHandler->context, "ifcont");
+		llvmHandler->builder->CreateCondBr(llvmConditionalValue, thenBlock, elseBlock);
+		// Emit then value.
+		llvmHandler->builder->SetInsertPoint(thenBlock);
+		// Generate LLVM for the expression in the if-then block.
+		llvm::Value * llvmThenValue = this->children.at(1)->generateLLVM();
+		if (!llvmThenValue) {
+			return nullptr;
+		}
+		llvmHandler->builder->CreateBr(mergeBlock);
+		// Codegen of 'Then' can change the current block, update thenBlock for the PHI.
+		thenBlock = llvmHandler->builder->GetInsertBlock();
+		// Emit else block.
+		llvmEnclosingFunction->getBasicBlockList().push_back(elseBlock);
+		llvmHandler->builder->SetInsertPoint(elseBlock);
+		// Generate LLVM for the expression in the if-else block.
+		llvm::Value * llvmElseValue = this->children.at(2)->generateLLVM();
+		if (!llvmElseValue) {
+			return nullptr;
+		}
+		llvmHandler->builder->CreateBr(mergeBlock);
+		// Codegen of 'Else' can change the current block, update elseBlock for the PHI.
+		elseBlock = llvmHandler->builder->GetInsertBlock();
+		// Emit merge block.
+		llvmEnclosingFunction->getBasicBlockList().push_back(mergeBlock);
+		llvmHandler->builder->SetInsertPoint(mergeBlock);
+		llvm::PHINode * phiNode = llvmHandler->builder->CreatePHI(llvm::Type::getInt32Ty(*llvmHandler->context), 2, "iftmp");
+		phiNode->addIncoming(llvmThenValue, thenBlock);
+		phiNode->addIncoming(llvmElseValue, elseBlock);
+		return phiNode;
+	}
+	else if (this->ruleType == CMINUS_RULE_TYPE::RuleReturnStmt) {
+		// Generate LLVM for the return value of the function block.
+		if (!this->children.empty()) {
+			this->children.at(0)->generateLLVM();
+		} else {
+			// Otherwise, return a null LLVM value.
+			llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*this->compiler->getLLVMHandler()->context));
+		}
+	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleExpression) {
 		// Generate the LLVM for the right-hand-side expression.
 		auto rhsVal = this->children.at(1)->generateLLVM();
@@ -201,7 +256,8 @@ llvm::Value * AstNode::generateLLVM() {
 		this->compiler->getLLVMHandler()->builder->CreateStore(rhsVal, llvmVariable);
 		return rhsVal;
 	}
-	else if ((this->ruleType == CMINUS_RULE_TYPE::RuleTerm) || (this->ruleType == CMINUS_RULE_TYPE::RuleAdditiveExpression)) {
+	else if ((this->ruleType == CMINUS_RULE_TYPE::RuleTerm) || (this->ruleType == CMINUS_RULE_TYPE::RuleAdditiveExpression)
+			|| (this->ruleType == CMINUS_RULE_TYPE::RuleSimpleExpression)) {
 		// Generate LLVM for the operands.
 		auto lhs = this->children.at(0)->generateLLVM();
 		auto rhs = this->children.at(1)->generateLLVM();
@@ -216,7 +272,25 @@ llvm::Value * AstNode::generateLLVM() {
 			return this->compiler->getLLVMHandler()->builder->CreateMul(lhs, rhs, "multmp");
 		}
 		else if (this->token->getText() == "/") {
-			return this->compiler->getLLVMHandler()->builder->CreateFDiv(lhs, rhs, "divtmp");
+			return this->compiler->getLLVMHandler()->builder->CreateSDiv(lhs, rhs, "divtmp");
+		} 
+		else if (this->token->getText() == "<") {
+			return this->compiler->getLLVMHandler()->builder->CreateICmpSLT(lhs, rhs, "cmpLT");
+		}
+		else if (this->token->getText() == "<=") {
+			return this->compiler->getLLVMHandler()->builder->CreateICmpSLE(lhs, rhs, "cmpLE");
+		}
+		else if (this->token->getText() == ">") {
+			return this->compiler->getLLVMHandler()->builder->CreateICmpSGT(lhs, rhs, "cmpGT");
+		}
+		else if (this->token->getText() == ">=") {
+			return this->compiler->getLLVMHandler()->builder->CreateICmpSGE(lhs, rhs, "cmpGE");
+		}
+		else if (this->token->getText() == "==") {
+			return this->compiler->getLLVMHandler()->builder->CreateICmpEQ(lhs, rhs, "cmpEQ");
+		}
+		else if (this->token->getText() == "!=") {
+			return this->compiler->getLLVMHandler()->builder->CreateICmpNE(lhs, rhs, "cmpNE");
 		}
 	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleFactor) {
@@ -236,6 +310,7 @@ llvm::Value * AstNode::generateLLVM() {
 	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleCall) {
 		// Look up the name in the global module table.
+		// TODO: Need to register input() and output() functions with llvmModule so we dont crash here.
 		llvm::Function * CalleeF = this->compiler->getLLVMHandler()->llvmModule->getFunction(this->symbolTableRecord->text);
 		if (!CalleeF) {
 			std::cerr << "ERROR: LLVM: Unknown function referenced" << std::endl;
