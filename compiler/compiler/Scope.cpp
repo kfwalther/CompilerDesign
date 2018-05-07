@@ -23,7 +23,7 @@ void Scope::newSymbol(Scope::SymbolRecordPtrType const & newSymbolRecord) {
 }
 
 /** Define a function to lookup up a symbol in the current scope, then in the enclosing scopes. */
-Scope::SymbolRecordPtrType const & Scope::findSymbol(std::string const & symbolName) {
+Scope::SymbolRecordPtrType const Scope::findSymbol(std::string const & symbolName) {
 	auto matchingSymbolIterator = this->scopedSymbolTable->symbolTable.find(symbolName);
 	if (matchingSymbolIterator != this->scopedSymbolTable->symbolTable.end()) {
 		return matchingSymbolIterator->second;

@@ -3,7 +3,7 @@
  * @brief: This test case illegally has another function declaration after main!
  */
 
-int foo(int var, int var2) {
+int foo(int var2) {
 	var2 = 5;
 	return var2;
 }

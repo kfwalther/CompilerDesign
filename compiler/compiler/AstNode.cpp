@@ -138,7 +138,7 @@ llvm::Value * AstNode::generateLLVM() {
 		return this->compiler->getLLVMHandler()->generateMathExpression(this);
 	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleFactor) {
-		std::cout << this->symbolTableRecord->value << std::endl;
+		//std::cout << this->symbolTableRecord->value << std::endl;
 		return llvm::ConstantInt::get(*this->compiler->getLLVMHandler()->context, llvm::APInt(32, this->symbolTableRecord->value, true));
 	}
 	else if (this->ruleType == CMINUS_RULE_TYPE::RuleVar) {

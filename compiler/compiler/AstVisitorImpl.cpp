@@ -128,8 +128,6 @@ void AstVisitorImpl::visitDeclarationList(AstNode * ctx) {
 }
 void AstVisitorImpl::visitVarDeclaration(AstNode * ctx) {
 	this->visitChildren(ctx);
-	// Generate LLVM for the variable declaration.
-	//ctx->generateLLVM();
 }
 void AstVisitorImpl::visitFunDeclaration(AstNode * ctx) {
 	// Go into the new scope for this function.
@@ -226,18 +224,17 @@ void AstVisitorImpl::visitExpression(AstNode * ctx) {
 					ctx->children.back()->symbolTableRecord->token->getLine(), ("The L-value "
 							+ ctx->children.back()->symbolTableRecord->text + " cannot be assigned to a variable."));
 		}
-		// Generate LLVM for the assignment expression.
-		//ctx->generateLLVM();
 	}
 }
 
 void AstVisitorImpl::visitVar(AstNode * ctx) {
 	this->visitChildren(ctx);
 	// If this variable has been assigned a value, then it is also an r-value.
-	if (ctx->symbolTableRecord->isAssigned) {
-		ctx->isRValue = true;
+	if (ctx->symbolTableRecord) {
+		if (ctx->symbolTableRecord->isAssigned) {
+			ctx->isRValue = true;
+		}
 	}
-	//ctx->generateLLVM();
 }
 
 // TODO: Evaluate the values at each of these nodes, if possible. Can we do this with separate SemanticAnalysis call and walk?
@@ -263,8 +260,6 @@ void AstVisitorImpl::visitTerm(AstNode * ctx) {
 	this->verifyOperandUsability(ctx);
 	// Ensure the operands for the mult/division operation are INT types.
 	this->verifyMathOperandTypes(ctx);
-	// Save the generated LLVM.
-	//ctx->generateLLVM();
 }
 
 void AstVisitorImpl::visitFactor(AstNode * ctx) {
@@ -275,8 +270,6 @@ void AstVisitorImpl::visitCall(AstNode * ctx) {
 	// Look up the function name, and get its return type.
 	ctx->evaluatedType = ctx->symbolTableRecord->returnType;
 	this->visitChildren(ctx);
-	// Generate and save LLVM for the call.
-	//ctx->generateLLVM();
 }
 
 void AstVisitorImpl::visitArgs(AstNode * ctx) {

@@ -24,8 +24,16 @@ LLVMHandler::LLVMHandler(Compiler * const & compiler) : compiler(compiler) {
 	this->builder = new llvm::IRBuilder<>(*this->context);
 	this->llvmModule = std::make_unique<llvm::Module>("C-Minus LLVM", *this->context);
 	// Generate LLVM for the C-Minus built-in functions: input/output.
-	this->generateBuiltInFunDeclaration(this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol("input"));
-	this->generateBuiltInFunDeclaration(this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol("output"));
+	auto tManager = this->compiler->getSymbolTableManager();
+	auto scope = tManager->getCurrentScopeFromVector();
+	auto inputFunctionSymbol = scope->findSymbol("input");
+	if (inputFunctionSymbol) {
+		this->generateBuiltInFunDeclaration(inputFunctionSymbol);
+	}
+	auto outputFunctionSymbol = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol("output");
+	if (outputFunctionSymbol) {
+		this->generateBuiltInFunDeclaration(outputFunctionSymbol);
+	}
 	return;
 }
 
@@ -167,6 +175,9 @@ llvm::PHINode * LLVMHandler::generateSelectionStmt(AstNode * const & curAstNode)
 	llvmEnclosingFunction->getBasicBlockList().push_back(elseBlock);
 	this->builder->SetInsertPoint(elseBlock);
 	// Generate LLVM for the expression in the if-else block.
+	if (curAstNode->children.size() <= 2) {
+		return nullptr;
+	}
 	llvm::Value * llvmElseValue = curAstNode->children.at(2)->generateLLVM();
 	if (!llvmElseValue) {
 		return nullptr;
@@ -199,7 +210,7 @@ llvm::Value * LLVMHandler::generateExpression(AstNode * const & curAstNode) {
 	auto rhsVal = curAstNode->children.at(1)->generateLLVM();
 	// Look up the variable name in the symbol table.
 	llvm::Value * llvmVariable = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
-		curAstNode->children.at(0)->symbolTableRecord->text)->llvmValue;
+			curAstNode->children.at(0)->symbolTableRecord->text)->llvmValue;
 	// Store the LLVM value assigned to this LLVM variable.
 	this->builder->CreateStore(rhsVal, llvmVariable);
 	return rhsVal;
@@ -244,10 +255,14 @@ llvm::Value * LLVMHandler::generateMathExpression(AstNode * const & curAstNode) 
 
 llvm::Value * LLVMHandler::generateVar(AstNode * const & curAstNode) {
 	// Look this variable up in current function scope.
+	if (!curAstNode->symbolTableRecord) {
+		std::cerr << "ERROR: LLVM: Unknown variable name." << std::endl;
+		return nullptr;
+	}
 	llvm::Value * curVariable = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
 			curAstNode->symbolTableRecord->text)->llvmValue;
 	if (!curVariable) {
-		std::cerr << "ERROR: LLVM: Unknown variable name." << std::endl;
+		std::cerr << "ERROR: LLVM: Unknown variable name: " << curAstNode->symbolTableRecord->text << std::endl;
 		return nullptr;
 	}
 	// Load the value.
@@ -267,7 +282,7 @@ llvm::Value * LLVMHandler::generateCall(AstNode * const & curAstNode) {
 		return nullptr;
 	}
 	std::vector<llvm::Value *> argsVector;
-	for (unsigned i = 0, e = curAstNode->symbolTableRecord->numArguments; i != e; ++i) {
+	for (unsigned i = 0, e = curAstNode->children.size(); i != e; ++i) {
 		argsVector.push_back(curAstNode->children.at(i)->generateLLVM());
 		if (!argsVector.back()) {
 			return nullptr;

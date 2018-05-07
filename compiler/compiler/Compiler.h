@@ -37,8 +37,8 @@ struct Compiler : public std::enable_shared_from_this<Compiler> {
 	void checkForSyntaxErrors();
 	/** Define the function to generate the AST from the parse tree. */
 	void generateAst();
-	/** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */
-	void performSemanticAnalysis();
+	/** Define a function to perform the semantic analysis, and decorate the symbol table and AST, and generate code. */
+	void performSemanticAnalysisAndGenerateCode();
 
 	/** Define getters and setters for the compiler-related objects in this class. */
 	antlr4::CommonTokenStream * const getTokenStream() const;

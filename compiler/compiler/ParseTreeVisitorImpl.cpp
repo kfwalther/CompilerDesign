@@ -346,14 +346,17 @@ antlrcpp::Any ParseTreeVisitorImpl::visitExpression(AntlrGrammarGenerated::TPars
 		// Visit the expression node.
 		expressionNode->children.push_back(this->visit(ctx->children.at(2)));
 		// Ensure the variable is declared and defined before we assign to it!
-		if (expressionNode->children.at(0)->symbolTableRecord->isDeclared && expressionNode->children.at(0)->symbolTableRecord->isDefined) {
-			// Designate the variable as "assigned" in the symbol table.
-			expressionNode->children.at(0)->symbolTableRecord->isAssigned = true;
-		} else {
-			// Cannot assign a value to undefined variable.
-			this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER, 
-					expressionNode->children.at(0)->symbolTableRecord->token->getLine(), 
+		if (expressionNode->children.at(0)->symbolTableRecord) {
+			if (expressionNode->children.at(0)->symbolTableRecord->isDeclared && expressionNode->children.at(0)->symbolTableRecord->isDefined) {
+				// Designate the variable as "assigned" in the symbol table.
+				expressionNode->children.at(0)->symbolTableRecord->isAssigned = true;
+			}
+			else {
+				// Cannot assign a value to undefined variable.
+				this->compiler->getErrorHandler()->printError(ErrorHandler::ErrorCodes::UNDECL_IDENTIFIER,
+					expressionNode->children.at(0)->symbolTableRecord->token->getLine(),
 					("Undeclared identifier being assigned to: " + expressionNode->children.at(0)->symbolTableRecord->text));
+			}
 		}
 	}
 	else {

@@ -106,7 +106,7 @@ void Compiler::generateAst() {
 }
 
 /** Define a function to perform the semantic analysis, and decorate the symbol table and AST. */
-void Compiler::performSemanticAnalysis() {
+void Compiler::performSemanticAnalysisAndGenerateCode() {
 	this->llvmHandler = new LLVMHandler(this);
 	std::cout << "Walking AST to perform remaining semantic analysis..." << std::endl;
 	AstVisitorImpl * astVisitor = new AstVisitorImpl(this);

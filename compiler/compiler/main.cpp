@@ -20,8 +20,8 @@ void compileInputFile(std::string const & inputFile, std::ifstream & inputStream
 		cMinusCompiler->parseTokens();
 		// Create the AST from the parse tree.
 		cMinusCompiler->generateAst();
-		// Walk the AST to complete semantic analysis.
-		cMinusCompiler->performSemanticAnalysis();
+		// Walk the AST to complete semantic analysis and generate LLVM IR.
+		cMinusCompiler->performSemanticAnalysisAndGenerateCode();
 	} catch (std::invalid_argument & invArgException) {
 		std::cerr << invArgException.what() << std::endl;
 	}
