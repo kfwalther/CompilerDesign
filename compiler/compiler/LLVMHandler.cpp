@@ -61,7 +61,7 @@ void LLVMHandler::generateBuiltInFunDeclaration(SymbolRecordPtrType const & symb
 	}
 	// Create the LLVM function.
 	llvm::Function * llvmFunction = llvm::Function::Create(llvmFunctionType, 
-			llvm::Function::InternalLinkage, symbolTableRecord->text, this->llvmModule.get());
+			llvm::Function::ExternalLinkage, symbolTableRecord->text, this->llvmModule.get());
 }
 
 /** Define a helper function to create an alloca instruction in the entry block of
@@ -90,6 +90,8 @@ void LLVMHandler::generateVarDeclaration(AstNode * const & curAstNode) {
 
 /** Generate LLVM for a function declaration node. */
 llvm::Function * LLVMHandler::generateFunDeclaration(AstNode * const & curAstNode) {
+	// Reset the return value encountered flag.
+	this->returnStatementEncountered = false;
 	llvm::Type * returnType;
 	std::vector<llvm::Type *> functionArgs;
 	llvm::FunctionType * llvmFunctionType;
@@ -109,7 +111,7 @@ llvm::Function * LLVMHandler::generateFunDeclaration(AstNode * const & curAstNod
 	}
 	// Create the LLVM function.
 	llvm::Function * llvmFunction = llvm::Function::Create(
-			llvmFunctionType, llvm::Function::InternalLinkage, curAstNode->symbolTableRecord->text,
+			llvmFunctionType, llvm::Function::ExternalLinkage, curAstNode->symbolTableRecord->text,
 			this->llvmModule.get());
 	// Set names for all arguments.
 	unsigned int Idx = 0;
@@ -132,8 +134,12 @@ llvm::Function * LLVMHandler::generateFunDeclaration(AstNode * const & curAstNod
 	}
 	// Generate the LLVM for the function body, and get the return value.
 	if (llvm::Value * llvmReturnValue = curAstNode->children.at(1)->generateLLVM()) {
-		// Finish off the function.
-		this->builder->CreateRet(llvmReturnValue);
+		// Set the LLVM return value, if a return value was encountered processing the function body.
+		if (this->returnStatementEncountered) {
+			this->builder->CreateRet(llvmReturnValue);
+		} else {
+			this->builder->CreateRet(nullptr);
+		}
 		// Validate the generated code, checking for consistency.
 		llvm::verifyFunction(*llvmFunction);
 		return llvmFunction;
@@ -197,9 +203,9 @@ llvm::PHINode * LLVMHandler::generateSelectionStmt(AstNode * const & curAstNode)
 llvm::Value * LLVMHandler::generateReturnStmt(AstNode * const & curAstNode) {
 	// Generate LLVM for the return value of the function block.
 	if (!curAstNode->children.empty()) {
+		this->returnStatementEncountered = true;
 		return curAstNode->children.at(0)->generateLLVM();
-	}
-	else {
+	} else {
 		// Otherwise, return a null LLVM value.
 		return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*this->context));
 	}

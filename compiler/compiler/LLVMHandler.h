@@ -52,6 +52,7 @@ struct LLVMHandler {
 	llvm::LLVMContext * context;
 	llvm::IRBuilder<> * builder;
 	std::unique_ptr<llvm::Module> llvmModule;
+	bool returnStatementEncountered = false;
 	//static std::map<std::string, Value *> NamedValues;
 
 	/** Define the list of LLVM commands to be generated. */
