@@ -35,10 +35,15 @@ struct LLVMHandler {
 		the function.  This is used for mutable variables etc. */
 	llvm::AllocaInst * createEntryBlockAlloca(llvm::Function * llvmFunction, std::string const & variableName);
 	/** Define some functions to generate LLVM for various types of AstNodes. */
-	llvm::Value * generateCall(AstNode * const & curAstNode);
 	void generateVarDeclaration(AstNode * const & curAstNode);
 	void generateBuiltInFunDeclaration(SymbolRecordPtrType const & symbolTableRecord);
 	llvm::Function * generateFunDeclaration(AstNode * const & curAstNode);
+	llvm::PHINode * generateSelectionStmt(AstNode * const & curAstNode);
+	llvm::Value * generateReturnStmt(AstNode * const & curAstNode);
+	llvm::Value * generateExpression(AstNode * const & curAstNode);
+	llvm::Value * generateMathExpression(AstNode * const & curAstNode);
+	llvm::Value * generateVar(AstNode * const & curAstNode);
+	llvm::Value * generateCall(AstNode * const & curAstNode);
 	/** Define a function to save the LLVM Value as a string in the list. */
 	void saveLLVMInstruction(llvm::Value * llvmValue);
 	/** Define a function to print the generated LLVM strings. */

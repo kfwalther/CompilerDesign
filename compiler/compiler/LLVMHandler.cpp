@@ -54,7 +54,6 @@ void LLVMHandler::generateBuiltInFunDeclaration(SymbolRecordPtrType const & symb
 	// Create the LLVM function.
 	llvm::Function * llvmFunction = llvm::Function::Create(llvmFunctionType, 
 			llvm::Function::InternalLinkage, symbolTableRecord->text, this->llvmModule.get());
-	llvmFunction->print(llvm::errs());
 }
 
 /** Define a helper function to create an alloca instruction in the entry block of
@@ -129,13 +128,157 @@ llvm::Function * LLVMHandler::generateFunDeclaration(AstNode * const & curAstNod
 		this->builder->CreateRet(llvmReturnValue);
 		// Validate the generated code, checking for consistency.
 		llvm::verifyFunction(*llvmFunction);
-		llvmFunction->print(llvm::errs());
 		return llvmFunction;
 	}
 	// Error reading body, remove function.
 	llvmFunction->eraseFromParent();
 	std::cerr << "ERROR: LLVM could not be generated for function body." << std::endl;
 	return nullptr;
+}
+
+llvm::PHINode * LLVMHandler::generateSelectionStmt(AstNode * const & curAstNode) {
+	// Generate LLVM for the conditional expression in the if-statement.
+	llvm::Value * llvmConditionalValue = curAstNode->children.at(0)->generateLLVM();
+	if (!llvmConditionalValue) {
+		return nullptr;
+	}
+	LLVMHandler * llvmHandler = this->compiler->getLLVMHandler();
+	// Convert condition to a bool by comparing non-equal to 0.
+	//llvmConditionalValue = this->builder->CreateFCmpONE(
+	//	llvmConditionalValue, llvm::ConstantInt::get(*this->context, llvm::APInt(32,0,true)));
+	// Get the LLVM function enclosing this block.
+	llvm::Function * llvmEnclosingFunction = this->builder->GetInsertBlock()->getParent();
+	// Create blocks for the if-then and if-else cases.  Insert the 'then' block at the end of the function.
+	llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(*this->context, "then", llvmEnclosingFunction);
+	llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(*this->context, "else");
+	llvm::BasicBlock * mergeBlock = llvm::BasicBlock::Create(*this->context, "ifcont");
+	this->builder->CreateCondBr(llvmConditionalValue, thenBlock, elseBlock);
+	// Emit then value.
+	this->builder->SetInsertPoint(thenBlock);
+	// Generate LLVM for the expression in the if-then block.
+	llvm::Value * llvmThenValue = curAstNode->children.at(1)->generateLLVM();
+	if (!llvmThenValue) {
+		return nullptr;
+	}
+	this->builder->CreateBr(mergeBlock);
+	// Codegen of 'Then' can change the current block, update thenBlock for the PHI.
+	thenBlock = this->builder->GetInsertBlock();
+	// Emit else block.
+	llvmEnclosingFunction->getBasicBlockList().push_back(elseBlock);
+	this->builder->SetInsertPoint(elseBlock);
+	// Generate LLVM for the expression in the if-else block.
+	llvm::Value * llvmElseValue = curAstNode->children.at(2)->generateLLVM();
+	if (!llvmElseValue) {
+		return nullptr;
+	}
+	this->builder->CreateBr(mergeBlock);
+	// Codegen of 'Else' can change the current block, update elseBlock for the PHI.
+	elseBlock = this->builder->GetInsertBlock();
+	// Emit merge block.
+	llvmEnclosingFunction->getBasicBlockList().push_back(mergeBlock);
+	this->builder->SetInsertPoint(mergeBlock);
+	llvm::PHINode * phiNode = this->builder->CreatePHI(llvm::Type::getInt32Ty(*this->context), 2, "iftmp");
+	phiNode->addIncoming(llvmThenValue, thenBlock);
+	phiNode->addIncoming(llvmElseValue, elseBlock);
+	return phiNode;
+}
+
+llvm::Value * LLVMHandler::generateReturnStmt(AstNode * const & curAstNode) {
+	// Generate LLVM for the return value of the function block.
+	if (!curAstNode->children.empty()) {
+		return curAstNode->children.at(0)->generateLLVM();
+	}
+	else {
+		// Otherwise, return a null LLVM value.
+		return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*this->context));
+	}
+}
+
+llvm::Value * LLVMHandler::generateExpression(AstNode * const & curAstNode) {
+	// Generate the LLVM for the right-hand-side expression.
+	auto rhsVal = curAstNode->children.at(1)->generateLLVM();
+	// Look up the variable name in the symbol table.
+	llvm::Value * llvmVariable = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
+		curAstNode->children.at(0)->symbolTableRecord->text)->llvmValue;
+	// Store the LLVM value assigned to this LLVM variable.
+	this->builder->CreateStore(rhsVal, llvmVariable);
+	return rhsVal;
+}
+
+llvm::Value * LLVMHandler::generateMathExpression(AstNode * const & curAstNode) {
+	// Generate LLVM for the operands.
+	auto lhs = curAstNode->children.at(0)->generateLLVM();
+	auto rhs = curAstNode->children.at(1)->generateLLVM();
+	// Look up the operator and generate LLVM for it.
+	if (curAstNode->token->getText() == "+") {
+		return this->builder->CreateAdd(lhs, rhs, "addtmp");
+	}
+	else if (curAstNode->token->getText() == "-") {
+		return this->builder->CreateSub(lhs, rhs, "subtmp");
+	}
+	else if (curAstNode->token->getText() == "*") {
+		return this->builder->CreateMul(lhs, rhs, "multmp");
+	}
+	else if (curAstNode->token->getText() == "/") {
+		return this->builder->CreateSDiv(lhs, rhs, "divtmp");
+	}
+	else if (curAstNode->token->getText() == "<") {
+		return this->builder->CreateICmpSLT(lhs, rhs, "cmpLT");
+	}
+	else if (curAstNode->token->getText() == "<=") {
+		return this->builder->CreateICmpSLE(lhs, rhs, "cmpLE");
+	}
+	else if (curAstNode->token->getText() == ">") {
+		return this->builder->CreateICmpSGT(lhs, rhs, "cmpGT");
+	}
+	else if (curAstNode->token->getText() == ">=") {
+		return this->builder->CreateICmpSGE(lhs, rhs, "cmpGE");
+	}
+	else if (curAstNode->token->getText() == "==") {
+		return this->builder->CreateICmpEQ(lhs, rhs, "cmpEQ");
+	}
+	else if (curAstNode->token->getText() == "!=") {
+		return this->builder->CreateICmpNE(lhs, rhs, "cmpNE");
+	}
+}
+
+llvm::Value * LLVMHandler::generateVar(AstNode * const & curAstNode) {
+	// Look this variable up in current function scope.
+	llvm::Value * curVariable = this->compiler->getSymbolTableManager()->getCurrentScopeFromVector()->findSymbol(
+			curAstNode->symbolTableRecord->text)->llvmValue;
+	if (!curVariable) {
+		std::cerr << "ERROR: LLVM: Unknown variable name." << std::endl;
+		return nullptr;
+	}
+	// Load the value.
+	return this->builder->CreateLoad(curVariable, curAstNode->symbolTableRecord->text.c_str());
+}
+
+llvm::Value * LLVMHandler::generateCall(AstNode * const & curAstNode) {
+	// Look up the name in the global module table.
+	llvm::Function * calleeF = this->llvmModule->getFunction(curAstNode->symbolTableRecord->text);
+	if (!calleeF) {
+		std::cerr << "ERROR: LLVM: Unknown function referenced" << std::endl;
+		return nullptr;
+	}
+	// If argument mismatch error.
+	if (calleeF->arg_size() != curAstNode->symbolTableRecord->numArguments) {
+		std::cerr << "ERROR: LLVM: Incorrect # arguments passed" << std::endl;
+		return nullptr;
+	}
+	std::vector<llvm::Value *> argsVector;
+	for (unsigned i = 0, e = curAstNode->symbolTableRecord->numArguments; i != e; ++i) {
+		argsVector.push_back(curAstNode->children.at(i)->generateLLVM());
+		if (!argsVector.back()) {
+			return nullptr;
+		}
+	}
+	// Create the LLVM CallInst object.
+	if (calleeF->getReturnType()->isVoidTy()) {
+		return this->builder->CreateCall(calleeF, argsVector, "");
+	} else {
+		return this->builder->CreateCall(calleeF, argsVector, "calltmp");
+	}
 }
 
 /** Define a function to save the LLVM Value as a string in the list. */
