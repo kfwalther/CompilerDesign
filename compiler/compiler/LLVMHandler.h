@@ -16,19 +16,29 @@ namespace llvm {
 	class LLVMContext;
 	class Module;
 }
+struct AstNode;
+struct Compiler;
+struct Scope;
+struct SymbolRecord;
 
 struct LLVMHandler {
 
 	/** Alias some commonly used types for convenience. */
 	typedef std::string LLVMInstructionType;
-	
+	typedef std::shared_ptr<SymbolRecord> SymbolRecordPtrType;
+
 	/** Define the constructors. */
-	LLVMHandler();
+	LLVMHandler(Compiler * const & compiler);
 	~LLVMHandler();
 	
 	/** Define a helper function to create an alloca instruction in the entry block of
 		the function.  This is used for mutable variables etc. */
 	llvm::AllocaInst * createEntryBlockAlloca(llvm::Function * llvmFunction, std::string const & variableName);
+	/** Define some functions to generate LLVM for various types of AstNodes. */
+	llvm::Value * generateCall(AstNode * const & curAstNode);
+	void generateVarDeclaration(AstNode * const & curAstNode);
+	void generateBuiltInFunDeclaration(SymbolRecordPtrType const & symbolTableRecord);
+	llvm::Function * generateFunDeclaration(AstNode * const & curAstNode);
 	/** Define a function to save the LLVM Value as a string in the list. */
 	void saveLLVMInstruction(llvm::Value * llvmValue);
 	/** Define a function to print the generated LLVM strings. */
@@ -41,6 +51,8 @@ struct LLVMHandler {
 
 	/** Define the list of LLVM commands to be generated. */
 	std::list<LLVMInstructionType> llvmList;
+	/** Define a pointer to the compiler class. */
+	Compiler * compiler;
 };
 
 

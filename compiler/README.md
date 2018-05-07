@@ -28,10 +28,13 @@ code is located in the 'compiler/compiler' directory, and the relevant classes f
  - AstVisitorImpl
  - Compiler
  - ErrorHandler
+ - LLVMHandler
  - ParseTreeListenerImpl
  - ParseTreeVisitorImpl
+ - Scope
  - SemanticAnalyzer
  - SymbolTable
+ - SymbolTableManager
  
 All of the source code in the 'compiler/compiler' directory is heavily commented to document the 
 design decisions and thought-processes that took place during implementation.
@@ -50,7 +53,8 @@ file located in the 'compiler/tests/output' directory. The output prints the fol
  - Parenthesized parse tree (undecorated)
  - Indented AST (decorated)
  - Symbol Table (with token information)
-
+ - Generated LLVM IR (with some optimization)
+ 
 Tokens have the following format when printed: [@<A>,B:C='D',<E>,F:G]
 where A through G translate to:
 A: Token Index
@@ -71,7 +75,9 @@ which includes:
  - Storage size in memory
  - Evaluated value
 
-
+Note: Some of the LLVM generation is incomplete. Depending on the contents of the input
+file, the program may not run to completion. More work needs to be done to complete 
+the LLVM generation components.
 
 
 
