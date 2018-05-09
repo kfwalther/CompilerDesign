@@ -1,6 +1,6 @@
 
 :: Set the directory where the project is located.
-set WORKING_DIR=C:\Users\walther\CompilerDesign\compiler
+set WORKING_DIR=D:\workspace\CompilerDesign\compiler
 set Path=%WORKING_DIR%\VS15W64\lib\Debug;%Path%
 
 cd %WORKING_DIR%\VS15W64\compiler\Debug
