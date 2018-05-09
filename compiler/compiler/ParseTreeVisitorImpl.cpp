@@ -234,6 +234,10 @@ antlrcpp::Any ParseTreeVisitorImpl::visitParam(AntlrGrammarGenerated::TParser::P
 /** Define a custom visitor for the compound statement. */
 antlrcpp::Any ParseTreeVisitorImpl::visitCompoundStmt(AntlrGrammarGenerated::TParser::CompoundStmtContext * ctx) {
 	AstNode * compoundStatementNode = new AstNode(ctx, this->compiler);
+	// Check if we need to make a new scope (only in cases immediate parent is not function declaration).
+	if (!antlrcpp::is<AntlrGrammarGenerated::TParser::FunDeclarationContext *>(ctx->parent)) {
+		this->compiler->getSymbolTableManager()->newScope();
+	}
 	// Build a local declarations node, whose children are variable declarations.
 	AstNode * localDeclsNode = new AstNode(ctx->children.at(1), this->compiler); 
 	AstNode::AstNodePtrVectorType varDeclsVector = this->visit(ctx->children.at(1));
@@ -250,7 +254,7 @@ antlrcpp::Any ParseTreeVisitorImpl::visitCompoundStmt(AntlrGrammarGenerated::TPa
 	compoundStatementNode->children.push_back(statementListNode);
 	// Set the parents of this node's children.
 	this->updateParents(compoundStatementNode);
-	// Pop the function body scope from the SymbolTableManager.
+	// Pop the function body or nested-compound-statement scope from the SymbolTableManager.
 	this->compiler->getSymbolTableManager()->popScope();
 	return compoundStatementNode;
 }

@@ -1,0 +1,236 @@
+*****TOKENS*****
+[@0,0:64='/* A program to perform Euclid's\n   Algorithm to compute gcd.  */',<11>,channel=2,1:0]
+[@1,65:66='\n\n',<12>,channel=99,2:32]
+[@2,67:69='int',<1>,4:0]
+[@3,70:70=' ',<12>,channel=99,4:3]
+[@4,71:73='gcd',<9>,4:4]
+[@5,74:74=' ',<12>,channel=99,4:7]
+[@6,75:75='(',<20>,4:8]
+[@7,76:78='int',<1>,4:9]
+[@8,79:79=' ',<12>,channel=99,4:12]
+[@9,80:80='u',<9>,4:13]
+[@10,81:81=',',<26>,4:14]
+[@11,82:82=' ',<12>,channel=99,4:15]
+[@12,83:85='int',<1>,4:16]
+[@13,86:86=' ',<12>,channel=99,4:19]
+[@14,87:87='v',<9>,4:20]
+[@15,88:88=')',<21>,4:21]
+[@16,89:89='\n',<12>,channel=99,4:22]
+[@17,90:90='{',<22>,5:0]
+[@18,91:91=' ',<12>,channel=99,5:1]
+[@19,92:93='if',<3>,5:2]
+[@20,94:94=' ',<12>,channel=99,5:4]
+[@21,95:95='(',<20>,5:5]
+[@22,96:96='v',<9>,5:6]
+[@23,97:97=' ',<12>,channel=99,5:7]
+[@24,98:99='==',<30>,5:8]
+[@25,100:100=' ',<12>,channel=99,5:10]
+[@26,101:101='0',<7>,5:11]
+[@27,102:102=')',<21>,5:12]
+[@28,103:103=' ',<12>,channel=99,5:13]
+[@29,104:109='return',<6>,5:14]
+[@30,110:110=' ',<12>,channel=99,5:20]
+[@31,111:111='u',<9>,5:21]
+[@32,112:112=' ',<12>,channel=99,5:22]
+[@33,113:113=';',<27>,5:23]
+[@34,114:116='\n  ',<12>,channel=99,5:24]
+[@35,117:120='else',<4>,6:2]
+[@36,121:121=' ',<12>,channel=99,6:6]
+[@37,122:127='return',<6>,6:7]
+[@38,128:128=' ',<12>,channel=99,6:13]
+[@39,129:131='gcd',<9>,6:14]
+[@40,132:132='(',<20>,6:17]
+[@41,133:133='v',<9>,6:18]
+[@42,134:134=',',<26>,6:19]
+[@43,135:135='u',<9>,6:20]
+[@44,136:136='-',<15>,6:21]
+[@45,137:137='u',<9>,6:22]
+[@46,138:138='/',<17>,6:23]
+[@47,139:139='v',<9>,6:24]
+[@48,140:140='*',<16>,6:25]
+[@49,141:141='v',<9>,6:26]
+[@50,142:142=')',<21>,6:27]
+[@51,143:143=';',<27>,6:28]
+[@52,144:146='\n  ',<12>,channel=99,6:29]
+[@53,147:170='/* u-u/v*v == u mod v */',<11>,channel=2,7:2]
+[@54,171:171='\n',<12>,channel=99,7:26]
+[@55,172:172='}',<23>,8:0]
+[@56,173:174='\n\n',<12>,channel=99,8:1]
+[@57,175:178='void',<2>,10:0]
+[@58,179:179=' ',<12>,channel=99,10:4]
+[@59,180:183='main',<9>,10:5]
+[@60,184:184='(',<20>,10:9]
+[@61,185:188='void',<2>,10:10]
+[@62,189:189=')',<21>,10:14]
+[@63,190:190='\n',<12>,channel=99,10:15]
+[@64,191:191='{',<22>,11:0]
+[@65,192:192=' ',<12>,channel=99,11:1]
+[@66,193:195='int',<1>,11:2]
+[@67,196:196=' ',<12>,channel=99,11:5]
+[@68,197:197='x',<9>,11:6]
+[@69,198:198=';',<27>,11:7]
+[@70,199:199=' ',<12>,channel=99,11:8]
+[@71,200:202='int',<1>,11:9]
+[@72,203:203=' ',<12>,channel=99,11:12]
+[@73,204:204='y',<9>,11:13]
+[@74,205:205=';',<27>,11:14]
+[@75,206:208='\n  ',<12>,channel=99,11:15]
+[@76,209:209='x',<9>,12:2]
+[@77,210:210=' ',<12>,channel=99,12:3]
+[@78,211:211='=',<13>,12:4]
+[@79,212:212=' ',<12>,channel=99,12:5]
+[@80,213:217='input',<9>,12:6]
+[@81,218:218='(',<20>,12:11]
+[@82,219:219=')',<21>,12:12]
+[@83,220:220=';',<27>,12:13]
+[@84,221:221=' ',<12>,channel=99,12:14]
+[@85,222:222='y',<9>,12:15]
+[@86,223:223=' ',<12>,channel=99,12:16]
+[@87,224:224='=',<13>,12:17]
+[@88,225:225=' ',<12>,channel=99,12:18]
+[@89,226:230='input',<9>,12:19]
+[@90,231:231='(',<20>,12:24]
+[@91,232:232=')',<21>,12:25]
+[@92,233:233=';',<27>,12:26]
+[@93,234:236='\n  ',<12>,channel=99,12:27]
+[@94,237:242='output',<9>,13:2]
+[@95,243:243='(',<20>,13:8]
+[@96,244:246='gcd',<9>,13:9]
+[@97,247:247='(',<20>,13:12]
+[@98,248:248='x',<9>,13:13]
+[@99,249:249=',',<26>,13:14]
+[@100,250:250='y',<9>,13:15]
+[@101,251:251=')',<21>,13:16]
+[@102,252:252=')',<21>,13:17]
+[@103,253:253=';',<27>,13:18]
+[@104,254:254='\n',<12>,channel=99,13:19]
+[@105,255:255='}',<23>,14:0]
+[@106,256:256='\n',<12>,channel=99,14:1]
+[@107,257:256='<EOF>',<-1>,15:0]
+
+Parsing tokens to generate parse tree and symbol table...
+
+Printing the parse tree...
+
+(program (declarationList (declarationList (declaration (funDeclaration (typeSpecifier int) gcd ( (params (paramList (paramList (param (typeSpecifier int) u)) , (param (typeSpecifier int) v))) ) (compoundStmt { localDeclaration (statementList statementList (statement (selectionStmt if ( (expression (simpleExpression (additiveExpression (term (factor (var v)))) (relop ==) (additiveExpression (term (factor 0))))) ) (statement (returnStmt return (expression (simpleExpression (additiveExpression (term (factor (var u)))))) ;)) else (statement (returnStmt return (expression (simpleExpression (additiveExpression (term (factor (call gcd ( (args (argList (argList (expression (simpleExpression (additiveExpression (term (factor (var v))))))) , (expression (simpleExpression (additiveExpression (additiveExpression (term (factor (var u)))) (addop -) (term (term (term (factor (var u))) (mulop /) (factor (var v))) (mulop *) (factor (var v)))))))) ))))))) ;))))) })))) (declaration (funDeclaration (typeSpecifier void) main ( (params void) ) (compoundStmt { (localDeclaration (localDeclaration localDeclaration (varDeclaration (typeSpecifier int) x ;)) (varDeclaration (typeSpecifier int) y ;)) (statementList (statementList (statementList statementList (statement (expressionStmt (expression (var x) = (expression (simpleExpression (additiveExpression (term (factor (call input ( args )))))))) ;))) (statement (expressionStmt (expression (var y) = (expression (simpleExpression (additiveExpression (term (factor (call input ( args )))))))) ;))) (statement (expressionStmt (expression (simpleExpression (additiveExpression (term (factor (call output ( (args (argList (expression (simpleExpression (additiveExpression (term (factor (call gcd ( (args (argList (argList (expression (simpleExpression (additiveExpression (term (factor (var x))))))) , (expression (simpleExpression (additiveExpression (term (factor (var y)))))))) ))))))))) ))))))) ;))) })))))
+
+Generating AST from the parse tree...
+WARNING: Value input already in map...
+
+Printing the AST...
+
+(program
+  (funDeclaration gcd: FUNCTION INT
+    (params
+     (param u: VARIABLE INT)
+     (param v: VARIABLE INT)
+    )
+    (compoundStmt
+     (localDeclaration)
+      (statementList
+        (selectionStmt
+          (simpleExpression
+           (var v: VARIABLE INT)
+           (factor 0: NUMBER INT)
+          )
+          (returnStmt
+           (var u: VARIABLE INT)
+          )
+          (returnStmt
+            (call gcd: FUNCTION INT
+             (var v: VARIABLE INT)
+              (additiveExpression
+               (var u: VARIABLE INT)
+                (term
+                  (term
+                   (var u: VARIABLE INT)
+                   (var v: VARIABLE INT)
+                  )
+                 (var v: VARIABLE INT)
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  (funDeclaration main: FUNCTION VOID
+   (params)
+    (compoundStmt
+      (localDeclaration
+       (varDeclaration x: VARIABLE INT)
+       (varDeclaration y: VARIABLE INT)
+      )
+      (statementList
+        (expression
+         (var x: VARIABLE INT)
+         (call input: FUNCTION INT)
+        )
+        (expression
+         (var y: VARIABLE INT)
+         (call input: FUNCTION INT)
+        )
+        (call output: FUNCTION VOID
+          (call gcd: FUNCTION INT
+           (var x: VARIABLE INT)
+           (var y: VARIABLE INT)
+          )
+        )
+      )
+    )
+  )
+)
+
+Walking AST to perform remaining semantic analysis...
+Walking the AST for semantic analysis!
+
+GLOBAL SCOPE: ID 0
+SYMBOL TABLE PRINTOUT
+
+gcd, [@4,71:73='gcd',<9>,4:4]
+Type: INT, Kind: FUNCTION
+StorageSize: 0 bytes
+
+input, [@80,213:217='input',<9>,12:6]
+Type: INT, Kind: FUNCTION
+StorageSize: 0 bytes
+
+main, [@59,180:183='main',<9>,10:5]
+Type: VOID, Kind: FUNCTION
+StorageSize: 0 bytes
+
+output, [@94,237:242='output',<9>,13:2]
+Type: VOID, Kind: FUNCTION
+StorageSize: 0 bytes
+
+
+LOCAL SCOPE: ID 1
+SYMBOL TABLE PRINTOUT
+
+0, [@26,101:101='0',<7>,5:11]
+Type: INT, Kind: NUMBER
+StorageSize: 0 bytes
+
+u, [@9,80:80='u',<9>,4:13]
+Type: INT, Kind: VARIABLE
+StorageSize: 4 bytes
+
+v, [@14,87:87='v',<9>,4:20]
+Type: INT, Kind: VARIABLE
+StorageSize: 4 bytes
+
+
+LOCAL SCOPE: ID 2
+SYMBOL TABLE PRINTOUT
+
+x, [@68,197:197='x',<9>,11:6]
+Type: INT, Kind: VARIABLE
+StorageSize: 4 bytes
+
+y, [@73,204:204='y',<9>,11:13]
+Type: INT, Kind: VARIABLE
+StorageSize: 4 bytes
+
+
+LLVM DUMP

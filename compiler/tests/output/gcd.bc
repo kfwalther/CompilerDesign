@@ -1,0 +1,54 @@
+; ModuleID = 'C-Minus LLVM'
+source_filename = "C-Minus LLVM"
+
+declare i32 @input()
+
+declare void @output(i32)
+
+define i32 @gcd(i32 %u, i32 %v) {
+EntryBlock:
+  %v2 = alloca i32
+  %u1 = alloca i32
+  store i32 %u, i32* %u1
+  store i32 %v, i32* %v2
+  %v3 = load i32, i32* %v2
+  %cmpEQ = icmp eq i32 %v3, 0
+  br i1 %cmpEQ, label %then, label %else
+
+then:                                             ; preds = %EntryBlock
+  %u4 = load i32, i32* %u1
+  br label %ifcont
+
+else:                                             ; preds = %EntryBlock
+  %v5 = load i32, i32* %v2
+  %u6 = load i32, i32* %u1
+  %u7 = load i32, i32* %u1
+  %v8 = load i32, i32* %v2
+  %divtmp = sdiv i32 %u7, %v8
+  %v9 = load i32, i32* %v2
+  %multmp = mul i32 %divtmp, %v9
+  %subtmp = sub i32 %u6, %multmp
+  %calltmp = call i32 @gcd(i32 %v5, i32 %subtmp)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ %u4, %then ], [ %calltmp, %else ]
+  ret i32 %iftmp
+}
+
+define void @main() {
+EntryBlock:
+  %y = alloca i32
+  %x = alloca i32
+  store i32 0, i32* %x
+  store i32 0, i32* %y
+  %calltmp = call i32 @input()
+  store i32 %calltmp, i32* %x
+  %calltmp1 = call i32 @input()
+  store i32 %calltmp1, i32* %y
+  %x2 = load i32, i32* %x
+  %y3 = load i32, i32* %y
+  %calltmp4 = call i32 @gcd(i32 %x2, i32 %y3)
+  call void @output(i32 %calltmp4)
+  ret void
+}
